@@ -5,7 +5,7 @@ namespace Heartbeat;
 public sealed class ChunkGenerator
 {
     public const int ChunkSize = 32;
-    public const int GeneratorVersion = 2;
+    public const int GeneratorVersion = 3;
     readonly long _seed;
     public long Seed => _seed;
     public ChunkGenerator(long seed) => _seed = seed;
@@ -30,36 +30,25 @@ public sealed class ChunkGenerator
 
     void BuildForestScatter(ChunkData chunk, Random rng, Vector3 origin, bool home)
     {
-        var trunks = new ForestBatchDef { Kind = ForestKind.Trunk };
-        var crowns = new ForestBatchDef { Kind = ForestKind.Crown };
-        var conifers = new ForestBatchDef { Kind = ForestKind.Conifer };
+        // 2.5D Octopath/Doom billboards for trees (one sprite each) — cheaper than trunk+crown meshes.
+        var pines = new ForestBatchDef { Kind = ForestKind.BillboardPine };
+        var oaks = new ForestBatchDef { Kind = ForestKind.BillboardOak };
         var bushes = new ForestBatchDef { Kind = ForestKind.Bush };
         var stones = new ForestBatchDef { Kind = ForestKind.Stone };
         var grass = new ForestBatchDef { Kind = ForestKind.Grass };
-        int treeCount = home ? 34 : 43;
+        int treeCount = home ? 28 : 36;
         for (int i = 0; i < treeCount; i++)
         {
             float x = -15 + (float)rng.NextDouble() * 30, z = -15 + (float)rng.NextDouble() * 30;
             if (Math.Abs(x) < 2.7f || (home && new Vector2(x + 8, z + 8).Length() < 8.2f)) { i--; continue; }
-            float h = 5.8f + (float)rng.NextDouble() * 5.3f;
-            float width = .72f + (float)rng.NextDouble() * .48f;
+            float h = 5.5f + (float)rng.NextDouble() * 4.8f;
             float yaw = (float)rng.NextDouble() * Mathf.Tau;
             var basePos = Ground(origin + new Vector3(x, 0, z));
-            trunks.Items.Add(new ForestInstance(basePos + new Vector3(0, h * .38f, 0), new(width, h * .76f, width), yaw));
-            if (i % 3 == 0)
-            {
-                conifers.Items.Add(new ForestInstance(basePos + new Vector3(0, h * .73f, 0), new(h * .48f, h * .68f, h * .48f), yaw));
-                conifers.Items.Add(new ForestInstance(basePos + new Vector3(0, h * .58f, 0), new(h * .38f, h * .48f, h * .38f), yaw + .4f));
-            }
-            else
-            {
-                crowns.Items.Add(new ForestInstance(basePos + new Vector3(0, h * .77f, 0), new(h * .34f, h * .52f, h * .34f), yaw));
-                crowns.Items.Add(new ForestInstance(basePos + new Vector3(width * 1.2f, h * .7f, 0), new(h * .2f, h * .34f, h * .22f), yaw + .7f));
-                crowns.Items.Add(new ForestInstance(basePos + new Vector3(-width, h * .73f, width * .45f), new(h * .22f, h * .38f, h * .2f), yaw - .45f));
-            }
-            if (i < 9) trunks.CollisionBases.Add(basePos);
+            var batch = i % 3 == 0 ? pines : oaks;
+            batch.Items.Add(new ForestInstance(basePos + new Vector3(0, h * .5f, 0), new(h * .45f, h, 1f), yaw));
+            if (i < 9) batch.CollisionBases.Add(basePos);
         }
-        for (int i = 0; i < 26; i++)
+        for (int i = 0; i < 22; i++)
         {
             float x = -15 + (float)rng.NextDouble() * 30, z = -15 + (float)rng.NextDouble() * 30;
             if (Math.Abs(x) < 2.1f) continue;
@@ -67,23 +56,22 @@ public sealed class ChunkGenerator
             var p=Ground(origin+new Vector3(x,0,z)); p.Y+=s*.4f;
             bushes.Items.Add(new ForestInstance(p, new(s * 1.5f, s, s * 1.35f), (float)rng.NextDouble() * Mathf.Tau));
         }
-        for (int i = 0; i < 20; i++) // Slightly more rocks
+        for (int i = 0; i < 20; i++)
         {
             float x = -15 + (float)rng.NextDouble() * 30, z = -15 + (float)rng.NextDouble() * 30;
             float s = .18f + (float)rng.NextDouble() * .55f;
             var p=Ground(origin+new Vector3(x,0,z)); p.Y+=s*.25f;
             stones.Items.Add(new ForestInstance(p, new(s * 1.45f, s, s), (float)rng.NextDouble() * Mathf.Tau));
         }
-        // Dense grass!
-        for (int i = 0; i < 3000; i++)
+        for (int i = 0; i < 2200; i++)
         {
             float x = -15 + (float)rng.NextDouble() * 30, z = -15 + (float)rng.NextDouble() * 30;
-            if (Math.Abs(x) < 1.4f) continue; // Keep path mostly clear
-            float s = .45f + (float)rng.NextDouble() * .85f; // Taller grass
+            if (Math.Abs(x) < 1.4f) continue;
+            float s = .45f + (float)rng.NextDouble() * .85f;
             var p=Ground(origin+new Vector3(x,0,z)); p.Y+=s*.45f;
             grass.Items.Add(new ForestInstance(p, new(s, s, s), (float)rng.NextDouble() * Mathf.Tau));
         }
-        chunk.Add(trunks); chunk.Add(crowns); chunk.Add(conifers); chunk.Add(bushes); chunk.Add(stones); chunk.Add(grass);
+        chunk.Add(pines); chunk.Add(oaks); chunk.Add(bushes); chunk.Add(stones); chunk.Add(grass);
         for (int i = 0; i < 2; i++)
         {
             float x = i == 0 && home ? 7 : -11 + (float)rng.NextDouble() * 22;
@@ -120,7 +108,7 @@ public sealed class ChunkData { public Vector2I Coord { get; set; } public List<
 public sealed class BoxDef { public Vector3 Position { get; set; } public Vector3 Size { get; set; } public string Color { get; set; } = "808080"; public bool HasCollision { get; set; } = true; }
 public sealed class SphereDef { public Vector3 Position { get; set; } public float Radius { get; set; } public float Height { get; set; } public string Color { get; set; } = "808080"; }
 public sealed class CylinderDef { public Vector3 Position { get; set; } public Vector3 Rotation { get; set; } public float Radius { get; set; } public float Height { get; set; } public string Color { get; set; } = "808080"; public bool HasCollision { get; set; } }
-public enum ForestKind { Trunk, Crown, Conifer, Bush, Stone, Grass, Leaf }
+public enum ForestKind { Trunk, Crown, Conifer, Bush, Stone, Grass, Leaf, BillboardPine, BillboardOak }
 public readonly record struct ForestInstance(Vector3 Position, Vector3 Scale, float Yaw);
 public sealed class ForestBatchDef { public ForestKind Kind { get; set; } public List<ForestInstance> Items { get; } = new(); public List<Vector3> CollisionBases { get; } = new(); }
 public sealed record PoiDef(string ScenePath, Vector3 Position, float RotationY, string PoiId, string EventHook);

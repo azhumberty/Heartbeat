@@ -5,11 +5,11 @@
     "Category": "Attack",
     "Rarity": "Comum",
     "Cost": 12,
-    "Description": "Abra caminho entre as sombras.",
+    "Description": "Abra caminho entre as sombras (versão reforçada).",
     "Effects": [
       {
         "Kind": "Damage",
-        "Value": 10,
+        "Value": 12,
         "Duration": 2,
         "Target": "Enemy"
       }
@@ -29,11 +29,11 @@
     "Category": "Attack",
     "Rarity": "Comum",
     "Cost": 16,
-    "Description": "Abra caminho entre as sombras.",
+    "Description": "Abra caminho entre as sombras (versão reforçada).",
     "Effects": [
       {
         "Kind": "Damage",
-        "Value": 13,
+        "Value": 15,
         "Duration": 2,
         "Target": "Enemy"
       }
@@ -53,11 +53,11 @@
     "Category": "Attack",
     "Rarity": "Comum",
     "Cost": 20,
-    "Description": "Abra caminho entre as sombras.",
+    "Description": "Abra caminho entre as sombras (versão reforçada).",
     "Effects": [
       {
         "Kind": "Damage",
-        "Value": 16,
+        "Value": 18,
         "Duration": 2,
         "Target": "Enemy"
       }
@@ -81,7 +81,7 @@
     "Effects": [
       {
         "Kind": "Damage",
-        "Value": 19,
+        "Value": 20,
         "Duration": 2,
         "Target": "Enemy"
       }
@@ -101,17 +101,17 @@
     "Category": "Attack",
     "Rarity": "Comum",
     "Cost": 12,
-    "Description": "Abra caminho entre as sombras.",
+    "Description": "Abra caminho entre as sombras (versão reforçada).",
     "Effects": [
       {
         "Kind": "Damage",
-        "Value": 8,
+        "Value": 10,
         "Duration": 1,
         "Target": "Enemy"
       },
       {
         "Kind": "Damage",
-        "Value": 8,
+        "Value": 10,
         "Duration": 1,
         "Target": "Enemy"
       }
@@ -135,7 +135,7 @@
     "Effects": [
       {
         "Kind": "Damage",
-        "Value": 13,
+        "Value": 14,
         "Duration": 2,
         "Target": "Enemy"
       }
@@ -155,11 +155,11 @@
     "Category": "Attack",
     "Rarity": "Comum",
     "Cost": 20,
-    "Description": "Abra caminho entre as sombras.",
+    "Description": "Abra caminho entre as sombras (versão reforçada).",
     "Effects": [
       {
         "Kind": "Damage",
-        "Value": 16,
+        "Value": 18,
         "Duration": 2,
         "Target": "Enemy"
       }
@@ -183,7 +183,7 @@
     "Effects": [
       {
         "Kind": "Damage",
-        "Value": 19,
+        "Value": 20,
         "Duration": 2,
         "Target": "Enemy"
       }
@@ -203,11 +203,11 @@
     "Category": "Attack",
     "Rarity": "Comum",
     "Cost": 12,
-    "Description": "Abra caminho entre as sombras.",
+    "Description": "Abra caminho entre as sombras (versão reforçada).",
     "Effects": [
       {
         "Kind": "Damage",
-        "Value": 10,
+        "Value": 12,
         "Duration": 2,
         "Target": "Enemy"
       }
@@ -231,7 +231,7 @@
     "Effects": [
       {
         "Kind": "Damage",
-        "Value": 13,
+        "Value": 14,
         "Duration": 2,
         "Target": "Enemy"
       },
@@ -261,7 +261,7 @@
     "Effects": [
       {
         "Kind": "Damage",
-        "Value": 16,
+        "Value": 17,
         "Duration": 2,
         "Target": "Enemy"
       },
@@ -291,7 +291,7 @@
     "Effects": [
       {
         "Kind": "Damage",
-        "Value": 19,
+        "Value": 20,
         "Duration": 2,
         "Target": "Enemy"
       }
@@ -311,11 +311,11 @@
     "Category": "Defense",
     "Rarity": "Comum",
     "Cost": 10,
-    "Description": "Resista até encontrar sua oportunidade.",
+    "Description": "Resista até encontrar sua oportunidade (versão reforçada).",
     "Effects": [
       {
         "Kind": "Shield",
-        "Value": 10,
+        "Value": 12,
         "Duration": 2,
         "Target": "Self"
       }
@@ -335,11 +335,11 @@
     "Category": "Defense",
     "Rarity": "Comum",
     "Cost": 14,
-    "Description": "Resista até encontrar sua oportunidade.",
+    "Description": "Resista até encontrar sua oportunidade (versão reforçada).",
     "Effects": [
       {
         "Kind": "Shield",
-        "Value": 14,
+        "Value": 16,
         "Duration": 2,
         "Target": "Self"
       }
@@ -363,7 +363,7 @@
     "Effects": [
       {
         "Kind": "Shield",
-        "Value": 18,
+        "Value": 19,
         "Duration": 2,
         "Target": "Self"
       }
@@ -383,11 +383,11 @@
     "Category": "Defense",
     "Rarity": "Rara",
     "Cost": 10,
-    "Description": "Resista até encontrar sua oportunidade.",
+    "Description": "Resista até encontrar sua oportunidade (versão reforçada).",
     "Effects": [
       {
         "Kind": "Shield",
-        "Value": 10,
+        "Value": 12,
         "Duration": 2,
         "Target": "Self"
       },
@@ -417,7 +417,7 @@
     "Effects": [
       {
         "Kind": "Shield",
-        "Value": 14,
+        "Value": 15,
         "Duration": 2,
         "Target": "Self"
       }
@@ -441,7 +441,7 @@
     "Effects": [
       {
         "Kind": "Shield",
-        "Value": 18,
+        "Value": 19,
         "Duration": 2,
         "Target": "Self"
       }
@@ -465,7 +465,7 @@
     "Effects": [
       {
         "Kind": "Shield",
-        "Value": 10,
+        "Value": 11,
         "Duration": 2,
         "Target": "Self"
       }
@@ -489,7 +489,7 @@
     "Effects": [
       {
         "Kind": "Shield",
-        "Value": 14,
+        "Value": 15,
         "Duration": 2,
         "Target": "Self"
       },
@@ -515,11 +515,11 @@
     "Category": "Mana",
     "Rarity": "Comum",
     "Cost": 5,
-    "Description": "Recupere sua força arcana.",
+    "Description": "Recupere sua força arcana (versão reforçada).",
     "Effects": [
       {
         "Kind": "Mana",
-        "Value": 12,
+        "Value": 14,
         "Duration": 2,
         "Target": "Self"
       }
@@ -539,11 +539,11 @@
     "Category": "Mana",
     "Rarity": "Comum",
     "Cost": 7,
-    "Description": "Recupere sua força arcana.",
+    "Description": "Recupere sua força arcana (versão reforçada).",
     "Effects": [
       {
         "Kind": "Mana",
-        "Value": 16,
+        "Value": 18,
         "Duration": 2,
         "Target": "Self"
       }
@@ -645,7 +645,7 @@
       },
       {
         "Kind": "Damage",
-        "Value": 5,
+        "Value": 6,
         "Duration": 1,
         "Target": "Enemy"
       }
@@ -665,7 +665,7 @@
     "Category": "Control",
     "Rarity": "Comum",
     "Cost": 15,
-    "Description": "Mude o ritmo da batalha.",
+    "Description": "Mude o ritmo da batalha (versão reforçada).",
     "Effects": [
       {
         "Kind": "Vulnerable",
@@ -713,11 +713,11 @@
     "Category": "Control",
     "Rarity": "Comum",
     "Cost": 15,
-    "Description": "Mude o ritmo da batalha.",
+    "Description": "Mude o ritmo da batalha (versão reforçada).",
     "Effects": [
       {
         "Kind": "Bleeding",
-        "Value": 3,
+        "Value": 4,
         "Duration": 2,
         "Target": "Enemy"
       }
@@ -809,11 +809,11 @@
     "Category": "Heal",
     "Rarity": "Comum",
     "Cost": 18,
-    "Description": "Volte a lutar.",
+    "Description": "Volte a lutar (versão reforçada).",
     "Effects": [
       {
         "Kind": "Heal",
-        "Value": 12,
+        "Value": 14,
         "Duration": 2,
         "Target": "Self"
       }
@@ -837,7 +837,7 @@
     "Effects": [
       {
         "Kind": "Heal",
-        "Value": 15,
+        "Value": 16,
         "Duration": 2,
         "Target": "Self"
       }
@@ -861,7 +861,7 @@
     "Effects": [
       {
         "Kind": "Heal",
-        "Value": 18,
+        "Value": 19,
         "Duration": 2,
         "Target": "Self"
       }
@@ -885,7 +885,7 @@
     "Effects": [
       {
         "Kind": "Heal",
-        "Value": 21,
+        "Value": 22,
         "Duration": 2,
         "Target": "Self"
       }
@@ -905,7 +905,7 @@
     "Category": "Utility",
     "Rarity": "Comum",
     "Cost": 8,
-    "Description": "Prepare o próximo movimento.",
+    "Description": "Prepare o próximo movimento (versão reforçada).",
     "Effects": [
       {
         "Kind": "Draw",
@@ -929,7 +929,7 @@
     "Category": "Utility",
     "Rarity": "Comum",
     "Cost": 14,
-    "Description": "Prepare o próximo movimento.",
+    "Description": "Prepare o próximo movimento (versão reforçada).",
     "Effects": [
       {
         "Kind": "Draw",
@@ -987,7 +987,7 @@
       },
       {
         "Kind": "Shield",
-        "Value": 5,
+        "Value": 6,
         "Duration": 1,
         "Target": "Self"
       }
@@ -998,6 +998,456 @@
     ],
     "Animation": "Pulso",
     "FrameColor": "b4a375",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g41",
+    "Name": "Veneno da raiz",
+    "Category": "Control",
+    "Rarity": "Comum",
+    "Cost": 14,
+    "Description": "Envenena o alvo por alguns turnos.",
+    "Effects": [
+      {
+        "Kind": "Poison",
+        "Value": 3,
+        "Duration": 3,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Control",
+      "poison"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "5a8a4a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g42",
+    "Name": "Esporos tóxicos",
+    "Category": "Attack",
+    "Rarity": "Comum",
+    "Cost": 18,
+    "Description": "Corte curto seguido de veneno.",
+    "Effects": [
+      {
+        "Kind": "Damage",
+        "Value": 8,
+        "Duration": 1,
+        "Target": "Enemy"
+      },
+      {
+        "Kind": "Poison",
+        "Value": 2,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Attack",
+      "poison"
+    ],
+    "Animation": "Impacto",
+    "FrameColor": "5a8a4a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g43",
+    "Name": "Névoa ácida",
+    "Category": "Control",
+    "Rarity": "Rara",
+    "Cost": 20,
+    "Description": "Veneno forte e vulnerabilidade.",
+    "Effects": [
+      {
+        "Kind": "Poison",
+        "Value": 4,
+        "Duration": 3,
+        "Target": "Enemy"
+      },
+      {
+        "Kind": "Vulnerable",
+        "Value": 1,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Control",
+      "poison"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "5a8a4a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g44",
+    "Name": "Drenar vitalidade",
+    "Category": "Attack",
+    "Rarity": "Comum",
+    "Cost": 16,
+    "Description": "Rouba vida do inimigo.",
+    "Effects": [
+      {
+        "Kind": "Damage",
+        "Value": 10,
+        "Duration": 1,
+        "Target": "Enemy"
+      },
+      {
+        "Kind": "Heal",
+        "Value": 8,
+        "Duration": 1,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Attack",
+      "lifesteal"
+    ],
+    "Animation": "Luz",
+    "FrameColor": "8b3a4a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g45",
+    "Name": "Sangue do contrato",
+    "Category": "Attack",
+    "Rarity": "Rara",
+    "Cost": 22,
+    "Description": "Golpe profundo com roubo de vida.",
+    "Effects": [
+      {
+        "Kind": "Damage",
+        "Value": 16,
+        "Duration": 1,
+        "Target": "Enemy"
+      },
+      {
+        "Kind": "Heal",
+        "Value": 10,
+        "Duration": 1,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Attack",
+      "lifesteal"
+    ],
+    "Animation": "Impacto",
+    "FrameColor": "8b3a4a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g46",
+    "Name": "Mordida da noite",
+    "Category": "Attack",
+    "Rarity": "Rara",
+    "Cost": 24,
+    "Description": "Dano, sangramento e cura menor.",
+    "Effects": [
+      {
+        "Kind": "Damage",
+        "Value": 12,
+        "Duration": 1,
+        "Target": "Enemy"
+      },
+      {
+        "Kind": "Bleeding",
+        "Value": 3,
+        "Duration": 2,
+        "Target": "Enemy"
+      },
+      {
+        "Kind": "Heal",
+        "Value": 6,
+        "Duration": 1,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Attack",
+      "lifesteal"
+    ],
+    "Animation": "Impacto",
+    "FrameColor": "8b3a4a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g47",
+    "Name": "Correntes frágeis",
+    "Category": "Control",
+    "Rarity": "Comum",
+    "Cost": 12,
+    "Description": "Deixa o inimigo vulnerável.",
+    "Effects": [
+      {
+        "Kind": "Vulnerable",
+        "Value": 2,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Control",
+      "debuff"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "a67fc2",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g48",
+    "Name": "Golpe entorpecente",
+    "Category": "Attack",
+    "Rarity": "Comum",
+    "Cost": 18,
+    "Description": "Dano e chance de atordoar o ritmo.",
+    "Effects": [
+      {
+        "Kind": "Damage",
+        "Value": 9,
+        "Duration": 1,
+        "Target": "Enemy"
+      },
+      {
+        "Kind": "Stunned",
+        "Value": 1,
+        "Duration": 1,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Attack",
+      "debuff"
+    ],
+    "Animation": "Impacto",
+    "FrameColor": "a67fc2",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g49",
+    "Name": "Maldição do breu",
+    "Category": "Control",
+    "Rarity": "Rara",
+    "Cost": 22,
+    "Description": "Sangramento longo e vulnerabilidade.",
+    "Effects": [
+      {
+        "Kind": "Bleeding",
+        "Value": 3,
+        "Duration": 3,
+        "Target": "Enemy"
+      },
+      {
+        "Kind": "Vulnerable",
+        "Value": 1,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Control",
+      "debuff"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "725584",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g50",
+    "Name": "Poção amarga",
+    "Category": "Heal",
+    "Rarity": "Comum",
+    "Cost": 15,
+    "Description": "Cura e limpa um pouco o ritmo com mana.",
+    "Effects": [
+      {
+        "Kind": "Heal",
+        "Value": 10,
+        "Duration": 1,
+        "Target": "Self"
+      },
+      {
+        "Kind": "Mana",
+        "Value": 8,
+        "Duration": 1,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Heal",
+      "potion"
+    ],
+    "Animation": "Luz",
+    "FrameColor": "78a475",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g51",
+    "Name": "Elixir negro",
+    "Category": "Heal",
+    "Rarity": "Rara",
+    "Cost": 20,
+    "Description": "Cura forte e fortalecimento.",
+    "Effects": [
+      {
+        "Kind": "Heal",
+        "Value": 16,
+        "Duration": 1,
+        "Target": "Self"
+      },
+      {
+        "Kind": "Strengthened",
+        "Value": 2,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Heal",
+      "potion"
+    ],
+    "Animation": "Luz",
+    "FrameColor": "78a475",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g52",
+    "Name": "Lâmina parasita",
+    "Category": "Attack",
+    "Rarity": "Épica",
+    "Cost": 26,
+    "Description": "Alto dano com roubo de vida.",
+    "Effects": [
+      {
+        "Kind": "Damage",
+        "Value": 20,
+        "Duration": 1,
+        "Target": "Enemy"
+      },
+      {
+        "Kind": "Heal",
+        "Value": 12,
+        "Duration": 1,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Attack",
+      "lifesteal"
+    ],
+    "Animation": "Impacto",
+    "FrameColor": "8b3a4a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g53",
+    "Name": "Toxina ancestral",
+    "Category": "Control",
+    "Rarity": "Épica",
+    "Cost": 28,
+    "Description": "Veneno devastador.",
+    "Effects": [
+      {
+        "Kind": "Poison",
+        "Value": 5,
+        "Duration": 3,
+        "Target": "Enemy"
+      },
+      {
+        "Kind": "Damage",
+        "Value": 6,
+        "Duration": 1,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Control",
+      "poison"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "5a8a4a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g54",
+    "Name": "Quebra-vontade",
+    "Category": "Control",
+    "Rarity": "Rara",
+    "Cost": 18,
+    "Description": "Atordoa e enfraquece a postura.",
+    "Effects": [
+      {
+        "Kind": "Stunned",
+        "Value": 1,
+        "Duration": 1,
+        "Target": "Enemy"
+      },
+      {
+        "Kind": "Vulnerable",
+        "Value": 1,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Control",
+      "debuff"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "a67fc2",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g55",
+    "Name": "Sifão sombrio",
+    "Category": "Utility",
+    "Rarity": "Rara",
+    "Cost": 16,
+    "Description": "Compra cartas e drena vida.",
+    "Effects": [
+      {
+        "Kind": "Draw",
+        "Value": 1,
+        "Duration": 1,
+        "Target": "Self"
+      },
+      {
+        "Kind": "Damage",
+        "Value": 6,
+        "Duration": 1,
+        "Target": "Enemy"
+      },
+      {
+        "Kind": "Heal",
+        "Value": 6,
+        "Duration": 1,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Utility",
+      "lifesteal"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "8b3a4a",
     "Condition": "Sempre",
     "CanUpgrade": true
   }
