@@ -73,7 +73,7 @@ public partial class WorldController : Node3D
         {
             ResumeCombat();
         }
-        else if (_game.Character == null)
+        else if (!_game.Flags.Contains("creator_done"))
         {
             OpenCreator();
         }
@@ -160,7 +160,7 @@ public partial class WorldController : Node3D
     {
         if (_screen != null) return;
         var creator = new CharacterCreatorController { Game = _game };
-        creator.Closed = () => { Close(); Save(); GetTree().ReloadCurrentScene(); };
+        creator.Closed = () => { _game.Flags.Add("creator_done"); Close(); Save(); _atlas.Visible = true; };
         _screen = creator;
         _uiLayer.AddChild(creator);
     }
