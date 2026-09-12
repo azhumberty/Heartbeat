@@ -6,7 +6,21 @@ public sealed class CardRepository
 {
     static readonly JsonSerializerOptions Json = new() { WriteIndented=true };
     static List<CardDefinition>? _generic;
-    public IReadOnlyList<CardDefinition> Generic => _generic ??= JsonSerializer.Deserialize<List<CardDefinition>>(Godot.FileAccess.GetFileAsString("res://Assets/Cards/generic.json"),Json) ?? new();
+    public IReadOnlyList<CardDefinition> Generic => _generic ??= LoadGeneric();
+
+    static List<CardDefinition> LoadGeneric()
+    {
+        var list = JsonSerializer.Deserialize<List<CardDefinition>>(Godot.FileAccess.GetFileAsString("res://Assets/Cards/generic.json"), Json) ?? new();
+        const string extra = "res://Assets/Cards/generic_g41.json";
+        if (Godot.FileAccess.FileExists(extra))
+        {
+            var more = JsonSerializer.Deserialize<List<CardDefinition>>(Godot.FileAccess.GetFileAsString(extra), Json) ?? new();
+            foreach (var c in more)
+                if (list.All(x => x.Id != c.Id)) list.Add(c);
+        }
+        return list;
+    }
+
     readonly string _customPath;
     public CardRepository(string customPath="user://Cards/custom.json") => _customPath=ProjectSettings.GlobalizePath(customPath);
     public List<CardDefinition> Custom()
