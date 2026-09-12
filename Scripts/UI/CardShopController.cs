@@ -29,12 +29,21 @@ public partial class CardShopController : Control
 
         var header = new HBoxContainer();
         body.AddChild(header);
-        header.AddChild(Ui.Text("BEM-VINDO AO BAZAR DAS MEMÓRIAS", 18));
+
+        // Autowrap + ExpandFill spacer was crushing "BEM-VINDO..." vertically.
+        var welcome = Ui.Text("BEM-VINDO AO BAZAR DAS MEMÓRIAS", 18);
+        welcome.AutowrapMode = TextServer.AutowrapMode.Off;
+        welcome.SizeFlagsHorizontal = SizeFlags.ShrinkBegin;
+        welcome.SizeFlagsVertical = SizeFlags.ShrinkCenter;
+        header.AddChild(welcome);
 
         var spacer = new Control { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         header.AddChild(spacer);
 
         _coinsLabel = Ui.Text($"💰 {Game.Player.Coins} Reais", 20);
+        _coinsLabel.AutowrapMode = TextServer.AutowrapMode.Off;
+        _coinsLabel.SizeFlagsHorizontal = SizeFlags.ShrinkEnd;
+        _coinsLabel.SizeFlagsVertical = SizeFlags.ShrinkCenter;
         _coinsLabel.AddThemeColorOverride("font_color", new Color("f4d160"));
         header.AddChild(_coinsLabel);
 
@@ -80,7 +89,6 @@ public partial class CardShopController : Control
                 validPool = pool.Where(c => c.Rarity == "Rara" || c.Rarity == "Épica").ToList();
             else
             {
-                // Weighted: mostly comuns, ~18% rara
                 validPool = rng.NextDouble() < 0.18
                     ? pool.Where(c => c.Rarity == "Rara" || c.Rarity == "Épica").ToList()
                     : pool.Where(c => c.Rarity == "Comum" || string.IsNullOrEmpty(c.Rarity)).ToList();
