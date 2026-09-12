@@ -5,7 +5,7 @@ namespace Heartbeat;
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum CardCategory { Attack, Defense, Mana, Control, Heal, Utility, Companion }
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum EffectKind { Damage, Shield, Heal, Mana, Draw, Vulnerable, Strengthened, Bleeding, Stunned }
+public enum EffectKind { Damage, Shield, Heal, Mana, Draw, Vulnerable, Strengthened, Bleeding, Stunned, Poison }
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum CardTarget { Enemy, Self }
 public sealed class CardEffect
@@ -102,8 +102,8 @@ public static class CardRules
 {
     public static T Copy<T>(T value) => JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(value))!;
     public static string CategoryName(CardCategory c) => c switch { CardCategory.Attack=>"Ataque",CardCategory.Defense=>"Defesa",CardCategory.Mana=>"Mana",CardCategory.Control=>"Controle",CardCategory.Heal=>"Cura",CardCategory.Utility=>"Utilidade",_=>"Companheiro" };
-    public static string EffectName(EffectKind e) => e switch { EffectKind.Damage=>"Dano",EffectKind.Shield=>"Escudo",EffectKind.Heal=>"Cura",EffectKind.Mana=>"Mana",EffectKind.Draw=>"Comprar",EffectKind.Vulnerable=>"Vulnerável",EffectKind.Strengthened=>"Fortalecido",EffectKind.Bleeding=>"Sangramento",_=>"Atordoado" };
-    public static string Describe(CardDefinition c) => string.Join(" · ",c.Effects.Select(e=>$"{EffectName(e.Kind)} {e.Value}{(e.Kind>=EffectKind.Vulnerable?$" ({e.Duration}t)":"")} {(e.Target==CardTarget.Self?"em você":"no inimigo")}"));
+    public static string EffectName(EffectKind e) => e switch { EffectKind.Damage=>"Dano",EffectKind.Shield=>"Escudo",EffectKind.Heal=>"Cura",EffectKind.Mana=>"Mana",EffectKind.Draw=>"Comprar",EffectKind.Vulnerable=>"Vulnerável",EffectKind.Strengthened=>"Fortalecido",EffectKind.Bleeding=>"Sangramento",EffectKind.Poison=>"Veneno",_=>"Atordoado" };
+    public static string Describe(CardDefinition c) => string.Join(" · ",c.Effects.Select(e=>$"{EffectName(e.Kind)} {e.Value}{(e.Kind>=EffectKind.Vulnerable?$" ({e.Duration}t):"":"")} {(e.Target==CardTarget.Self?"em você":"no inimigo")}"));
     public static string BalanceWarning(CardDefinition c) => c.Effects.Sum(e=>e.Value) > c.Cost*1.5+12 ? "Carta muito forte para o custo. Considere aumentar a Mana." : "Valores dentro da faixa sugerida.";
     public static CardDefinition Validate(CardDefinition input)
     {
