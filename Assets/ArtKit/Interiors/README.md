@@ -11,3 +11,7 @@ Fundos 16:9 para cenas de diálogo / loja / exploração indoor. Tema dark fanta
 | `ruins_hall.png` | Ruínas / romance sombrio / boss ambient |
 
 Plug: `TextureRect` fullscreen atrás de diálogo/loja. Não recriar sistemas de save/diálogo.
+
+
+## VN Pivot
+`forest_dark.png`, `merchant_tent.png`, `camp.png` (16:9).
