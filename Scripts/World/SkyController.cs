@@ -9,8 +9,8 @@ public partial class SkyController : Node3D
     readonly Godot.Environment _environment = new();
     readonly ProceduralSkyMaterial _skyMaterial = new();
     DirectionalLight3D _sunLight = null!;
-    MeshInstance3D _sun = null!, _moon = null!;
-    StandardMaterial3D _sunMaterial = null!, _moonMaterial = null!, _starsMaterial = null!;
+    Sprite3D _sun = null!, _moon = null!;
+    StandardMaterial3D _starsMaterial = null!;
     MultiMeshInstance3D _stars = null!, _forestHorizon = null!;
     GpuParticles3D _ambientParticles = null!;
     ParticleProcessMaterial _particleProcess = null!;
@@ -44,9 +44,8 @@ public partial class SkyController : Node3D
 
         _sunLight = new DirectionalLight3D { ShadowEnabled = true, DirectionalShadowMaxDistance = 50 };
         AddChild(_sunLight);
-        _sunMaterial = GlowMaterial(new Color("ffd8a6"));
-        _moonMaterial = GlowMaterial(new Color("c9d8ff"));
-        _sun = Orb("Sun", 2.7f, _sunMaterial); _moon = Orb("Moon", 2.1f, _moonMaterial);
+        _sun = CelestialBody("Sun", 2.7f, "res://Assets/ArtKit/Celestial/sun.png", new Color("ffd8a6"));
+        _moon = CelestialBody("Moon", 2.1f, "res://Assets/ArtKit/Celestial/moon.png", new Color("c9d8ff"));
         AddChild(_sun); AddChild(_moon);
         
         BuildAmbientParticles();
@@ -59,9 +58,11 @@ public partial class SkyController : Node3D
         AlbedoColor = color, EmissionEnabled = true, Emission = color,
         EmissionEnergyMultiplier = 2.2f, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded
     };
-    static MeshInstance3D Orb(string name, float diameter, Material material) => new()
+    static Sprite3D CelestialBody(string name, float scale, string texPath, Color color) => new()
     {
-        Name = name, Mesh = new SphereMesh { Radius = diameter / 2, Height = diameter }, MaterialOverride = material
+        Name = name, Texture = GD.Load<Texture2D>(texPath), PixelSize = 0.035f * scale,
+        Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, Modulate = color, Transparent = true,
+        CastShadow = GeometryInstance3D.ShadowCastingSetting.Off
     };
 
     void BuildAmbientParticles()

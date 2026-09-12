@@ -118,31 +118,60 @@ public static class EnemyVisual
 {
     public static Node3D Create(string id)
     {
-        var root=new Node3D();
+        var root = new Node3D();
         
-        string[] paths = { $"user://Enemies/{id}.png", $"user://Enemies/{id}.jpg", $"res://Enemies/{id}.png", $"res://Enemies/{id}.jpg" };
+        // Define paths to check, including ArtKit generated assets
+        string[] paths = {
+            $"user://Enemies/{id}.png",
+            $"user://Enemies/{id}.jpg",
+            $"res://Assets/ArtKit/Characters/Monsters/humanoid_{id}_combat.png",
+            $"res://Assets/ArtKit/Characters/Monsters/humanoid_{id}_idle.png",
+            $"res://Assets/ArtKit/Characters/Monsters/{id}.png",
+            $"res://Assets/ArtKit/Characters/NPCs/{id}_sunga_fullbody.png",
+            $"res://Assets/ArtKit/Characters/NPCs/{id}_portrait.png",
+            $"res://Enemies/{id}.png"
+        };
+
         foreach (var path in paths)
         {
             var globalPath = ProjectSettings.GlobalizePath(path);
-            if (System.IO.File.Exists(globalPath))
+            Texture2D? tex = null;
+            if (ResourceLoader.Exists(path))
+            {
+                tex = GD.Load<Texture2D>(path);
+            }
+            else if (System.IO.File.Exists(globalPath))
             {
                 var img = Godot.Image.LoadFromFile(globalPath);
-                if (img != null)
-                {
-                    var tex = ImageTexture.CreateFromImage(img);
-                    var sprite = new Sprite3D {
-                        Name = "CustomSprite",
-                        Texture = tex,
-                        PixelSize = 0.0035f,
-                        Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
-                        AlphaCut = SpriteBase3D.AlphaCutMode.OpaquePrepass,
-                        Position = new Vector3(0, 1.2f, 0)
-                    };
-                    root.AddChild(sprite);
-                    return root;
-                }
+                if (img != null) tex = ImageTexture.CreateFromImage(img);
+            }
+
+            if (tex != null)
+            {
+                // Calculate PixelSize to make the sprite roughly 2.8 meters tall
+                float targetHeight = 2.8f;
+                float pixelSize = targetHeight / Math.Max(1, tex.GetHeight());
+
+                var sprite = new Sprite3D {
+                    Name = "CustomSprite",
+                    Texture = tex,
+                    PixelSize = pixelSize,
+                    Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
+                    AlphaCut = SpriteBase3D.AlphaCutMode.Discard,
+                    AlphaScissorThreshold = 0.1f,
+                    Position = new Vector3(0, targetHeight / 2f, 0),
+                    CastShadow = GeometryInstance3D.ShadowCastingSetting.On
+                };
+                root.AddChild(sprite);
+                
+                // Add breathing animation (Tween scaling Y)
+                if (root.IsInsideTree()) StartBreathing(sprite);
+                else sprite.Ready += () => StartBreathing(sprite);
+
+                return root;
             }
         }
+
         
         var color=new Color(EnemyDefinition.Get(id).Color);
         void Part(Mesh mesh,Vector3 pos,Vector3 scale,Color tint)
@@ -159,5 +188,12 @@ public static class EnemyVisual
         if(id=="night")root.Scale=new(1.1f,1.15f,1.1f);
         if(id=="ruin")root.Scale=new(1.3f,1.3f,1.3f);
         return root;
+    }
+
+    static void StartBreathing(Sprite3D sprite)
+    {
+        var tween = sprite.CreateTween().SetLoops().SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
+        tween.TweenProperty(sprite, "scale", new Vector3(1.02f, 0.96f, 1), 1.5f);
+        tween.TweenProperty(sprite, "scale", new Vector3(0.98f, 1.03f, 1), 1.5f);
     }
 }

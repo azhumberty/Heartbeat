@@ -43,7 +43,7 @@ public partial class CombatArenaController : Control
         {
             float x=(i%2==0?-1:1)*(5+rng.Next(8));float z=-9+rng.Next(13);
             float h=6f+rng.Next(4);
-            string tex=i%3==0?"tree_pine":"tree_oak";
+            string tex=i%3==0?"tree_pine":"tree_oak_dead";
             stage.AddChild(BillboardSprites.Create(tex,new(x,h*.5f,z),new(h*.55f,h)));
         }
         for(int i=0;i<9;i++)Mesh(new SphereMesh {Radius=.45f,Height=.5f,RadialSegments=8,Rings=4},new(-5+i*1.3f,.15f,-4),SurfaceMaterials.MossyRock());

@@ -10,7 +10,7 @@ public partial class ChunkManager
         // 2.5D billboard trees — shared textures, Sprite3D BillboardMode.Enabled
         if (batch.Kind is ForestKind.BillboardPine or ForestKind.BillboardOak)
         {
-            string tex = batch.Kind == ForestKind.BillboardPine ? "tree_pine" : "tree_oak";
+            string tex = batch.Kind == ForestKind.BillboardPine ? "tree_pine" : "tree_oak_dead";
             var holder = new Node3D { Name = "Forest" + batch.Kind };
             parent.AddChild(holder);
             foreach (var item in batch.Items)

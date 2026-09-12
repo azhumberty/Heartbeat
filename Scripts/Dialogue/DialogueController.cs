@@ -20,7 +20,11 @@ public partial class DialogueController : Control
         if (Actor.Data.Id == "merchant")
         {
             text.AddChild(Ui.Button("💰 Comprar Cartas", () => {
-                var shop = new CardShopController { Game = Game, Closed = Closed };
+                var shop = new CardShopController { Game = Game };
+                shop.Closed = () => {
+                    Closed?.Invoke();
+                    shop.QueueFree();
+                };
                 GetParent().AddChild(shop);
                 QueueFree();
             }));

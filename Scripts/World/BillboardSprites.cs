@@ -15,19 +15,26 @@ public static class BillboardSprites
         if (Cache.TryGetValue(name, out var cached)) return cached;
         string png = $"res://Assets/World/Billboards/{name}.png";
         string b64 = png + ".b64";
+        string artKitPng = $"res://Assets/ArtKit/Billboards/{name}.png";
+        string artKitB64 = artKitPng + ".b64";
         Texture2D? tex = null;
-        if (ResourceLoader.Exists(png))
-            tex = GD.Load<Texture2D>(png);
-        else if (Godot.FileAccess.FileExists(b64))
-        {
-            string payload = Godot.FileAccess.GetFileAsString(b64).StripEdges();
-            var bytes = Marshalls.Base64ToRaw(payload);
-            var image = new Image();
-            if (image.LoadPngFromBuffer(bytes) == Error.Ok)
-                tex = ImageTexture.CreateFromImage(image);
-        }
+        if (ResourceLoader.Exists(png)) tex = GD.Load<Texture2D>(png);
+        else if (Godot.FileAccess.FileExists(b64)) tex = LoadB64(b64);
+        else if (ResourceLoader.Exists(artKitPng)) tex = GD.Load<Texture2D>(artKitPng);
+        else if (Godot.FileAccess.FileExists(artKitB64)) tex = LoadB64(artKitB64);
+        
         if (tex != null) Cache[name] = tex;
         return tex;
+    }
+
+    static Texture2D? LoadB64(string path)
+    {
+        string payload = Godot.FileAccess.GetFileAsString(path).StripEdges();
+        var bytes = Marshalls.Base64ToRaw(payload);
+        var image = new Image();
+        if (image.LoadPngFromBuffer(bytes) == Error.Ok)
+            return ImageTexture.CreateFromImage(image);
+        return null;
     }
 
     public static Sprite3D Create(string name, Vector3 position, Vector2 pixelSize, float yaw = 0)
