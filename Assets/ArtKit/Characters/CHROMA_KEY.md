@@ -1,18 +1,18 @@
-﻿# Chroma Key (#00FF00)
+# Chroma Key (#00FF00) — hard edges
 
-Sprites NPC/monstro: fundo verde puro para `chroma_key.gdshader` (canvas_item).
+Sprites NPC/monstro: fundo **verde puro `#00FF00`**, bordas duras (sem AA/esfumaçamento).
 
-## Uso no codigo
-```csharp
-_enemy.Texture = ChromaArt.LoadArt(ChromaArt.EnemySpritePath(enemyId));
-ChromaArt.ApplyChroma(_enemy);
-```
+## NPCs
+| Arquivo | Papel |
+|---|---|
+| `NPCs/merchant_sunga_chroma.png` | Mercador |
+| `NPCs/npc_barmaid_chroma.png` | Donzela de taverna |
+| `NPCs/npc_knight_chroma.png` | Cavaleiro |
 
-## Assets
-- `NPCs/merchant_sunga_chroma.png`
-- `Monsters/monster_horned_chroma.png` (forest/night)
-- `Monsters/monster_stone_chroma.png` (camp/ruin)
+## Monstros
+| Arquivo | Uso |
+|---|---|
+| `Monsters/monster_horned_chroma.png` | forest/night |
+| `Monsters/monster_stone_chroma.png` | camp/ruin |
 
-Shader: `Assets/ArtKit/Characters/chroma_key.gdshader`
-Helper: `Scripts/Art/ChromaArt.cs`
-Loader: `ImageManager` Autoload (fallback IMAGE MISSING)
+Shader: `chroma_key.gdshader` · Helper: `Scripts/Art/ChromaArt.cs`

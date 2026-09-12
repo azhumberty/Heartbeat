@@ -1,4 +1,4 @@
-﻿using Godot;
+using Godot;
 
 namespace Heartbeat;
 
@@ -34,6 +34,9 @@ public static class ChromaArt
 	}
 
 	/// <summary>Atlas destination id → ArtKit background relative path.</summary>
+	public const string BarmaidSprite = "Characters/NPCs/npc_barmaid_chroma.png";
+	public const string KnightSprite = "Characters/NPCs/npc_knight_chroma.png";
+
 	public static string BackgroundForDestination(string destinationId) =>
 		destinationId.ToLowerInvariant() switch
 		{
@@ -42,7 +45,11 @@ public static class ChromaArt
 			"camp" => "Backgrounds/camp.png",
 			"tavern" => "Interiors/tavern.png",
 			"ruin" or "ruins" => "Interiors/ruins_hall.png",
-			_ => "Backgrounds/" + destinationId + ".png"
+			"cave" or "cave_chamber" => "Interiors/cave_chamber.png",
+			"street" => "Interiors/street.png",
+			"park" => "Interiors/park.png",
+			"cafe" => "Interiors/cafe.png",
+			_ => "Interiors/" + destinationId + ".png"
 		};
 
 	/// <summary>Combat arena name → ArtKit background.</summary>
@@ -54,6 +61,11 @@ public static class ChromaArt
 			"merchant" => "Backgrounds/merchant_tent.png",
 			"night" => "Backgrounds/forest_dark.png",
 			"ruin" or "ruins" => "Interiors/ruins_hall.png",
+			"tavern" => "Interiors/tavern.png",
+			"cave" or "cave_chamber" => "Interiors/cave_chamber.png",
+			"street" => "Interiors/street.png",
+			"park" => "Interiors/park.png",
+			"cafe" => "Interiors/cafe.png",
 			_ => "Backgrounds/camp.png"
 		};
 

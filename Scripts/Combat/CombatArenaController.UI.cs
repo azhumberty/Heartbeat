@@ -1,4 +1,4 @@
-﻿using Godot;
+using Godot;
 namespace Heartbeat;
 
 public partial class CombatArenaController
@@ -31,7 +31,7 @@ public partial class CombatArenaController
         _play=Ui.Button("Jogar carta",()=>_ = PlaySelected());details.AddChild(_play);
         _message=Ui.Text("Escolha uma carta. Revele fraquezas, defenda e ataque.",17);_message.Position=new(880,300);_message.Size=new(350,150);_message.HorizontalAlignment=HorizontalAlignment.Right;_message.AutowrapMode=TextServer.AutowrapMode.Word;_message.AddThemeColorOverride("font_color", new Color("f2d388"));_message.AddThemeColorOverride("font_shadow_color", new Color(0,0,0));AddChild(_message);
         var bottom=new PanelContainer();AddChild(bottom);bottom.SetAnchorsAndOffsetsPreset(LayoutPreset.BottomWide);bottom.OffsetTop=-280;
-        bottom.AddThemeStyleboxOverride("panel",new StyleBoxFlat {BgColor=new new Color(0f, 0f, 0f, 0.65f),ContentMarginLeft=30,ContentMarginRight=30,ContentMarginTop=20,ContentMarginBottom=10});
+        bottom.AddThemeStyleboxOverride("panel",new StyleBoxFlat {BgColor=new Color(0f, 0f, 0f, 0.65f),ContentMarginLeft=30,ContentMarginRight=30,ContentMarginTop=20,ContentMarginBottom=10});
         var scroll=new ScrollContainer {HorizontalScrollMode=ScrollContainer.ScrollMode.Auto,VerticalScrollMode=ScrollContainer.ScrollMode.Disabled};bottom.AddChild(scroll);
         _hand=new HBoxContainer();_hand.AddThemeConstantOverride("separation", -8);scroll.AddChild(_hand);
         _effects=new Control {MouseFilter=MouseFilterEnum.Ignore};AddChild(_effects);_effects.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
