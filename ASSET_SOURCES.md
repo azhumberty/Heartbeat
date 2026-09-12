@@ -25,3 +25,14 @@ Os arquivos estão em Base64 (`.png.b64`) porque o GitHub MCP corrompe PNG biná
 ## ASSETS FORNECIDOS PELO JOGADOR
 * O jogo suporta carregamento dinâmico de artes modulares de terceiros diretamente via runtime sem necessidade de importação pelo Godot.
 * **Fotos de NPCs / Cartas / Inimigos:** Arquivos locais devem ser colocados pelo usuário em `user://Enemies/{id}.png` ou pastas de personagens correspondentes. Responsabilidade de copyright dessas imagens injetadas dinamicamente localmente é exclusiva do usuário.
+
+## World Billboards (2026-09-12 · Grok)
+| Asset | Path | Origin | License note | Purpose |
+|---|---|---|---|---|
+| pine | Assets/World/Billboards/pine.png.b64 | AI-generated (Grok Bot GenerateImage) | Personal private test per project owner | Forest Sprite3D billboard |
+| oak | Assets/World/Billboards/oak.png.b64 | AI-generated | Personal private test | Forest Sprite3D billboard |
+| ruins | Assets/World/Billboards/ruins.png.b64 | AI-generated | Personal private test | Ruin POI billboard |
+| campfire | Assets/World/Billboards/campfire.png.b64 | AI-generated | Personal private test | Camp POI billboard |
+| cabin | Assets/World/Billboards/cabin.png.b64 | AI-generated | Personal private test | Cabin/shelter POI billboard |
+
+Loaded at runtime via `BillboardSprites` (PNG or `.png.b64` sidecar).
