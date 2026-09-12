@@ -1,0 +1,9 @@
+Continue o projeto HEARTBEAT existente. Não recrie nem migre o projeto. Leia primeiro HANDOFF_HEARTBEAT_NEXT.md, ASSET_SOURCES.md, README.md e os arquivos principais citados no handoff.
+
+Implemente somente a Fase B já definida: (1) inventário básico aberto por I, com categorias simples, quantidade, seleção, descrição e uso de poucos consumíveis; (2) poucos itens coletáveis visíveis na floresta, persistentes no save; (3) um único inimigo visível que detecta e se aproxima do jogador; (4) transição suave para uma batalha de cartas pequena e realmente jogável; (5) vitória ou derrota atualizando Vida/Mana e retorno seguro ao mesmo ponto do mundo. Use conteúdo mínimo, mas feche o ciclo completo.
+
+Preserve integralmente a Fase A: primeira pessoa, salto, HUD mínimo, PlayerStats, terreno procedural com colisão, PBR, MultiMesh, chunks, iluminação e performance. Preserve também save v5 e migração, Groq/fallback, memória social, NPCs 2D, criador, guarda-roupa, horários, POIs e compatibilidade com personagens existentes. Não implemente ainda animais, vários monstros, novos homens, duelo social ou memória de duelo; isso é Fase C. Não faça refactor amplo.
+
+A UI do inventário e da batalha deve seguir o tema dark fantasy desktop, com transições curtas. O C# é autoridade de estado. Evite assets externos se primitivas e materiais existentes bastarem; qualquer asset novo deve ser CC0 ou compatível e registrado em ASSET_SOURCES.md.
+
+Ao terminar, execute dotnet build e as cenas ImmersionChecks, SmokeTest, WardrobeChecks e SocialContinuityChecks. Adicione testes do inventário, coleta, início/fim da batalha, Vida/Mana e save/load. Faça uma captura visual, corrija todos os erros e avisos e atualize HANDOFF_HEARTBEAT_NEXT.md com o estado real.

@@ -1,0 +1,11 @@
+.godot/
+.mono/
+bin/
+obj/
+.dotnet-cli/
+.nuget/
+.qa-cache/
+.tools/
+*.user
+local.settings.json
+groq.local.env

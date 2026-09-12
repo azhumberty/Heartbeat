@@ -1,0 +1,33 @@
+{
+  "CharacterFormatVersion": 3,
+  "Id": "daniel-demo",
+  "Name": "Daniel",
+  "Age": 28,
+  "Description": "Um homem adulto fictício que trabalha com design e gosta de cafés depois do expediente.",
+  "Personality": "confiante, brincalhão, sociável e discretamente tímido quando se importa",
+  "Traits": ["criativo", "provocador", "atencioso"],
+  "Likes": ["cafés tranquilos", "fotografia urbana", "chuva"],
+  "Dislikes": ["pressa", "barulho"],
+  "Interests": ["design", "fotografia", "música"],
+  "SpeechStyle": "casual, caloroso e com humor leve",
+  "Profession": "designer",
+  "Tags": ["demo", "adulto-fictício"],
+  "Images": [],
+  "SpecialEvents": ["park_first_date"],
+  "HeightMeters": 1.82,
+  "WalkSpeed": 1.3,
+  "CollisionRadius": 0.35,
+  "InteractionRadius": 2.5,
+  "VisualScale": 1.0,
+  "FootOffset": 0.0,
+  "MirrorHorizontal": false,
+  "SpriteAnimations": [],
+  "HomeLocation": "Home",
+  "Schedule": [
+    { "Period": "Morning", "Activity": "Walking", "TargetLocation": "Street" },
+    { "Period": "Afternoon", "Activity": "Working", "TargetLocation": "Cafe" },
+    { "Period": "Evening", "Activity": "Resting", "TargetLocation": "Park" },
+    { "Period": "Night", "Activity": "Idle", "TargetLocation": "Home" }
+  ],
+  "EnableBreathing": true
+}

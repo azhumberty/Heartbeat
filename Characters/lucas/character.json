@@ -1,0 +1,33 @@
+{
+  "CharacterFormatVersion": 3,
+  "Id": "lucas-demo",
+  "Name": "Lucas",
+  "Age": 26,
+  "Description": "Um desenvolvedor de jogos independente que passa muito tempo em parques buscando inspiração.",
+  "Personality": "introspectivo, focado, mas muito animado quando fala sobre suas paixões",
+  "Traits": ["observador", "idealista", "teimoso"],
+  "Likes": ["natureza", "pixel art", "silêncio"],
+  "Dislikes": ["multidões", "luz forte"],
+  "Interests": ["jogos independentes", "programação", "caminhadas"],
+  "SpeechStyle": "direto, às vezes técnico, mas sincero",
+  "Profession": "desenvolvedor de jogos",
+  "Tags": ["demo", "adulto-fictício"],
+  "Images": [],
+  "SpecialEvents": [],
+  "HeightMeters": 1.75,
+  "WalkSpeed": 1.4,
+  "CollisionRadius": 0.35,
+  "InteractionRadius": 2.5,
+  "VisualScale": 1.0,
+  "FootOffset": 0.0,
+  "MirrorHorizontal": false,
+  "SpriteAnimations": [],
+  "HomeLocation": "Home",
+  "Schedule": [
+    { "Period": "Morning", "Activity": "Working", "TargetLocation": "Cafe" },
+    { "Period": "Afternoon", "Activity": "Walking", "TargetLocation": "Street" },
+    { "Period": "Evening", "Activity": "Resting", "TargetLocation": "Park" },
+    { "Period": "Night", "Activity": "Idle", "TargetLocation": "Home" }
+  ],
+  "EnableBreathing": true
+}

@@ -1,0 +1,1004 @@
+[
+  {
+    "Id": "g01",
+    "Name": "Corte firme",
+    "Category": "Attack",
+    "Rarity": "Comum",
+    "Cost": 12,
+    "Description": "Abra caminho entre as sombras.",
+    "Effects": [
+      {
+        "Kind": "Damage",
+        "Value": 10,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Attack",
+      "floresta"
+    ],
+    "Animation": "Impacto",
+    "FrameColor": "ba705a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g02",
+    "Name": "Estocada",
+    "Category": "Attack",
+    "Rarity": "Comum",
+    "Cost": 16,
+    "Description": "Abra caminho entre as sombras.",
+    "Effects": [
+      {
+        "Kind": "Damage",
+        "Value": 13,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Attack",
+      "floresta"
+    ],
+    "Animation": "Impacto",
+    "FrameColor": "ba705a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g03",
+    "Name": "Machado pesado",
+    "Category": "Attack",
+    "Rarity": "Comum",
+    "Cost": 20,
+    "Description": "Abra caminho entre as sombras.",
+    "Effects": [
+      {
+        "Kind": "Damage",
+        "Value": 16,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Attack",
+      "floresta"
+    ],
+    "Animation": "Impacto",
+    "FrameColor": "ba705a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g04",
+    "Name": "Flecha certeira",
+    "Category": "Attack",
+    "Rarity": "Rara",
+    "Cost": 24,
+    "Description": "Abra caminho entre as sombras.",
+    "Effects": [
+      {
+        "Kind": "Damage",
+        "Value": 19,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Attack",
+      "floresta"
+    ],
+    "Animation": "Impacto",
+    "FrameColor": "ba705a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g05",
+    "Name": "Lâmina dupla",
+    "Category": "Attack",
+    "Rarity": "Comum",
+    "Cost": 12,
+    "Description": "Abra caminho entre as sombras.",
+    "Effects": [
+      {
+        "Kind": "Damage",
+        "Value": 8,
+        "Duration": 1,
+        "Target": "Enemy"
+      },
+      {
+        "Kind": "Damage",
+        "Value": 8,
+        "Duration": 1,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Attack",
+      "floresta"
+    ],
+    "Animation": "Impacto",
+    "FrameColor": "ba705a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g06",
+    "Name": "Golpe do caçador",
+    "Category": "Attack",
+    "Rarity": "Comum",
+    "Cost": 16,
+    "Description": "Abra caminho entre as sombras.",
+    "Effects": [
+      {
+        "Kind": "Damage",
+        "Value": 13,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Attack",
+      "floresta"
+    ],
+    "Animation": "Impacto",
+    "FrameColor": "ba705a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g07",
+    "Name": "Fogo da brasa",
+    "Category": "Attack",
+    "Rarity": "Comum",
+    "Cost": 20,
+    "Description": "Abra caminho entre as sombras.",
+    "Effects": [
+      {
+        "Kind": "Damage",
+        "Value": 16,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Attack",
+      "floresta"
+    ],
+    "Animation": "Impacto",
+    "FrameColor": "ba705a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g08",
+    "Name": "Lança enferrujada",
+    "Category": "Attack",
+    "Rarity": "Rara",
+    "Cost": 24,
+    "Description": "Abra caminho entre as sombras.",
+    "Effects": [
+      {
+        "Kind": "Damage",
+        "Value": 19,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Attack",
+      "floresta"
+    ],
+    "Animation": "Impacto",
+    "FrameColor": "ba705a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g09",
+    "Name": "Investida",
+    "Category": "Attack",
+    "Rarity": "Comum",
+    "Cost": 12,
+    "Description": "Abra caminho entre as sombras.",
+    "Effects": [
+      {
+        "Kind": "Damage",
+        "Value": 10,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Attack",
+      "floresta"
+    ],
+    "Animation": "Impacto",
+    "FrameColor": "ba705a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g10",
+    "Name": "Ruptura",
+    "Category": "Attack",
+    "Rarity": "Comum",
+    "Cost": 16,
+    "Description": "Abra caminho entre as sombras.",
+    "Effects": [
+      {
+        "Kind": "Damage",
+        "Value": 13,
+        "Duration": 2,
+        "Target": "Enemy"
+      },
+      {
+        "Kind": "Vulnerable",
+        "Value": 1,
+        "Duration": 1,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Attack",
+      "floresta"
+    ],
+    "Animation": "Impacto",
+    "FrameColor": "ba705a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g11",
+    "Name": "Corte sangrento",
+    "Category": "Attack",
+    "Rarity": "Comum",
+    "Cost": 20,
+    "Description": "Abra caminho entre as sombras.",
+    "Effects": [
+      {
+        "Kind": "Damage",
+        "Value": 16,
+        "Duration": 2,
+        "Target": "Enemy"
+      },
+      {
+        "Kind": "Bleeding",
+        "Value": 2,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Attack",
+      "floresta"
+    ],
+    "Animation": "Impacto",
+    "FrameColor": "ba705a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g12",
+    "Name": "Último golpe",
+    "Category": "Attack",
+    "Rarity": "Rara",
+    "Cost": 24,
+    "Description": "Abra caminho entre as sombras.",
+    "Effects": [
+      {
+        "Kind": "Damage",
+        "Value": 19,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Attack",
+      "floresta"
+    ],
+    "Animation": "Impacto",
+    "FrameColor": "ba705a",
+    "Condition": "Inimigo ferido",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g13",
+    "Name": "Guarda",
+    "Category": "Defense",
+    "Rarity": "Comum",
+    "Cost": 10,
+    "Description": "Resista até encontrar sua oportunidade.",
+    "Effects": [
+      {
+        "Kind": "Shield",
+        "Value": 10,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Defense",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "839c9a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g14",
+    "Name": "Escudo de carvalho",
+    "Category": "Defense",
+    "Rarity": "Comum",
+    "Cost": 14,
+    "Description": "Resista até encontrar sua oportunidade.",
+    "Effects": [
+      {
+        "Kind": "Shield",
+        "Value": 14,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Defense",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "839c9a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g15",
+    "Name": "Muralha",
+    "Category": "Defense",
+    "Rarity": "Comum",
+    "Cost": 18,
+    "Description": "Resista até encontrar sua oportunidade.",
+    "Effects": [
+      {
+        "Kind": "Shield",
+        "Value": 18,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Defense",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "839c9a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g16",
+    "Name": "Aparar",
+    "Category": "Defense",
+    "Rarity": "Rara",
+    "Cost": 10,
+    "Description": "Resista até encontrar sua oportunidade.",
+    "Effects": [
+      {
+        "Kind": "Shield",
+        "Value": 10,
+        "Duration": 2,
+        "Target": "Self"
+      },
+      {
+        "Kind": "Draw",
+        "Value": 1,
+        "Duration": 1,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Defense",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "839c9a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g17",
+    "Name": "Pele de pedra",
+    "Category": "Defense",
+    "Rarity": "Comum",
+    "Cost": 14,
+    "Description": "Resista até encontrar sua oportunidade.",
+    "Effects": [
+      {
+        "Kind": "Shield",
+        "Value": 14,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Defense",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "839c9a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g18",
+    "Name": "Abrigo",
+    "Category": "Defense",
+    "Rarity": "Comum",
+    "Cost": 18,
+    "Description": "Resista até encontrar sua oportunidade.",
+    "Effects": [
+      {
+        "Kind": "Shield",
+        "Value": 18,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Defense",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "839c9a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g19",
+    "Name": "Postura firme",
+    "Category": "Defense",
+    "Rarity": "Comum",
+    "Cost": 10,
+    "Description": "Resista até encontrar sua oportunidade.",
+    "Effects": [
+      {
+        "Kind": "Shield",
+        "Value": 10,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Defense",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "839c9a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g20",
+    "Name": "Resistência",
+    "Category": "Defense",
+    "Rarity": "Rara",
+    "Cost": 14,
+    "Description": "Resista até encontrar sua oportunidade.",
+    "Effects": [
+      {
+        "Kind": "Shield",
+        "Value": 14,
+        "Duration": 2,
+        "Target": "Self"
+      },
+      {
+        "Kind": "Strengthened",
+        "Value": 1,
+        "Duration": 1,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Defense",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "839c9a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g21",
+    "Name": "Foco",
+    "Category": "Mana",
+    "Rarity": "Comum",
+    "Cost": 5,
+    "Description": "Recupere sua força arcana.",
+    "Effects": [
+      {
+        "Kind": "Mana",
+        "Value": 12,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Mana",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "648ccd",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g22",
+    "Name": "Respiração arcana",
+    "Category": "Mana",
+    "Rarity": "Comum",
+    "Cost": 7,
+    "Description": "Recupere sua força arcana.",
+    "Effects": [
+      {
+        "Kind": "Mana",
+        "Value": 16,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Mana",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "648ccd",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g23",
+    "Name": "Fonte interior",
+    "Category": "Mana",
+    "Rarity": "Comum",
+    "Cost": 9,
+    "Description": "Recupere sua força arcana.",
+    "Effects": [
+      {
+        "Kind": "Mana",
+        "Value": 20,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Mana",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "648ccd",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g24",
+    "Name": "Cristal azul",
+    "Category": "Mana",
+    "Rarity": "Rara",
+    "Cost": 5,
+    "Description": "Recupere sua força arcana.",
+    "Effects": [
+      {
+        "Kind": "Mana",
+        "Value": 12,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Mana",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "648ccd",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g25",
+    "Name": "Meditação",
+    "Category": "Mana",
+    "Rarity": "Comum",
+    "Cost": 7,
+    "Description": "Recupere sua força arcana.",
+    "Effects": [
+      {
+        "Kind": "Mana",
+        "Value": 16,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Mana",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "648ccd",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g26",
+    "Name": "Pulso rúnico",
+    "Category": "Mana",
+    "Rarity": "Comum",
+    "Cost": 9,
+    "Description": "Recupere sua força arcana.",
+    "Effects": [
+      {
+        "Kind": "Mana",
+        "Value": 20,
+        "Duration": 2,
+        "Target": "Self"
+      },
+      {
+        "Kind": "Damage",
+        "Value": 5,
+        "Duration": 1,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Mana",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "648ccd",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g27",
+    "Name": "Expor fraqueza",
+    "Category": "Control",
+    "Rarity": "Comum",
+    "Cost": 15,
+    "Description": "Mude o ritmo da batalha.",
+    "Effects": [
+      {
+        "Kind": "Vulnerable",
+        "Value": 1,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Control",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "a67fc2",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g28",
+    "Name": "Grito de guerra",
+    "Category": "Control",
+    "Rarity": "Comum",
+    "Cost": 15,
+    "Description": "Mude o ritmo da batalha.",
+    "Effects": [
+      {
+        "Kind": "Strengthened",
+        "Value": 1,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Control",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "a67fc2",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g29",
+    "Name": "Ferida aberta",
+    "Category": "Control",
+    "Rarity": "Comum",
+    "Cost": 15,
+    "Description": "Mude o ritmo da batalha.",
+    "Effects": [
+      {
+        "Kind": "Bleeding",
+        "Value": 3,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Control",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "a67fc2",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g30",
+    "Name": "Atordoar",
+    "Category": "Control",
+    "Rarity": "Rara",
+    "Cost": 25,
+    "Description": "Mude o ritmo da batalha.",
+    "Effects": [
+      {
+        "Kind": "Stunned",
+        "Value": 1,
+        "Duration": 1,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Control",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "a67fc2",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g31",
+    "Name": "Marca do caçador",
+    "Category": "Control",
+    "Rarity": "Comum",
+    "Cost": 15,
+    "Description": "Mude o ritmo da batalha.",
+    "Effects": [
+      {
+        "Kind": "Vulnerable",
+        "Value": 1,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Control",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "a67fc2",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g32",
+    "Name": "Presságio",
+    "Category": "Control",
+    "Rarity": "Comum",
+    "Cost": 15,
+    "Description": "Mude o ritmo da batalha.",
+    "Effects": [
+      {
+        "Kind": "Bleeding",
+        "Value": 3,
+        "Duration": 2,
+        "Target": "Enemy"
+      }
+    ],
+    "Tags": [
+      "Control",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "a67fc2",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g33",
+    "Name": "Erva medicinal",
+    "Category": "Heal",
+    "Rarity": "Comum",
+    "Cost": 18,
+    "Description": "Volte a lutar.",
+    "Effects": [
+      {
+        "Kind": "Heal",
+        "Value": 12,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Heal",
+      "floresta"
+    ],
+    "Animation": "Luz",
+    "FrameColor": "78a475",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g34",
+    "Name": "Bálsamo",
+    "Category": "Heal",
+    "Rarity": "Comum",
+    "Cost": 21,
+    "Description": "Volte a lutar.",
+    "Effects": [
+      {
+        "Kind": "Heal",
+        "Value": 15,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Heal",
+      "floresta"
+    ],
+    "Animation": "Luz",
+    "FrameColor": "78a475",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g35",
+    "Name": "Segundo fôlego",
+    "Category": "Heal",
+    "Rarity": "Comum",
+    "Cost": 24,
+    "Description": "Volte a lutar.",
+    "Effects": [
+      {
+        "Kind": "Heal",
+        "Value": 18,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Heal",
+      "floresta"
+    ],
+    "Animation": "Luz",
+    "FrameColor": "78a475",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g36",
+    "Name": "Luz restauradora",
+    "Category": "Heal",
+    "Rarity": "Rara",
+    "Cost": 27,
+    "Description": "Volte a lutar.",
+    "Effects": [
+      {
+        "Kind": "Heal",
+        "Value": 21,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Heal",
+      "floresta"
+    ],
+    "Animation": "Luz",
+    "FrameColor": "78a475",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g37",
+    "Name": "Observar",
+    "Category": "Utility",
+    "Rarity": "Comum",
+    "Cost": 8,
+    "Description": "Prepare o próximo movimento.",
+    "Effects": [
+      {
+        "Kind": "Draw",
+        "Value": 1,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Utility",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "b4a375",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g38",
+    "Name": "Preparação",
+    "Category": "Utility",
+    "Rarity": "Comum",
+    "Cost": 14,
+    "Description": "Prepare o próximo movimento.",
+    "Effects": [
+      {
+        "Kind": "Draw",
+        "Value": 2,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Utility",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "b4a375",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g39",
+    "Name": "Plano ousado",
+    "Category": "Utility",
+    "Rarity": "Comum",
+    "Cost": 8,
+    "Description": "Prepare o próximo movimento.",
+    "Effects": [
+      {
+        "Kind": "Draw",
+        "Value": 1,
+        "Duration": 2,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Utility",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "b4a375",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g40",
+    "Name": "Instinto",
+    "Category": "Utility",
+    "Rarity": "Rara",
+    "Cost": 14,
+    "Description": "Prepare o próximo movimento.",
+    "Effects": [
+      {
+        "Kind": "Draw",
+        "Value": 2,
+        "Duration": 2,
+        "Target": "Self"
+      },
+      {
+        "Kind": "Shield",
+        "Value": 5,
+        "Duration": 1,
+        "Target": "Self"
+      }
+    ],
+    "Tags": [
+      "Utility",
+      "floresta"
+    ],
+    "Animation": "Pulso",
+    "FrameColor": "b4a375",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  }
+]

@@ -1,0 +1,28 @@
+Você está assumindo o desenvolvimento do projeto existente Heartbeat.
+
+Trabalhe diretamente nesta pasta.
+
+Antes de editar qualquer arquivo, leia completamente:
+
+1. GROK_START_HERE.md
+2. AGENTS.md
+3. HANDOFF_HEARTBEAT_CURRENT.md
+4. CURRENT_SYSTEMS.md
+5. NEXT_TASKS.md
+
+Consulte PROJECT_ARCHITECTURE.md e IMPORTANT_FILES.md quando precisar navegar pela codebase e tiver dúvidas sobre como os módulos se relacionam.
+
+Não recrie o projeto.
+
+Não substitua sistemas existentes sem compreender totalmente a implementação.
+
+Comece pela tarefa P1 definida em NEXT_TASKS.md.
+
+Preserve compatibilidade com saves e funcionalidades existentes (Duelos, Chunks, Inventário).
+
+Para compilar sem abrir o Godot editor, apenas rode:
+`dotnet build "Heartbeat.csproj" 2>&1`
+
+Após suas alterações, teste a compilação.
+
+Quando terminar sua sessão, atualize o arquivo HANDOFF_HEARTBEAT_CURRENT.md e NEXT_TASKS.md com o estado REAL das funcionalidades deixadas para o próximo agente (mesmo que seja você no dia seguinte).

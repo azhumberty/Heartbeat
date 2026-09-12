@@ -1,0 +1,16 @@
+{
+  "Id": "merchant",
+  "Name": "Mercador",
+  "Age": 50,
+  "Gender": "Male",
+  "Visuals": {
+    "HairStyle": "Cabelo curto",
+    "HairColor": "7f8c8d"
+  },
+  "Schedule": [
+    { "Period": "Morning", "TargetLocation": "Camp" },
+    { "Period": "Afternoon", "TargetLocation": "Camp" },
+    { "Period": "Evening", "TargetLocation": "Camp" },
+    { "Period": "Night", "TargetLocation": "Camp" }
+  ]
+}
