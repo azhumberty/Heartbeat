@@ -5,19 +5,24 @@ Não puxe trabalhos distantes e enormes. Foque na manutenção da estabilidade d
 **NUNCA adicione sistemas novos se os P0 ou P1 estiverem pendentes.**
 
 ### P0 (Erros Críticos / Bugs / Regressões a arrumar)
-- Atualmente a build compila 100% livre de falhas arquiteturais aparentes. O Grok deve se certificar que a perfomance dos POIs no mapa não afete drasticamente as taxas de quadro ao longo do avanço do Save (Lixo acumulado do chunk generator no C#).
 - Consertar problema onde alternar muito rápido a tela de "Deck/Cartas" pode fazer com que o mouse escape da janela e force o player a apertar `TAB` novamente para destravar.
+- Validar localmente (`dotnet build` + play) o overhaul 2.5D/combate da branch `grok/25d-combat-overhaul` (billboards via `.png.b64` loader, terreno opaco, shop header).
+- Observar FPS dos chunks com Sprite3D billboards (textures compartilhadas); se cair, reduzir `treeCount` ou aumentar culling.
 
-### P1 (Economia e Loot das Cartas) — EM PR / Grok
-*Balanceamento de recompensas e mercador (branch `grok/p1-card-economy-loot`).*
-- `CombatManager.Settle` agora escala XP/moedas/raridade por `EnemyDefinition` (CoinMin/Max + LootTier).
-- Inimigos tier ≥3 têm chance de drop extra de poção (cartas Heal).
-- Catálogo `Assets/Cards/generic.json`: atributos reforçados nas cartas iniciais do starter.
-- Mercador: pacotes 35 / 45 (poções) / 70; pacote básico com peso leve de rara.
+### P1 (Economia e Loot das Cartas) — feito na branch `grok/p1-card-economy-loot`
+*Balanceamento de recompensas e mercador.*
+- `CombatManager.Settle` escala XP/moedas/raridade por `EnemyDefinition` (CoinMin/Max + LootTier).
+- Mercador + catálogo starter reforçado.
+
+### P1b (2.5D + Combate) — EM PR / Grok (`grok/25d-combat-overhaul`)
+- Shop: header labels sem Autowrap esmagado pelo ExpandFill.
+- Mundo 2.5D: terreno triplanar opaco; árvores/POIs como Sprite3D billboard; assets em `Assets/World/Billboards/*.png.b64`.
+- Combate: HP/Mana separados na UI, intents empilháveis, AI com combos/cura, night HP ↑, cartas g41–g55 (veneno/sangue/lifesteal/debuffs).
 
 ### P2 (Melhorias Importantes na Fila)
-- **Animais (Vida Selvagem e Atmosfera):** A floresta tem vaga-lumes e neblina, mas carece de criaturas passivas no chão (veados, coelhos). Crie um `AnimalManager` que espalhe malhas não-agressivas de baixa poligonagem.
-- **Áudio no Combate:** Inserir chamadas simples de `AudioStreamPlayer3D` para cada intent de combate (Corte, Magia, Dano tomado) em `CombatArenaController`.
+- **Animais (Vida Selvagem e Atmosfera):** `AnimalManager` com criaturas passivas de baixa poligonagem / billboards.
+- **Áudio no Combate:** `AudioStreamPlayer` por intent em `CombatArenaController`.
+- Decodar `.png.b64` → `.png` reais no repo (MCP não preserva binário UTF-8) para import nativo do Godot.
 
 ### P3 (Futuras Ideias Conceptuais - NÃO FAZER AGORA)
-- Interligar as missões de Companheiros diretamente em cartas que eles jogam sozinhos em batalhas, evoluindo o estado `IsDuel` e `Companion` no `CardModels`.
+- Interligar missões de Companheiros em cartas que jogam sozinhas (`IsDuel` / Companion).
