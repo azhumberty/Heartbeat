@@ -1,7 +1,7 @@
 using Godot;
 namespace Heartbeat;
 
-public partial class ChunkManager
+public partial class ChunkManager : Node3D
 {
 
     // ── Configuration ──

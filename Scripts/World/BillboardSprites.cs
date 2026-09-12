@@ -18,9 +18,9 @@ public static class BillboardSprites
         Texture2D? tex = null;
         if (ResourceLoader.Exists(png))
             tex = GD.Load<Texture2D>(png);
-        else if (FileAccess.FileExists(b64))
+        else if (Godot.FileAccess.FileExists(b64))
         {
-            string payload = FileAccess.GetFileAsString(b64).StripEdges();
+            string payload = Godot.FileAccess.GetFileAsString(b64).StripEdges();
             var bytes = Marshalls.Base64ToRaw(payload);
             var image = new Image();
             if (image.LoadPngFromBuffer(bytes) == Error.Ok)
