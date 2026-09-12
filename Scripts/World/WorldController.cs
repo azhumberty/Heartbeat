@@ -94,20 +94,32 @@ public partial class WorldController : Node3D
         _vnBackground.Modulate = new Color(0.85f, 0.85f, 0.88f);
         _vnBackground.Texture = ChromaArt.LoadArt(ChromaArt.BackgroundForDestination(destinationId));
 
-        if (destinationId == "merchant")
+        if (destinationId == "merchant_tent")
         {
             var merchant = _npcs.GetNpc("merchant");
             if (merchant != null) OnNpcInteracted(merchant);
-            else
-            {
-                _vnCharacter.Texture = ChromaArt.LoadArt(ChromaArt.MerchantSprite);
-                ChromaArt.ApplyChroma(_vnCharacter);
-            }
         }
-        else if (destinationId == "forest" || destinationId == "camp")
+        else if (destinationId == "forest_dark" || destinationId == "camp")
         {
-            var foe = EnemyDefinition.Get(destinationId);
-            _ = EnterCombat(foe);
+            // Give 50% chance to encounter a character, 50% to encounter an enemy
+            if (new Random().NextDouble() < 0.5)
+            {
+                var rng = new Random();
+                var npcList = new System.Collections.Generic.List<string>(_game.CharacterStates.Keys);
+                if (npcList.Count > 0)
+                {
+                    string randomNpcId = npcList[rng.Next(npcList.Count)];
+                    var npc = _npcs.GetNpc(randomNpcId);
+                    if (npc != null)
+                    {
+                        OnNpcInteracted(npc);
+                        return;
+                    }
+                }
+            }
+
+            var randomEnemy = EnemyDefinition.All[new Random().Next(EnemyDefinition.All.Length)];
+            _ = EnterCombat(randomEnemy);
         }
     }
     void OnNpcInteracted(NpcActor actor)

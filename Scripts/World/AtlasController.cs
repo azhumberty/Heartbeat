@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 using System;
 
 namespace Heartbeat;
@@ -19,7 +19,7 @@ public partial class AtlasController : Control
 
         var title = new Label
         {
-            Text = "ATLAS DE MEMÓRIAS",
+            Text = "ATLAS DE MEMÃ“RIAS",
             HorizontalAlignment = HorizontalAlignment.Center
         };
         title.AddThemeFontSizeOverride("font_size", 32);
@@ -37,8 +37,8 @@ public partial class AtlasController : Control
         container.AddChild(grid);
 
         // Define our fixed Nodes for the demo
-        grid.AddChild(CreateNode("O Mercador", "merchant", Colors.Gold));
-        grid.AddChild(CreateNode("Floresta Sombria", "forest", Colors.DarkGreen));
+        grid.AddChild(CreateNode("O Mercador", "merchant_tent", Colors.Gold));
+        grid.AddChild(CreateNode("Floresta Sombria", "forest_dark", Colors.DarkGreen));
         grid.AddChild(CreateNode("Acampamento", "camp", Colors.SaddleBrown));
     }
 

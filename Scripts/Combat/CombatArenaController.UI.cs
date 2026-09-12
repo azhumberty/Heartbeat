@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 namespace Heartbeat;
 
 public partial class CombatArenaController
@@ -16,7 +16,7 @@ public partial class CombatArenaController
         var enemyPanel=StatPanel(EnemyDefinition.Get(Manager.State.EnemyId).Name.ToUpperInvariant(), out _enemyName, out _enemyHpText, out _enemyHealth, out _, out _, false);
         header.AddChild(enemyPanel);
         _intentRow=new HBoxContainer(); _intentRow.AddThemeConstantOverride("separation", 8);
-        ((VBoxContainer)enemyPanel.GetChild(0)).AddChild(Ui.Text("INTENÇÃO",12));
+        ((VBoxContainer)enemyPanel.GetChild(0)).AddChild(Ui.Text("INTENÃ‡ÃƒO",12));
         ((VBoxContainer)enemyPanel.GetChild(0)).AddChild(_intentRow);
 
         var actions=new VBoxContainer {Position=new(1010,18),CustomMinimumSize=new(240,0)};AddChild(actions);
@@ -29,13 +29,13 @@ public partial class CombatArenaController
         detailPanel.AddThemeStyleboxOverride("panel",new StyleBoxFlat {BgColor=new Color("0a0e12e0"),BorderWidthLeft=1,BorderWidthTop=1,BorderWidthRight=1,BorderWidthBottom=1,BorderColor=new Color("b39a64"),ContentMarginLeft=14,ContentMarginRight=14,ContentMarginTop=12,ContentMarginBottom=12,CornerRadiusTopLeft=12,CornerRadiusTopRight=12,CornerRadiusBottomLeft=12,CornerRadiusBottomRight=12,ShadowColor=new Color(0,0,0,.5f),ShadowSize=6});
         var details=new VBoxContainer();detailPanel.AddChild(details);_detail=new VBoxContainer();details.AddChild(_detail);
         _play=Ui.Button("Jogar carta",()=>_ = PlaySelected());details.AddChild(_play);
-        _message=Ui.Text("Escolha uma carta. Revele fraquezas, defenda e ataque.",17);_message.Position=new(345,330);_message.Size=new(550,75);_message.HorizontalAlignment=HorizontalAlignment.Center;AddChild(_message);
+        _message=Ui.Text("Escolha uma carta. Revele fraquezas, defenda e ataque.",17);_message.Position=new(880,300);_message.Size=new(350,150);_message.HorizontalAlignment=HorizontalAlignment.Right;_message.AutowrapMode=TextServer.AutowrapMode.Word;_message.AddThemeColorOverride("font_color", new Color("f2d388"));_message.AddThemeColorOverride("font_shadow_color", new Color(0,0,0));AddChild(_message);
         var bottom=new PanelContainer();AddChild(bottom);bottom.SetAnchorsAndOffsetsPreset(LayoutPreset.BottomWide);bottom.OffsetTop=-280;
-        bottom.AddThemeStyleboxOverride("panel",new StyleBoxFlat {BgColor=new Color("05080ae8"),ContentMarginLeft=30,ContentMarginRight=30,ContentMarginTop=20,ContentMarginBottom=10});
+        bottom.AddThemeStyleboxOverride("panel",new StyleBoxFlat {BgColor=new new Color(0f, 0f, 0f, 0.65f),ContentMarginLeft=30,ContentMarginRight=30,ContentMarginTop=20,ContentMarginBottom=10});
         var scroll=new ScrollContainer {HorizontalScrollMode=ScrollContainer.ScrollMode.Auto,VerticalScrollMode=ScrollContainer.ScrollMode.Disabled};bottom.AddChild(scroll);
         _hand=new HBoxContainer();_hand.AddThemeConstantOverride("separation", -8);scroll.AddChild(_hand);
         _effects=new Control {MouseFilter=MouseFilterEnum.Ignore};AddChild(_effects);_effects.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        _return=Ui.Button("Retornar à floresta",()=>Finished?.Invoke());_return.Position=new(470,407);_return.CustomMinimumSize=new(340,46);_return.Visible=false;AddChild(_return);
+        _return=Ui.Button("Retornar Ã  floresta",()=>Finished?.Invoke());_return.Position=new(470,407);_return.CustomMinimumSize=new(340,46);_return.Visible=false;AddChild(_return);
     }
     static ProgressBar Bar(Control parent,Color fill,Color light)
     {
@@ -43,7 +43,7 @@ public partial class CombatArenaController
         bar.AddThemeStyleboxOverride("background",new StyleBoxFlat{BgColor=new Color("0a0e12"),CornerRadiusTopLeft=6,CornerRadiusTopRight=6,CornerRadiusBottomLeft=6,CornerRadiusBottomRight=6,BorderWidthTop=1,BorderWidthBottom=1,BorderWidthLeft=1,BorderWidthRight=1,BorderColor=new Color("1f262a")});
         bar.AddThemeStyleboxOverride("fill",new StyleBoxFlat {BgColor=fill,CornerRadiusTopLeft=6,CornerRadiusTopRight=6,CornerRadiusBottomLeft=6,CornerRadiusBottomRight=6,ShadowColor=light,ShadowSize=3});parent.AddChild(bar);return bar;
     }
-    static string Status(CombatantState s)=>string.Join(" · ",s.Status.Where(x=>x.Value>0).Select(x=>CardRules.EffectName(x.Key)+" "+x.Value+"t"));
+    static string Status(CombatantState s)=>string.Join(" Â· ",s.Status.Where(x=>x.Value>0).Select(x=>CardRules.EffectName(x.Key)+" "+x.Value+"t"));
     void RefreshIntents()
     {
         CardUi.Clear(_intentRow);

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Godot;
 
 /// <summary>
@@ -34,7 +34,7 @@ public partial class ImageManager : Node
 	{
 		if (string.IsNullOrWhiteSpace(relativeOrLogicalPath))
 		{
-			GD.PushWarning("[ImageManager] Empty path requested — returning IMAGE MISSING placeholder.");
+			GD.PushWarning("[ImageManager] Empty path requested â€” returning IMAGE MISSING placeholder.");
 			return _missingPlaceholder!;
 		}
 
@@ -44,15 +44,28 @@ public partial class ImageManager : Node
 
 		foreach (var candidate in BuildCandidates(key))
 		{
-			if (!ResourceLoader.Exists(candidate))
-				continue;
-
-			var tex = ResourceLoader.Load<Texture2D>(candidate);
-			if (tex == null)
-				continue;
-
-			_cache[key] = tex;
-			return tex;
+			if (ResourceLoader.Exists(candidate))
+			{
+				var tex = ResourceLoader.Load<Texture2D>(candidate);
+				if (tex != null)
+				{
+					_cache[key] = tex;
+					return tex;
+				}
+			}
+			
+			// Fallback: Raw load for dynamically generated images by AI agents
+			var globalPath = ProjectSettings.GlobalizePath(candidate);
+			if (System.IO.File.Exists(globalPath))
+			{
+				var img = Image.LoadFromFile(globalPath);
+				if (img != null)
+				{
+					var tex = ImageTexture.CreateFromImage(img);
+					_cache[key] = tex;
+					return tex;
+				}
+			}
 		}
 
 		GD.PushWarning($"[ImageManager] IMAGE MISSING: '{relativeOrLogicalPath}' (tried under {ArtKitRoot}). Using placeholder.");
@@ -172,3 +185,4 @@ public partial class ImageManager : Node
 		};
 	}
 }
+
