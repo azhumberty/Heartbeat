@@ -51,3 +51,8 @@ Se o PNG binário não importar bem pelo Git, use o sidecar `arquivo.png.b64` (b
 
 ## Próximos lotes (pedir ao Grok)
 Interiores extras (taverna, ruína interna), mais árvores sazonais, flora, UI icons, cards art, wall/cliff tiles.
+
+
+## Characters/ (lote personagens)
+- `Characters/Monsters/` — inimigos humanoides masculinos (pouca roupa). Ver README da pasta. **Combate only.**
+- `Characters/NPCs/` — mercador barbudo peludo de sunga (+ portrait). Ver README da pasta. **Loja/diálogo only.**
