@@ -56,3 +56,6 @@ Interiores extras (taverna, ruína interna), mais árvores sazonais, flora, UI i
 ## Characters/ (lote personagens)
 - `Characters/Monsters/` — inimigos humanoides masculinos (pouca roupa). Ver README da pasta. **Combate only.**
 - `Characters/NPCs/` — mercador barbudo peludo de sunga (+ portrait). Ver README da pasta. **Loja/diálogo only.**
+
+## UI/
+- Ver `UI/README.md` — card art, HUD icons, combat intents, menu/combat frames alinhados ao tema `#b39a64` / `#0a0e12`.
