@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 using System.Text.Json;
 
 namespace Heartbeat;
@@ -32,7 +32,7 @@ public sealed class CharacterRepository
     public CharacterData? Duplicate(string id)
     {
         var source = Load(id); if (source == null) return null;
-        var copy = JsonSerializer.Deserialize<CharacterData>(JsonSerializer.Serialize(source, _json), _json)!; copy.Id = Guid.NewGuid().ToString("N"); copy.Name += " (cópia)"; Save(copy); return copy;
+        var copy = JsonSerializer.Deserialize<CharacterData>(JsonSerializer.Serialize(source, _json), _json)!; copy.Id = Guid.NewGuid().ToString("N"); copy.Name += " (cÃ³pia)"; Save(copy); return copy;
     }
     public bool Delete(string id)
     {
@@ -43,7 +43,7 @@ public sealed class CharacterRepository
     {
         Wardrobe.Migrate(data); SocialModelMigrator.Migrate(data); data.CharacterFormatVersion = 4;
         if (data.Age < 18) throw new ArgumentException("O personagem precisa ter pelo menos 18 anos.");
-        if (string.IsNullOrWhiteSpace(data.Id) || data.Id.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || data.Id.Contains("..")) throw new ArgumentException("ID inválido.");
+        if (string.IsNullOrWhiteSpace(data.Id) || data.Id.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || data.Id.Contains("..")) throw new ArgumentException("ID invÃ¡lido.");
         var folder = $"user://Characters/{data.Id}"; DirAccess.MakeDirRecursiveAbsolute(ProjectSettings.GlobalizePath(folder));
         using var file = Godot.FileAccess.Open($"{folder}/character.json", Godot.FileAccess.ModeFlags.Write);
         file.StoreString(JsonSerializer.Serialize(data, _json));
@@ -68,7 +68,7 @@ public sealed class SaveManager
     {
         if (!Godot.FileAccess.FileExists(PathFor(slot))) return null;
         try { var save = JsonSerializer.Deserialize<GameSave>(Godot.FileAccess.GetFileAsString(PathFor(slot)), _json); if (save != null) Migrate(save); return save; }
-        catch (Exception e) { GD.PushWarning("[Save] Arquivo inválido preservado: " + e.GetType().Name); return null; }
+        catch (Exception e) { GD.PushWarning("[Save] Arquivo invÃ¡lido preservado: " + e.GetType().Name); return null; }
     }
     public void Migrate(GameSave save)
     {
@@ -77,7 +77,7 @@ public sealed class SaveManager
         save.Player.Clamp();
         DeckManager.Migrate(save);
 
-        // v2→v3: migrate inline character to package + state dictionary
+        // v2â†’v3: migrate inline character to package + state dictionary
         if (save.Character != null)
         {
             var id = save.Character.Id; if (!save.CharacterIds.Contains(id)) save.CharacterIds.Add(id);
@@ -89,22 +89,22 @@ public sealed class SaveManager
         foreach (var id in save.CharacterIds) if (!save.CharacterStates.ContainsKey(id)) save.CharacterStates[id] = new();
         foreach (var state in save.CharacterStates.Values) SocialModelMigrator.Migrate(state);
 
-        // v3→v4: add world seed and generator version
+        // v3â†’v4: add world seed and generator version
         if (save.SaveVersion < 4)
         {
             if (save.WorldSeed == 0)
                 save.WorldSeed = new Random().NextInt64();
-            save.GeneratorVersion = ChunkGenerator.GeneratorVersion;
+            save.GeneratorVersion = 2;
             GD.Print("[SaveMigration] Added world seed and generator version");
         }
 
-        // v4→v5: continuous clock derived from the old period label.
+        // v4â†’v5: continuous clock derived from the old period label.
         if (save.SaveVersion < 5 || save.WorldMinutes < 0)
         {
             save.WorldMinutes = save.Period switch { "Morning" => 8 * 60, "Afternoon" => 14 * 60, "Evening" => 18 * 60, "Night" => 22 * 60, _ => 8 * 60 };
         }
         // The forest generator remains deterministic and can safely replace old city chunks.
-        save.GeneratorVersion = ChunkGenerator.GeneratorVersion;
+        save.GeneratorVersion = 2;
         save.FirstPerson = true;
         save.SaveVersion = 5;
     }

@@ -22,19 +22,17 @@ public partial class CombatArenaController
         FloatText(amount>0?"−"+amount:Manager.State.Player.Health>hp?"+"+(Manager.State.Player.Health-hp):CardRules.EffectName(card.Effects[0].Kind),amount>0?new Color("ffd2a2"):new Color("a7e5bb"));
         if(!ReduceMotion){
             var punch=CreateTween();punch.SetParallel(true);
-            punch.TweenProperty(_enemy,"position:z",-.85f,.08).SetTrans(Tween.TransitionType.Back);
-            punch.TweenProperty(_camera,"fov",58f,.08);
-            if (_enemy.HasNode("CustomSprite")) punch.TweenProperty(_enemy.GetNode("CustomSprite"),"modulate",new Color(1,.35f,.35f),.08);
+            punch.TweenProperty(_enemy,"scale",new Vector2(1.1f, 1.1f),.08).SetTrans(Tween.TransitionType.Back);
+            punch.TweenProperty(_enemy,"modulate",new Color(1,.35f,.35f),.08);
             punch.Chain().SetParallel(true);
-            punch.TweenProperty(_enemy,"position:z",-1f,.18).SetTrans(Tween.TransitionType.Elastic);
-            punch.TweenProperty(_camera,"fov",54f,.18);
-            if (_enemy.HasNode("CustomSprite")) punch.TweenProperty(_enemy.GetNode("CustomSprite"),"modulate",new Color(1,1,1),.18);
+            punch.TweenProperty(_enemy,"scale",Vector2.One,.18).SetTrans(Tween.TransitionType.Elastic);
+            punch.TweenProperty(_enemy,"modulate",new Color(1,1,1),.18);
             var flash=new ColorRect {Color=new Color(1,.7f,.5f,.35f),MouseFilter=MouseFilterEnum.Ignore};
             _effects.AddChild(flash); flash.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
             var ft=CreateTween(); ft.TweenProperty(flash,"modulate:a",0f,.22); ft.TweenCallback(Callable.From(flash.QueueFree));
         }
         await Delay(.28);
-        if(Manager.State.Result=="Victory"){var fade=CreateTween();fade.TweenProperty(_enemy,"scale",Vector3.One*.03f,.4).SetTrans(Tween.TransitionType.Back);await Delay(.4);}
+        if(Manager.State.Result=="Victory"){var fade=CreateTween();fade.TweenProperty(_enemy,"scale",Vector2.One*.03f,.4).SetTrans(Tween.TransitionType.Back);await Delay(.4);}
         Busy=false;Refresh();
     }
     async Task Summon(CardDefinition c)
@@ -54,8 +52,8 @@ public partial class CombatArenaController
         if(Busy||Manager.State.Result.Length>0)return;
         Busy=true;_play.Disabled=true;_end.Disabled=true;_flee.Disabled=true;_message.Text="O inimigo prepara sua ação...";
         await Delay(.32);int before=Manager.State.Player.Health;Manager.EndTurn();Changed?.Invoke();
-        if(!ReduceMotion){var t=CreateTween();t.TweenProperty(_enemy,"position:z",.45f,.12).SetTrans(Tween.TransitionType.Back);t.TweenProperty(_enemy,"position:z",-1f,.2).SetTrans(Tween.TransitionType.Elastic);}
-        FloatText(before>Manager.State.Player.Health?"−"+(before-Manager.State.Player.Health):"Guarda",new Color("f1a6a0"));await Delay(.32);Busy=false;Refresh();
+        if(!ReduceMotion){var t=CreateTween();t.TweenProperty(_enemy,"scale",new Vector2(1.2f,1.2f),.12).SetTrans(Tween.TransitionType.Back);t.TweenProperty(_enemy,"scale",Vector2.One,.2).SetTrans(Tween.TransitionType.Elastic);}
+        FloatText(before>Manager.State.Player.Health?"-"+(before-Manager.State.Player.Health):"Guarda",new Color("f1a6a0"));await Delay(.32);Busy=false;Refresh();
     }
     async Task Retreat(){if(Busy)return;Busy=true;await Delay(.2);Manager.Flee();Busy=false;Refresh();}
     public override void _UnhandledInput(InputEvent e){if(e is InputEventKey k&&k.Pressed){if(k.Keycode==Key.Space&&!k.Echo)_=EndTurnAnimated();GetViewport().SetInputAsHandled();}}

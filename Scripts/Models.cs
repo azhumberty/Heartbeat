@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Heartbeat;
 
@@ -43,7 +43,7 @@ public sealed class CharacterData
     public string Id { get; set; } = Guid.NewGuid().ToString("N");
     public string Name { get; set; } = "Novo personagem";
     public int Age { get; set; } = 21;
-    public string Description { get; set; } = "Personagem adulto fictício.";
+    public string Description { get; set; } = "Personagem adulto fictÃ­cio.";
     public string Personality { get; set; } = "gentil e curiosa";
     public List<string> Traits { get; set; } = new();
     public List<string> Likes { get; set; } = new();
@@ -260,7 +260,7 @@ public sealed class GameSave
     /// <summary>Persistent world seed. Generated once on new game.</summary>
     public long WorldSeed { get; set; } = 0;
     /// <summary>Version of the chunk generator that created this world.</summary>
-    public int GeneratorVersion { get; set; } = ChunkGenerator.GeneratorVersion;
+    public int GeneratorVersion { get; set; } = 1;
     /// <summary>Player camera Y rotation in radians.</summary>
     public float PlayerRotationY { get; set; } = 0f;
     /// <summary>Minutes since midnight, persisted independently from display labels.</summary>

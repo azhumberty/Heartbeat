@@ -1,9 +1,8 @@
-using Godot;
+﻿using Godot;
 namespace Heartbeat;
 
 public partial class CombatArenaController : Control
 {
-
     public CombatManager Manager {get;set;}=null!;
     public GameSave Game {get;set;}=null!;
     public Action? Changed;
@@ -16,46 +15,55 @@ public partial class CombatArenaController : Control
     HBoxContainer _intentRow=null!;
     VBoxContainer _detail=null!;
     Button _play=null!,_end=null!,_return=null!,_flee=null!;
-    Node3D _enemy=null!;
-    Camera3D _camera=null!;
-    SubViewport _viewport=null!;
+    TextureRect _enemy=null!;
     int _selected=-1;
     Control _effects=null!;
+
     public override void _Ready()
     {
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         BuildArena();BuildInterface();Refresh();
     }
+
     void BuildArena()
     {
-        var container=new SubViewportContainer {Stretch=true,MouseFilter=MouseFilterEnum.Ignore};AddChild(container);container.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        _viewport=new SubViewport {OwnWorld3D=true,Size=new(1280,720),RenderTargetUpdateMode=SubViewport.UpdateMode.Always};container.AddChild(_viewport);
-        var stage=new Node3D();_viewport.AddChild(stage);
-        bool night=Manager.State.Hour<6||Manager.State.Hour>=18;string arena=Manager.State.Arena;
-        var env=new Godot.Environment {BackgroundMode=Godot.Environment.BGMode.Color,BackgroundColor=new Color(night?"0c1820":"455954"),AmbientLightSource=Godot.Environment.AmbientSource.Color,AmbientLightColor=new Color("9eb1ae"),AmbientLightEnergy=night?.65f:.85f,FogEnabled=true,FogDensity=.022f,FogLightColor=new Color("384a42"),TonemapMode=Godot.Environment.ToneMapper.Filmic};
-        stage.AddChild(new WorldEnvironment {Environment=env});
-        stage.AddChild(new DirectionalLight3D {RotationDegrees=new(-38,-25,0),LightColor=new Color("f9dbad"),LightEnergy=night?.6f:1.2f,ShadowEnabled=true,DirectionalShadowMaxDistance=24});
-        void Mesh(Mesh mesh,Vector3 pos,Material mat){stage.AddChild(new MeshInstance3D {Mesh=mesh,Position=pos,MaterialOverride=mat});}
-        Mesh(new PlaneMesh {Size=new(45,45)},Vector3.Zero,SurfaceMaterials.ForestGround());
-        // Billboard trees around the arena
-        var rng=new Random(42);
-        for(int i=0;i<14;i++)
-        {
-            float x=(i%2==0?-1:1)*(5+rng.Next(8));float z=-9+rng.Next(13);
-            float h=6f+rng.Next(4);
-            string tex=i%3==0?"tree_pine":"tree_oak_dead";
-            stage.AddChild(BillboardSprites.Create(tex,new(x,h*.5f,z),new(h*.55f,h)));
+        // 2D Visual Novel Style Background
+        var bg = new TextureRect {
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered,
+            Modulate = new Color(0.6f, 0.6f, 0.6f) // Darken for UI contrast
+        };
+        bg.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        
+        string arena = Manager.State.Arena.ToLowerInvariant();
+        string bgPath = "res://Assets/ArtKit/Interiors/" + arena + ".png";
+        if (ResourceLoader.Exists(bgPath)) bg.Texture = GD.Load<Texture2D>(bgPath);
+        AddChild(bg);
+
+        // 2D Enemy Sprite
+        _enemy = new TextureRect {
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+        };
+        _enemy.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        
+        // Mock Enemy visual load (The next agent will implement EnemyVisual for 2D)
+        string texName = Manager.State.EnemyId;
+        string artKitPng = "res://Assets/ArtKit/Characters/Monsters/humanoid_" + texName + "_combat.png";
+        if (ResourceLoader.Exists(artKitPng)) {
+            _enemy.Texture = GD.Load<Texture2D>(artKitPng);
+            
+            // Mask out the checkerboard if it exists
+            if (ResourceLoader.Exists("res://Assets/ArtKit/Billboards/checker_mask.gdshader"))
+            {
+                var shader = GD.Load<Shader>("res://Assets/ArtKit/Billboards/checker_mask.gdshader");
+                var mat = new ShaderMaterial { Shader = shader };
+                mat.SetShaderParameter("tex", _enemy.Texture);
+                _enemy.Material = mat;
+            }
         }
-        for(int i=0;i<9;i++)Mesh(new SphereMesh {Radius=.45f,Height=.5f,RadialSegments=8,Rings=4},new(-5+i*1.3f,.15f,-4),SurfaceMaterials.MossyRock());
-        if(arena=="Ruin") stage.AddChild(BillboardSprites.Create("ruins",new(0,2.5f,-6),new(7,5)));
-        if(arena=="Camp")
-        {
-            stage.AddChild(BillboardSprites.Create("campfire",new(-3,1.4f,-1),new(3,2.8f)));
-            stage.AddChild(new OmniLight3D {Position=new(-3,1,-1),LightColor=new Color("ffae5a"),LightEnergy=2.5f,OmniRange=9});
-        }
-        _enemy=EnemyVisual.Create(Manager.State.EnemyId);_enemy.Position=new(0,0,-1);stage.AddChild(_enemy);
-        stage.AddChild(new OmniLight3D {Position=new(0,3,2),LightColor=new Color("a7d3db"),LightEnergy=2,OmniRange=8});
-        _camera=new Camera3D {Position=new(0,3.5f,9),Fov=54,Current=true};stage.AddChild(_camera);_camera.LookAt(new Vector3(0,1.15f,-1));
+        
+        AddChild(_enemy);
     }
 
     PanelContainer StatPanel(string title, out Label nameLabel, out Label hpLabel, out ProgressBar hpBar, out Label? manaLabel, out ProgressBar? manaBar, bool withMana)
@@ -79,5 +87,4 @@ public partial class CombatArenaController : Control
         else { manaLabel=null; manaBar=null; }
         return panel;
     }
-
 }
