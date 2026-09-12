@@ -120,13 +120,21 @@ public static class EnemyVisual
     {
         var root = new Node3D();
         
+        string artkitId = id switch {
+            "forest" => "horned",
+            "camp" => "horned",
+            "ruin" => "stone",
+            "night" => "wraith",
+            _ => id
+        };
+
         // Define paths to check, including ArtKit generated assets
         string[] paths = {
             $"user://Enemies/{id}.png",
             $"user://Enemies/{id}.jpg",
-            $"res://Assets/ArtKit/Characters/Monsters/humanoid_{id}_combat.png",
-            $"res://Assets/ArtKit/Characters/Monsters/humanoid_{id}_idle.png",
-            $"res://Assets/ArtKit/Characters/Monsters/{id}.png",
+            $"res://Assets/ArtKit/Characters/Monsters/humanoid_{artkitId}_combat.png",
+            $"res://Assets/ArtKit/Characters/Monsters/humanoid_{artkitId}_idle.png",
+            $"res://Assets/ArtKit/Characters/Monsters/{artkitId}.png",
             $"res://Assets/ArtKit/Characters/NPCs/{id}_sunga_fullbody.png",
             $"res://Assets/ArtKit/Characters/NPCs/{id}_portrait.png",
             $"res://Enemies/{id}.png"

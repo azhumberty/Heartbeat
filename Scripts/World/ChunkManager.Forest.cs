@@ -7,6 +7,11 @@ public partial class ChunkManager
     {
         if (batch.Items.Count == 0) return;
 
+        // Intercept legacy 3D tree primitives from old save files and convert to Billboards
+        if (batch.Kind == ForestKind.Conifer) batch.Kind = ForestKind.BillboardPine;
+        if (batch.Kind == ForestKind.Trunk) batch.Kind = ForestKind.BillboardOak;
+        if (batch.Kind == ForestKind.Crown) return; // Skip crowns since trunks become billboards
+
         // 2.5D billboard trees — shared textures, Sprite3D BillboardMode.Enabled
         if (batch.Kind is ForestKind.BillboardPine or ForestKind.BillboardOak)
         {

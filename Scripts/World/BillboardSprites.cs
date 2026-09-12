@@ -17,11 +17,23 @@ public static class BillboardSprites
         string b64 = png + ".b64";
         string artKitPng = $"res://Assets/ArtKit/Billboards/{name}.png";
         string artKitB64 = artKitPng + ".b64";
+        
         Texture2D? tex = null;
-        if (ResourceLoader.Exists(png)) tex = GD.Load<Texture2D>(png);
-        else if (Godot.FileAccess.FileExists(b64)) tex = LoadB64(b64);
-        else if (ResourceLoader.Exists(artKitPng)) tex = GD.Load<Texture2D>(artKitPng);
-        else if (Godot.FileAccess.FileExists(artKitB64)) tex = LoadB64(artKitB64);
+        
+        // Helper to load directly from disk bypassing Godot import pipeline
+        Texture2D? LoadDirect(string path) {
+            string global = ProjectSettings.GlobalizePath(path);
+            if (System.IO.File.Exists(global)) {
+                var img = Godot.Image.LoadFromFile(global);
+                if (img != null) return ImageTexture.CreateFromImage(img);
+            }
+            return null;
+        }
+
+        tex = LoadDirect(png);
+        if (tex == null && Godot.FileAccess.FileExists(b64)) tex = LoadB64(b64);
+        if (tex == null) tex = LoadDirect(artKitPng);
+        if (tex == null && Godot.FileAccess.FileExists(artKitB64)) tex = LoadB64(artKitB64);
         
         if (tex != null) Cache[name] = tex;
         return tex;
@@ -29,7 +41,7 @@ public static class BillboardSprites
 
     static Texture2D? LoadB64(string path)
     {
-        string payload = Godot.FileAccess.GetFileAsString(path).StripEdges();
+        string payload = Godot.FileAccess.GetFileAsString(path).Replace("\n", "").Replace("\r", "").Replace(" ", "");
         var bytes = Marshalls.Base64ToRaw(payload);
         var image = new Image();
         if (image.LoadPngFromBuffer(bytes) == Error.Ok)

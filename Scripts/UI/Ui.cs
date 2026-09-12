@@ -20,7 +20,13 @@ public static class Ui
         var style = new StyleBoxFlat { BgColor = new Color("131d2ff5"), ContentMarginLeft = 24, ContentMarginRight = 24, ContentMarginTop = 18, ContentMarginBottom = 18, CornerRadiusTopLeft = 14, CornerRadiusTopRight = 14, CornerRadiusBottomLeft = 14, CornerRadiusBottomRight = 14 };
         panel.AddThemeStyleboxOverride("panel", style);
         content = new VBoxContainer(); content.AddThemeConstantOverride("separation", 10); panel.AddChild(content);
-        var header = new HBoxContainer(); content.AddChild(header); var label = Text(title, 28); label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; header.AddChild(label); header.AddChild(Button("Fechar · Esc", close));
+        var header = new HBoxContainer(); content.AddChild(header); var label = Text(title, 28); label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; header.AddChild(label); 
+        var closeBtn = Button("Fechar · Esc", close);
+        var shortcut = new Shortcut();
+        var ev = new InputEventKey { Keycode = Key.Escape };
+        shortcut.Events.Add(ev);
+        closeBtn.Shortcut = shortcut;
+        header.AddChild(closeBtn);
         panel.Modulate = new Color(1,1,1,0); panel.CreateTween().TweenProperty(panel, "modulate:a", 1f, .2);
         return panel;
     }
