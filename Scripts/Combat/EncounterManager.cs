@@ -146,12 +146,22 @@ public static class EnemyVisual
             Texture2D? tex = null;
             if (ResourceLoader.Exists(path))
             {
+                // Try ResourceLoader first
                 tex = GD.Load<Texture2D>(path);
             }
-            else if (System.IO.File.Exists(globalPath))
+            
+            if (tex == null && System.IO.File.Exists(globalPath))
             {
-                var img = Godot.Image.LoadFromFile(globalPath);
-                if (img != null) tex = ImageTexture.CreateFromImage(img);
+                var bytes = System.IO.File.ReadAllBytes(globalPath);
+                var img = new Godot.Image();
+                if (bytes.Length > 2 && bytes[0] == 0xFF && bytes[1] == 0xD8)
+                {
+                    if (img.LoadJpgFromBuffer(bytes) == Error.Ok) tex = ImageTexture.CreateFromImage(img);
+                }
+                else
+                {
+                    if (img.LoadPngFromBuffer(bytes) == Error.Ok) tex = ImageTexture.CreateFromImage(img);
+                }
             }
 
             if (tex != null)
@@ -170,6 +180,15 @@ public static class EnemyVisual
                     Position = new Vector3(0, targetHeight / 2f, 0),
                     CastShadow = GeometryInstance3D.ShadowCastingSetting.On
                 };
+                
+                if (ResourceLoader.Exists("res://Assets/ArtKit/Billboards/checker_mask.gdshader"))
+                {
+                    var shader = GD.Load<Shader>("res://Assets/ArtKit/Billboards/checker_mask.gdshader");
+                    var mat = new ShaderMaterial { Shader = shader };
+                    mat.SetShaderParameter("tex", tex);
+                    sprite.MaterialOverride = mat;
+                }
+                
                 root.AddChild(sprite);
                 
                 // Add breathing animation (Tween scaling Y)

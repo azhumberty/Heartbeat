@@ -58,12 +58,42 @@ public partial class SkyController : Node3D
         AlbedoColor = color, EmissionEnabled = true, Emission = color,
         EmissionEnergyMultiplier = 2.2f, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded
     };
-    static Sprite3D CelestialBody(string name, float scale, string texPath, Color color) => new()
+    static Sprite3D CelestialBody(string name, float scale, string texPath, Color color)
     {
-        Name = name, Texture = GD.Load<Texture2D>(texPath), PixelSize = 0.035f * scale,
-        Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, Modulate = color, Transparent = true,
-        CastShadow = GeometryInstance3D.ShadowCastingSetting.Off
-    };
+        Texture2D? tex = null;
+        string global = ProjectSettings.GlobalizePath(texPath);
+        if (System.IO.File.Exists(global))
+        {
+            var bytes = System.IO.File.ReadAllBytes(global);
+            var img = new Image();
+            if (bytes.Length > 2 && bytes[0] == 0xFF && bytes[1] == 0xD8)
+            {
+                if (img.LoadJpgFromBuffer(bytes) == Error.Ok) tex = ImageTexture.CreateFromImage(img);
+            }
+            else
+            {
+                if (img.LoadPngFromBuffer(bytes) == Error.Ok) tex = ImageTexture.CreateFromImage(img);
+            }
+        }
+        if (tex == null && ResourceLoader.Exists(texPath)) tex = GD.Load<Texture2D>(texPath);
+        
+        var sprite = new Sprite3D
+        {
+            Name = name, Texture = tex, PixelSize = 0.035f * scale,
+            Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, Modulate = color, Transparent = true,
+            CastShadow = GeometryInstance3D.ShadowCastingSetting.Off
+        };
+        
+        if (tex != null && ResourceLoader.Exists("res://Assets/ArtKit/Billboards/checker_mask.gdshader"))
+        {
+            var shader = GD.Load<Shader>("res://Assets/ArtKit/Billboards/checker_mask.gdshader");
+            var mat = new ShaderMaterial { Shader = shader };
+            mat.SetShaderParameter("tex", tex);
+            sprite.MaterialOverride = mat;
+        }
+
+        return sprite;
+    }
 
     void BuildAmbientParticles()
     {
