@@ -8,11 +8,11 @@ using Godot;
 public partial class ImageManager : Node
 {
 	public const string ArtKitRoot = "res://Assets/ArtKit/";
-	private static ImageManager _instance;
+	private static ImageManager? _instance;
 	private readonly Dictionary<string, Texture2D> _cache = new();
-	private Texture2D _missingPlaceholder;
+	private Texture2D? _missingPlaceholder;
 
-	public static ImageManager Instance => _instance;
+	public static ImageManager? Instance => _instance;
 
 	public override void _Ready()
 	{
@@ -35,7 +35,7 @@ public partial class ImageManager : Node
 		if (string.IsNullOrWhiteSpace(relativeOrLogicalPath))
 		{
 			GD.PushWarning("[ImageManager] Empty path requested — returning IMAGE MISSING placeholder.");
-			return _missingPlaceholder;
+			return _missingPlaceholder!;
 		}
 
 		var key = NormalizeKey(relativeOrLogicalPath);
@@ -57,7 +57,7 @@ public partial class ImageManager : Node
 
 		GD.PushWarning($"[ImageManager] IMAGE MISSING: '{relativeOrLogicalPath}' (tried under {ArtKitRoot}). Using placeholder.");
 		_cache[key] = _missingPlaceholder;
-		return _missingPlaceholder;
+		return _missingPlaceholder!;
 	}
 
 	/// <summary>Convenience: Interiors/Backgrounds lookup by bare filename (e.g. tavern.png).</summary>

@@ -1,4 +1,4 @@
-﻿using Godot;
+using Godot;
 namespace Heartbeat;
 
 public partial class CombatArenaController : Control
@@ -31,41 +31,23 @@ public partial class CombatArenaController : Control
         var bg = new TextureRect {
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered,
-            Modulate = new Color(0.6f, 0.6f, 0.6f) // Darken for UI contrast
+            Modulate = new Color(0.75f, 0.75f, 0.78f)
         };
         bg.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        
-        string arena = Manager.State.Arena.ToLowerInvariant();
-        string bgPath = "res://Assets/ArtKit/Interiors/" + arena + ".png";
-        if (ResourceLoader.Exists(bgPath)) bg.Texture = GD.Load<Texture2D>(bgPath);
+        bg.Texture = ChromaArt.LoadArt(ChromaArt.BackgroundForArena(Manager.State.Arena));
         AddChild(bg);
 
-        // 2D Enemy Sprite
+        // 2D Enemy Sprite with chroma-key (#00FF00) cutout
         _enemy = new TextureRect {
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+            CustomMinimumSize = new Vector2(420, 560)
         };
         _enemy.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        
-        // Mock Enemy visual load (The next agent will implement EnemyVisual for 2D)
-        string texName = Manager.State.EnemyId;
-        string artKitPng = "res://Assets/ArtKit/Characters/Monsters/humanoid_" + texName + "_combat.png";
-        if (ResourceLoader.Exists(artKitPng)) {
-            _enemy.Texture = GD.Load<Texture2D>(artKitPng);
-            
-            // Mask out the checkerboard if it exists
-            if (ResourceLoader.Exists("res://Assets/ArtKit/Billboards/checker_mask.gdshader"))
-            {
-                var shader = GD.Load<Shader>("res://Assets/ArtKit/Billboards/checker_mask.gdshader");
-                var mat = new ShaderMaterial { Shader = shader };
-                mat.SetShaderParameter("tex", _enemy.Texture);
-                _enemy.Material = mat;
-            }
-        }
-        
+        _enemy.Texture = ChromaArt.LoadArt(ChromaArt.EnemySpritePath(Manager.State.EnemyId));
+        ChromaArt.ApplyChroma(_enemy);
         AddChild(_enemy);
     }
-
     PanelContainer StatPanel(string title, out Label nameLabel, out Label hpLabel, out ProgressBar hpBar, out Label? manaLabel, out ProgressBar? manaBar, bool withMana)
     {
         var panel=new PanelContainer {CustomMinimumSize=new(300,0)};

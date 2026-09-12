@@ -1,4 +1,4 @@
-﻿using Godot;
+using Godot;
 using System;
 using System.Threading.Tasks;
 
@@ -90,39 +90,52 @@ public partial class WorldController : Node3D
     {
         // Hide Atlas, show Visual Novel view
         _atlas.Visible = false;
-        
-        // Set background based on destination
-        string bgPath = "res://Assets/ArtKit/Interiors/" + destinationId + ".png";
-        if (ResourceLoader.Exists(bgPath)) _vnBackground.Texture = GD.Load<Texture2D>(bgPath);
-        else _vnBackground.Texture = null;
 
-        // Simulate encountering a random NPC or enemy based on destination
+        _vnBackground.Modulate = new Color(0.85f, 0.85f, 0.88f);
+        _vnBackground.Texture = ChromaArt.LoadArt(ChromaArt.BackgroundForDestination(destinationId));
+
         if (destinationId == "merchant")
         {
             var merchant = _npcs.GetNpc("merchant");
             if (merchant != null) OnNpcInteracted(merchant);
+            else
+            {
+                _vnCharacter.Texture = ChromaArt.LoadArt(ChromaArt.MerchantSprite);
+                ChromaArt.ApplyChroma(_vnCharacter);
+            }
         }
         else if (destinationId == "forest" || destinationId == "camp")
         {
-            var randomEnemy = EnemyDefinition.All[new Random().Next(EnemyDefinition.All.Length)];
-            _ = EnterCombat(randomEnemy);
+            var foe = EnemyDefinition.Get(destinationId);
+            _ = EnterCombat(foe);
         }
     }
-    
     void OnNpcInteracted(NpcActor actor)
     {
-        // Show Dialogue
-        _vnCharacter.Texture = new PortraitCache().Get(actor.Data, actor.State, false); // Idle portrait
+        if (actor.Data.Id == "merchant")
+        {
+            _vnCharacter.Texture = ChromaArt.LoadArt(ChromaArt.MerchantSprite);
+            ChromaArt.ApplyChroma(_vnCharacter);
+        }
+        else
+        {
+            _vnCharacter.Material = null;
+            _vnCharacter.Texture = new PortraitCache().Get(actor.Data, actor.State, false);
+        }
 
         var dialog = new DialogueController
         {
             Actor = actor,
             Game = _game,
-            Closed = () => { _atlas.Visible = true; _vnCharacter.Texture = null; }
+            Closed = () =>
+            {
+                _atlas.Visible = true;
+                _vnCharacter.Texture = null;
+                _vnCharacter.Material = null;
+            }
         };
         _uiLayer.AddChild(dialog);
     }
-
     public override void _UnhandledInput(InputEvent e)
     {
         if (e is not InputEventKey k || !k.Pressed || k.Echo) return;
@@ -167,7 +180,8 @@ public partial class WorldController : Node3D
     public async Task EnterCombat(EnemyDefinition enemy)
     {
         if(_screen!=null)return;
-        var manager=CombatManager.Start(_game,new CardRepository().Catalog(), "wild_encounter", enemy.Id, "Camp", _time.Hour);
+        var arena = enemy.Id is "forest" or "night" ? "forest" : "camp";
+        var manager=CombatManager.Start(_game,new CardRepository().Catalog(), "wild_encounter", enemy.Id, arena, _time.Hour);
         manager.State.RewardXp=enemy.RewardXp;
         manager.State.Cooldown=0;
         manager.State.Repeat=true;
