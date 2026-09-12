@@ -1,0 +1,97 @@
+[
+  {
+    "path": "Assets/ArtKit/Billboards/cabin.png",
+    "b64": "Assets/ArtKit/Billboards/cabin.png.b64",
+    "bytes": 430734
+  },
+  {
+    "path": "Assets/ArtKit/Billboards/campfire.png",
+    "b64": "Assets/ArtKit/Billboards/campfire.png.b64",
+    "bytes": 414476
+  },
+  {
+    "path": "Assets/ArtKit/Billboards/cave.png",
+    "b64": "Assets/ArtKit/Billboards/cave.png.b64",
+    "bytes": 437858
+  },
+  {
+    "path": "Assets/ArtKit/Billboards/house.png",
+    "b64": "Assets/ArtKit/Billboards/house.png.b64",
+    "bytes": 464763
+  },
+  {
+    "path": "Assets/ArtKit/Billboards/mountains.png",
+    "b64": "Assets/ArtKit/Billboards/mountains.png.b64",
+    "bytes": 378806
+  },
+  {
+    "path": "Assets/ArtKit/Billboards/ruins.png",
+    "b64": "Assets/ArtKit/Billboards/ruins.png.b64",
+    "bytes": 417389
+  },
+  {
+    "path": "Assets/ArtKit/Billboards/tree_leafy.png",
+    "b64": "Assets/ArtKit/Billboards/tree_leafy.png.b64",
+    "bytes": 467261
+  },
+  {
+    "path": "Assets/ArtKit/Billboards/tree_oak_dead.png",
+    "b64": "Assets/ArtKit/Billboards/tree_oak_dead.png.b64",
+    "bytes": 474159
+  },
+  {
+    "path": "Assets/ArtKit/Billboards/tree_pine.png",
+    "b64": "Assets/ArtKit/Billboards/tree_pine.png.b64",
+    "bytes": 437626
+  },
+  {
+    "path": "Assets/ArtKit/Celestial/moon.png",
+    "b64": "Assets/ArtKit/Celestial/moon.png.b64",
+    "bytes": 428816
+  },
+  {
+    "path": "Assets/ArtKit/Celestial/planet_rings.png",
+    "b64": "Assets/ArtKit/Celestial/planet_rings.png.b64",
+    "bytes": 409493
+  },
+  {
+    "path": "Assets/ArtKit/Celestial/sun.png",
+    "b64": "Assets/ArtKit/Celestial/sun.png.b64",
+    "bytes": 183032
+  },
+  {
+    "path": "Assets/ArtKit/Interiors/cottage_room.png",
+    "b64": "Assets/ArtKit/Interiors/cottage_room.png.b64",
+    "bytes": 383469
+  },
+  {
+    "path": "Assets/ArtKit/Sky/sky_day.png",
+    "b64": "Assets/ArtKit/Sky/sky_day.png.b64",
+    "bytes": 118213
+  },
+  {
+    "path": "Assets/ArtKit/Sky/sky_dusk.png",
+    "b64": "Assets/ArtKit/Sky/sky_dusk.png.b64",
+    "bytes": 212837
+  },
+  {
+    "path": "Assets/ArtKit/Sky/sky_night.png",
+    "b64": "Assets/ArtKit/Sky/sky_night.png.b64",
+    "bytes": 292914
+  },
+  {
+    "path": "Assets/ArtKit/Textures/cave_floor.png",
+    "b64": "Assets/ArtKit/Textures/cave_floor.png.b64",
+    "bytes": 464590
+  },
+  {
+    "path": "Assets/ArtKit/Textures/grass.png",
+    "b64": "Assets/ArtKit/Textures/grass.png.b64",
+    "bytes": 557080
+  },
+  {
+    "path": "Assets/ArtKit/Textures/ground_forest.png",
+    "b64": "Assets/ArtKit/Textures/ground_forest.png.b64",
+    "bytes": 464103
+  }
+]
