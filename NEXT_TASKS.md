@@ -8,14 +8,12 @@ Não puxe trabalhos distantes e enormes. Foque na manutenção da estabilidade d
 - Atualmente a build compila 100% livre de falhas arquiteturais aparentes. O Grok deve se certificar que a perfomance dos POIs no mapa não afete drasticamente as taxas de quadro ao longo do avanço do Save (Lixo acumulado do chunk generator no C#).
 - Consertar problema onde alternar muito rápido a tela de "Deck/Cartas" pode fazer com que o mouse escape da janela e force o player a apertar `TAB` novamente para destravar.
 
-### P1 (PRÓXIMA TAREFA IMEDIATAMENTE RECOMENDADA)
-*Esta é a sua missão inicial principal ao abrir este handoff:*
-
-1. **Afinar a Economia e Loot das Cartas (Expansão do Merchant)**
-   O Mercador atual (em `CardShopController`) vende pacotes baseados em Reais (`Coins`). Seu objetivo agora deve ser **balancear as Recompensas de Combate e os Custos dos Drops**.
-   - Acesse `Scripts/Models.cs` e `Scripts/Combat/CombatManager.cs` (método `Settle`).
-   - Melhore as regras matemáticas ou tabelas de peso de drops aleatórios baseados na dificuldade do Monstro (ID/Level) e na categoria de Inimigo. Inimigos fortes devem dar cartas ou poções únicas.
-   - Reforce os atributos das Cartas Genéricas Iniciais (Atualmente geradas aleatoriamente em `CardRepository.Catalog`).
+### P1 (Economia e Loot das Cartas) — EM PR / Grok
+*Balanceamento de recompensas e mercador (branch `grok/p1-card-economy-loot`).*
+- `CombatManager.Settle` agora escala XP/moedas/raridade por `EnemyDefinition` (CoinMin/Max + LootTier).
+- Inimigos tier ≥3 têm chance de drop extra de poção (cartas Heal).
+- Catálogo `Assets/Cards/generic.json`: atributos reforçados nas cartas iniciais do starter.
+- Mercador: pacotes 35 / 45 (poções) / 70; pacote básico com peso leve de rara.
 
 ### P2 (Melhorias Importantes na Fila)
 - **Animais (Vida Selvagem e Atmosfera):** A floresta tem vaga-lumes e neblina, mas carece de criaturas passivas no chão (veados, coelhos). Crie um `AnimalManager` que espalhe malhas não-agressivas de baixa poligonagem.
