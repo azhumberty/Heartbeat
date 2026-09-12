@@ -59,3 +59,9 @@ Interiores extras (taverna, ruína interna), mais árvores sazonais, flora, UI i
 
 ## UI/
 - Ver `UI/README.md` — card art, HUD icons, combat intents, menu/combat frames alinhados ao tema `#b39a64` / `#0a0e12`.
+
+## Flora/
+- Ver `Flora/README.md` — bush, fern, mushrooms, flowers, tall grass, ivy (Sprite3D).
+
+## UI/Cards/Faces/
+- Ver `UI/Cards/Faces/README.md` — artes g41/g42/g45/g48/g50/g53/g54/g55.

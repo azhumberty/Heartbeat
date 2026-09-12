@@ -93,5 +93,95 @@
     "path": "Assets/ArtKit/Textures/ground_forest.png",
     "b64": "Assets/ArtKit/Textures/ground_forest.png.b64",
     "bytes": 464103
+  },
+  {
+    "path": "Assets/ArtKit/Interiors/tavern.png",
+    "b64": "Assets/ArtKit/Interiors/tavern.png.b64",
+    "bytes": 285415
+  },
+  {
+    "path": "Assets/ArtKit/Interiors/cave_chamber.png",
+    "b64": "Assets/ArtKit/Interiors/cave_chamber.png.b64",
+    "bytes": 368779
+  },
+  {
+    "path": "Assets/ArtKit/Interiors/merchant_shop.png",
+    "b64": "Assets/ArtKit/Interiors/merchant_shop.png.b64",
+    "bytes": 326160
+  },
+  {
+    "path": "Assets/ArtKit/Interiors/ruins_hall.png",
+    "b64": "Assets/ArtKit/Interiors/ruins_hall.png.b64",
+    "bytes": 314713
+  },
+  {
+    "path": "Assets/ArtKit/Flora/bush.png",
+    "b64": "Assets/ArtKit/Flora/bush.png.b64",
+    "bytes": 180241
+  },
+  {
+    "path": "Assets/ArtKit/Flora/fern.png",
+    "b64": "Assets/ArtKit/Flora/fern.png.b64",
+    "bytes": 185431
+  },
+  {
+    "path": "Assets/ArtKit/Flora/mushroom_cluster.png",
+    "b64": "Assets/ArtKit/Flora/mushroom_cluster.png.b64",
+    "bytes": 171668
+  },
+  {
+    "path": "Assets/ArtKit/Flora/flowers.png",
+    "b64": "Assets/ArtKit/Flora/flowers.png.b64",
+    "bytes": 143510
+  },
+  {
+    "path": "Assets/ArtKit/Flora/tall_grass.png",
+    "b64": "Assets/ArtKit/Flora/tall_grass.png.b64",
+    "bytes": 139779
+  },
+  {
+    "path": "Assets/ArtKit/Flora/ivy.png",
+    "b64": "Assets/ArtKit/Flora/ivy.png.b64",
+    "bytes": 125713
+  },
+  {
+    "path": "Assets/ArtKit/UI/Cards/Faces/g41_toxina_verde.png",
+    "b64": "Assets/ArtKit/UI/Cards/Faces/g41_toxina_verde.png.b64",
+    "bytes": 368630
+  },
+  {
+    "path": "Assets/ArtKit/UI/Cards/Faces/g42_lamina_toxica.png",
+    "b64": "Assets/ArtKit/UI/Cards/Faces/g42_lamina_toxica.png.b64",
+    "bytes": 255980
+  },
+  {
+    "path": "Assets/ArtKit/UI/Cards/Faces/g45_sifao_de_vida.png",
+    "b64": "Assets/ArtKit/UI/Cards/Faces/g45_sifao_de_vida.png.b64",
+    "bytes": 394726
+  },
+  {
+    "path": "Assets/ArtKit/UI/Cards/Faces/g48_expor_nervo.png",
+    "b64": "Assets/ArtKit/UI/Cards/Faces/g48_expor_nervo.png.b64",
+    "bytes": 268967
+  },
+  {
+    "path": "Assets/ArtKit/UI/Cards/Faces/g50_nevoa_debilitante.png",
+    "b64": "Assets/ArtKit/UI/Cards/Faces/g50_nevoa_debilitante.png.b64",
+    "bytes": 278697
+  },
+  {
+    "path": "Assets/ArtKit/UI/Cards/Faces/g53_beijo_da_serpe.png",
+    "b64": "Assets/ArtKit/UI/Cards/Faces/g53_beijo_da_serpe.png.b64",
+    "bytes": 308439
+  },
+  {
+    "path": "Assets/ArtKit/UI/Cards/Faces/g54_paralisia_runica.png",
+    "b64": "Assets/ArtKit/UI/Cards/Faces/g54_paralisia_runica.png.b64",
+    "bytes": 360457
+  },
+  {
+    "path": "Assets/ArtKit/UI/Cards/Faces/g55_ceifar.png",
+    "b64": "Assets/ArtKit/UI/Cards/Faces/g55_ceifar.png.b64",
+    "bytes": 321301
   }
 ]
