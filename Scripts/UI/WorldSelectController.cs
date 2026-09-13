@@ -21,8 +21,8 @@ public partial class WorldSelectController : Control
         AddChild(shade);
         var panel = new PanelContainer();
         panel.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        panel.OffsetLeft = 70; panel.OffsetRight = -70;
-        panel.OffsetTop = 28; panel.OffsetBottom = -28;
+        panel.OffsetLeft = 40; panel.OffsetRight = -40;
+        panel.OffsetTop = 18; panel.OffsetBottom = -18;
         panel.ClipContents = true;
         panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat
         {
@@ -40,7 +40,7 @@ public partial class WorldSelectController : Control
         title.AddThemeColorOverride("font_color", new Color("e6c27a"));
         title.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         header.AddChild(title);
-        header.AddChild(Ui.Button("← Voltar", () => Cancelled?.Invoke()));
+        header.AddChild(Ui.Button("Voltar", () => Cancelled?.Invoke()));
         box.AddChild(Ui.Body("Cada mundo é uma campanha isolada. Criar um mundo não apaga os outros.", 15));
         _status = Ui.Body("", 13);
         _status.AddThemeColorOverride("font_color", new Color("8999aa"));
@@ -51,7 +51,7 @@ public partial class WorldSelectController : Control
         _list.AddThemeConstantOverride("separation", 10);
         scroll.AddChild(_list);
         Ui.FitScrollChild(scroll, _list);
-        box.AddChild(Ui.Button("+  CRIAR NOVO MUNDO", OpenCreate));
+        box.AddChild(Ui.Button("+ Criar novo mundo", OpenCreate));
         Refresh();
     }
 

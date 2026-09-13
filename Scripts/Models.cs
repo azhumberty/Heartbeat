@@ -323,5 +323,5 @@ public sealed class GameSettings { public float Volume { get; set; } = 0.8f; pub
     /// <summary>When true, uses OpenRouter instead of Groq (allows uncensored models).</summary>
     public bool UseOpenRouter { get; set; } = false;
     /// <summary>OpenRouter model slug, e.g. "mistralai/mistral-7b-instruct:free" or "cognitivecomputations/dolphin-mixtral-8x7b".</summary>
-    public string OpenRouterModel { get; set; } = "mistralai/mistral-7b-instruct:free";
+    public string OpenRouterModel { get; set; } = "cognitivecomputations/dolphin-mistral-24b-venice-edition:free";
 }

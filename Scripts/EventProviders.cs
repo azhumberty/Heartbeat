@@ -72,8 +72,8 @@ public sealed class GroqEventProvider : IEventProvider
     {
         var assets=context.Assets.Where(a=>a.Enabled&&a.Procedural).Take(8).Select(a=>new {a.Id,a.DisplayName,a.Category,a.Tags}).ToArray();
         var recent=context.Game.RecentEvents.TakeLast(5).Select(e=>e[..Math.Min(e.Length,120)]).ToArray();
-        var compact=new {player=context.Game.PlayerName,seed=context.Game.WorldSeed,expedition=context.Game.ExpeditionIndex+1,campResidents=context.Game.CampResidents,region=context.Game.WorldLore.RegionName,premise=context.Game.WorldLore.Premise,node=new {context.Node.Id,context.Node.Title,kind=context.Node.Kind.ToString(),context.Node.Description},assets,recent};
-        return "Crie um evento curto de RPG medieval dark romântico em português. Forneça 2 a 4 escolhas distintas. Não conceda cartas. Deltas: coins -50..50, health -25..25, energy -25..25. Responda somente no JSON do schema. Contexto: "+JsonSerializer.Serialize(compact);
+        var compact=new {player=context.Game.PlayerName,seed=context.Game.WorldSeed,expedition=context.Game.ExpeditionIndex+1,campResidents=context.Game.CampResidents,region=context.Game.WorldLore.RegionName,premise=context.Game.WorldLore.Premise,worldPrompt=context.Game.WorldPrompt,threat=context.Game.WorldLore.Threat,factions=context.Game.WorldLore.Factions,node=new {context.Node.Id,context.Node.Title,kind=context.Node.Kind.ToString(),context.Node.Description},assets,recent};
+        return "Crie um evento curto de RPG 2D em português, fiel ao pedido do jogador e à ameaça deste mundo. Forneça 2 a 4 escolhas distintas. Não conceda cartas. Deltas: coins -50..50, health -25..25, energy -25..25. Responda somente no JSON do schema. Contexto: "+JsonSerializer.Serialize(compact);
     }
     static async Task<HttpResponseMessage> PostWithRetry(System.Net.Http.HttpClient client,string url,string payload,CancellationToken token)
     {

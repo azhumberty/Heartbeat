@@ -40,7 +40,14 @@ public static class Ui
 
     public static Button Button(string text, Action action)
     {
-        var n = new Button { Text = text, CustomMinimumSize = new(0, 42), ClipText = true };
+        var n = new Button
+        {
+            Text = text,
+            ClipText = false,
+            AutowrapMode = TextServer.AutowrapMode.Off,
+            CustomMinimumSize = new Vector2(160, 42),
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
+        };
         foreach(var state in new[]{"normal","hover","pressed"}) n.AddThemeStyleboxOverride(state,new StyleBoxFlat { BgColor=new Color(state=="normal"?"263449":state=="hover"?"405671":"566c86"),CornerRadiusTopLeft=7,CornerRadiusTopRight=7,CornerRadiusBottomLeft=7,CornerRadiusBottomRight=7,ContentMarginLeft=14,ContentMarginRight=14,ContentMarginTop=9,ContentMarginBottom=9 });
         n.MouseEntered += () => n.CreateTween().TweenProperty(n, "modulate", new Color("eef7ff"), .1);
         n.MouseExited += () => n.CreateTween().TweenProperty(n, "modulate", Colors.White, .14);

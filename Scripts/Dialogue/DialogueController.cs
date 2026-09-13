@@ -105,8 +105,12 @@ public partial class DialogueController : Control
         try
         {
             var s=Actor.State; s.TimeContext=$"Dia {Game.Day}, {Game.Period}";
+            var lore=Game.WorldLore??new WorldLore();
+            var prompt=string.IsNullOrWhiteSpace(Game.WorldPrompt)?lore.Premise:Game.WorldPrompt;
+            if(prompt.Length>420)prompt=prompt[..420].Trim()+"...";
+            var worldCtx=$"Mundo {lore.RegionName}. Pedido do jogador: {prompt}. Ameaca: {lore.Threat}. Tom: {lore.Atmosphere}. Local {s.CurrentLocation}; {s.TimeContext}; atividade {s.CurrentActivity}";
             var memory=new SocialMemoryService();
-            memory.PrepareTurn(Actor.Data,s,$"Floresta medieval; local {s.CurrentLocation}; {s.TimeContext}; atividade {s.CurrentActivity}; desejo {s.CurrentDesire}",Game.Day,Game.WorldMinutes);
+            memory.PrepareTurn(Actor.Data,s,worldCtx,Game.Day,Game.WorldMinutes);
             IDialogueProvider provider = Game.Settings.UseOpenRouter
                 ? new OpenRouterDialogueProvider()
                 : (Game.Settings.UseOnlineAi ? new GroqDialogueProvider() : new ProceduralDialogueProvider());

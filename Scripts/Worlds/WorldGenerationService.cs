@@ -21,7 +21,7 @@ public static class WorldGenerationService
             Origin = (selectedIds?.Count ?? 0) > 0 ? "CreativeLibrary" : "WorldGenerator",
             SelectedLibraryIds = (selectedIds ?? Array.Empty<string>()).Where(id => !string.IsNullOrWhiteSpace(id)).Distinct(StringComparer.OrdinalIgnoreCase).Take(24).ToList(),
             Name = InferName(text, rng),
-            Description = text.Length > 280 ? text[..280].Trim() + "…" : text,
+            Description = text.Length > 500 ? text[..500].Trim() + "..." : text,
             Genre = lower.Contains("academia") ? "academia arcana" : lower.Contains("ilha") ? "ilha amaldiçoada" : "dark fantasy medieval",
             Tone = lower.Contains("romance") || lower.Contains("amor") ? "sombria e romântica" : "sombria, íntima e cheia de promessas",
             StartingRegion = InferRegion(lower, rng),
@@ -125,7 +125,7 @@ public static class WorldGenerationService
     public static WorldLore ToLore(WorldDefinition def) => new()
     {
         RegionName = def.Name,
-        Premise = string.IsNullOrWhiteSpace(def.Description) ? def.Prompt : def.Description,
+        Premise = Limit(string.IsNullOrWhiteSpace(def.Prompt) ? def.Description : def.Prompt, 600, def.Description),
         Threat = def.Threat,
         Atmosphere = string.IsNullOrWhiteSpace(def.Atmosphere) ? def.Tone : def.Atmosphere,
         Factions = def.Factions.ToList(),

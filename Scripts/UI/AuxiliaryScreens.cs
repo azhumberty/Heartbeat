@@ -7,7 +7,8 @@ public static class AuxiliaryScreens
     {
         var screen=new Control(); parent.AddChild(screen); screen.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect); Ui.Panel(screen,"CONFIGURAÇÕES",out var body,close);
         var toggle=new CheckButton { Text="Usar IA online · Groq",ButtonPressed=settings.UseOnlineAi }; body.AddChild(toggle); toggle.Toggled+=v=>settings.UseOnlineAi=v;
-        body.AddChild(Ui.Text("As mensagens e memórias recentes são enviadas à Groq ao ativar IA online. A chave vem de GROQ_API_KEY; não é salva no jogo.",15));
+        var openRouter=new CheckButton { Text="OpenRouter · modelo livre (Dolphin uncensored)",ButtonPressed=settings.UseOpenRouter }; body.AddChild(openRouter); openRouter.Toggled+=v=>settings.UseOpenRouter=v;
+        body.AddChild(Ui.Text("Groq: GROQ_API_KEY. OpenRouter (gratis): OPENROUTER_API_KEY em openrouter.ai — modelo Dolphin Venice. O pedido do mundo entra no dialogo e nos eventos.",14));
         foreach(var field in new[]{"Endpoint","Modelo"}) { body.AddChild(Ui.Text(field,14)); var edit=new LineEdit { Text=field=="Modelo"?settings.Model:settings.Endpoint }; body.AddChild(edit); edit.TextChanged+=t=> { if(field=="Modelo") settings.Model=t; else settings.Endpoint=t; }; }
         var volume=new HSlider { MinValue=0,MaxValue=1,Step=.05,Value=settings.Volume }; body.AddChild(Ui.Text("Volume",14)); body.AddChild(volume); volume.ValueChanged+=v=>{ settings.Volume=(float)v; AudioServer.SetBusVolumeDb(0,Mathf.LinearToDb(Math.Max(.001f,(float)v))); };
         body.AddChild(Ui.Text("Velocidade inicial do relógio",14));

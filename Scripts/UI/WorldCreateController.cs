@@ -26,26 +26,26 @@ public partial class WorldCreateController : Control
         AddChild(shade);
         var panel = new PanelContainer();
         panel.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        panel.OffsetLeft = 80; panel.OffsetRight = -80;
-        panel.OffsetTop = 30; panel.OffsetBottom = -30;
+        panel.OffsetLeft = 36; panel.OffsetRight = -36;
+        panel.OffsetTop = 16; panel.OffsetBottom = -16;
         panel.ClipContents = true;
         panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat
         {
             BgColor = new Color("0a1220ee"),
             CornerRadiusTopLeft = 14, CornerRadiusTopRight = 14, CornerRadiusBottomLeft = 14, CornerRadiusBottomRight = 14,
-            ContentMarginLeft = 32, ContentMarginRight = 32, ContentMarginTop = 24, ContentMarginBottom = 24
+            ContentMarginLeft = 18, ContentMarginRight = 18, ContentMarginTop = 14, ContentMarginBottom = 14
         });
         AddChild(panel);
         var outer = new VBoxContainer();
-        outer.AddThemeConstantOverride("separation", 12);
+        outer.AddThemeConstantOverride("separation", 8);
         panel.AddChild(outer);
         var header = new HBoxContainer();
         outer.AddChild(header);
-        var title = Ui.Text("CRIAR NOVO MUNDO", 28);
+        var title = Ui.Text("CRIAR NOVO MUNDO", 22);
         title.AddThemeColorOverride("font_color", new Color("e6c27a"));
         title.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         header.AddChild(title);
-        header.AddChild(Ui.Button("← Voltar", () => Cancelled?.Invoke()));
+        header.AddChild(Ui.Button("Voltar", () => Cancelled?.Invoke()));
         _scroll = new ScrollContainer { SizeFlagsVertical = SizeFlags.ExpandFill, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         outer.AddChild(_scroll);
         _body = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
@@ -85,7 +85,7 @@ public partial class WorldCreateController : Control
                 ? ""
                 : _prompt,
             PlaceholderText = "Um mundo medieval sombrio onde humanos e criaturas humanoides convivem. Existe uma enorme floresta amaldiçoada, vilas decadentes, mercadores viajantes, romance, mistérios, lobisomens, minotauros e uma guerra entre três facções.",
-            CustomMinimumSize = new Vector2(0, 180),
+            CustomMinimumSize = new Vector2(0, 110),
             WrapMode = TextEdit.LineWrappingMode.Boundary,
             SizeFlagsHorizontal = SizeFlags.ExpandFill
         };
@@ -94,7 +94,7 @@ public partial class WorldCreateController : Control
         _status = Ui.Body("", 14);
         _status.AddThemeColorOverride("font_color", new Color("e5b18b"));
         _body.AddChild(_status);
-        _footer.AddChild(Ui.Button("Continuar → Biblioteca (opcional)", () =>
+        _footer.AddChild(Ui.Button("Continuar - Biblioteca (opcional)", () =>
         {
             var value = edit.Text.Trim();
             if (value.Length < 8) { _status.Text = "Escreve pelo menos um pedido curto (8 caracteres)."; return; }
@@ -109,21 +109,21 @@ public partial class WorldCreateController : Control
         Clear();
         _body.AddChild(Ui.Body("Deseja adicionar conteúdo da sua biblioteca?", 22));
         _body.AddChild(Ui.Body("É opcional. Podes pular: 0 NPCs persistentes é válido — o mundo nasce só do pedido. Ou marca um ferreiro e deixa o resto ser gerado.", 15));
-        var assets = new ContentLibrary().Load().Where(a => a.Enabled && a.Category is "Personagens" or "NPCs" or "Mercadores" or "Inimigos" or "Cartas").ToList();
+        var assets = UniqueLibraryPicks();
         var checks = new Dictionary<string, CheckBox>(StringComparer.OrdinalIgnoreCase);
         if (assets.Count == 0)
-            _body.AddChild(Ui.Body("A biblioteca está vazia. Pular continua — a campanha será 100% gerada.", 15));
+            _body.AddChild(Ui.Body("A biblioteca esta vazia. Pular continua — a campanha sera gerada.", 14));
         else
         {
             foreach (var group in assets.GroupBy(a => a.Category == "Personagens" ? "NPCs" : a.Category))
             {
-                var heading = Ui.Text(group.Key.ToUpperInvariant(), 14);
+                var heading = Ui.Text(group.Key.ToUpperInvariant(), 13);
                 heading.AddThemeColorOverride("font_color", new Color("c9b27a"));
                 _body.AddChild(heading);
-                foreach (var asset in group.Take(16))
+                foreach (var asset in group)
                 {
-                    var box = new CheckBox { Text = asset.DisplayName, ButtonPressed = _selected.Contains(asset.Id) };
-                    box.AddThemeFontSizeOverride("font_size", 15);
+                    var box = new CheckBox { Text = CleanLabel(asset.DisplayName), ButtonPressed = _selected.Contains(asset.Id) };
+                    box.AddThemeFontSizeOverride("font_size", 14);
                     _body.AddChild(box);
                     checks[asset.Id] = box;
                 }
@@ -135,9 +135,36 @@ public partial class WorldCreateController : Control
             foreach (var pair in checks)
                 if (pair.Value.ButtonPressed) _selected.Add(pair.Key);
         }
-        _footer.AddChild(Ui.Button("Pular — só o pedido", () => { _selected.Clear(); _ = Generate(); }));
+        _footer.AddChild(Ui.Button("Pular - so o pedido", () => { _selected.Clear(); _ = Generate(); }));
         if (assets.Count > 0)
             _footer.AddChild(Ui.Button("Usar o que marquei", () => { Collect(); _ = Generate(); }));
+    }
+
+    static List<ContentAssetRecord> UniqueLibraryPicks()
+    {
+        var raw = new ContentLibrary().Load()
+            .Where(a => a.Enabled && a.Category is "Personagens" or "NPCs" or "Mercadores" or "Inimigos")
+            .ToList();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var unique = new List<ContentAssetRecord>();
+        foreach (var asset in raw)
+        {
+            var key = CleanLabel(asset.DisplayName);
+            if (key.Length < 2 || !seen.Add(key)) continue;
+            unique.Add(asset);
+            if (unique.Count >= 8) break;
+        }
+        return unique;
+    }
+
+    static string CleanLabel(string name)
+    {
+        var n = (name ?? "").ToLowerInvariant();
+        foreach (var noise in new[] { " chroma", " fullbody", " portrait", " idle", " combat", " dressed" })
+            n = n.Replace(noise, "");
+        n = n.Replace('_', ' ').Replace('-', ' ').Trim();
+        if (n.Length == 0) return name ?? "";
+        return char.ToUpperInvariant(n[0]) + n[1..];
     }
 
     async Task Generate()
@@ -187,7 +214,7 @@ public partial class WorldCreateController : Control
         var nameEdit = new LineEdit { Text = _definition.Name, MaxLength = 70, CustomMinimumSize = new Vector2(0, 46) };
         nameEdit.AddThemeFontSizeOverride("font_size", 18);
         _body.AddChild(nameEdit);
-        _footer.AddChild(Ui.Button("Continuar → O teu nome", () =>
+        _footer.AddChild(Ui.Button("Continuar - o teu nome", () =>
         {
             var value = nameEdit.Text.Trim();
             if (value.Length >= 2) _definition.Name = value;

@@ -141,6 +141,7 @@ public static class CharacterPromptBuilder
         b.AppendLine($"Preferências: {string.Join(", ",c.Preferences.FavoriteTopics.Take(6))}. Evita: {string.Join(", ",c.Preferences.AvoidedTopics.Take(4))}.");
         b.AppendLine($"Relação: {s.Relationship}; afeição {s.Affection}; confiança {s.Trust}; romance {s.Romance}; respeito {s.Emotions.Respect}. Humor simulado: {s.CurrentMood}; energia {s.Energy}; estresse {s.Stress}.");
         b.AppendLine("Contexto atual: "+s.WorldContext);
+        b.AppendLine("Viva neste mundo. Use o pedido do jogador, a ameaça e o tom. Não invente outro cenário.");
         if(!string.IsNullOrWhiteSpace(s.MemorySummary))b.AppendLine("Resumo persistente: "+s.MemorySummary);
         b.AppendLine("CANON confirmado (somente estes fatos podem ser lembrados como acontecimentos): "+(relevant.Count==0?"nenhum relevante":string.Join(" | ",relevant.Select(m=>m.Content))));
         b.AppendLine("Responda em português como o mesmo personagem, em 1-3 frases. Não invente encontros, promessas ou fatos passados. Fala criativa não vira canon. Mantenha personalidade, humor, relação, local e horário.");
