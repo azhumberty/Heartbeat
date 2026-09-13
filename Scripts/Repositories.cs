@@ -68,7 +68,7 @@ public sealed class SaveManager
     }
     public void Save(GameSave game, int slot = 1)
     {
-        Migrate(game); game.SaveVersion = 6;
+        Migrate(game); game.SaveVersion = 7;
         DirAccess.MakeDirRecursiveAbsolute(ProjectSettings.GlobalizePath("user://saves"));
         var snapshot = JsonSerializer.SerializeToNode(game, _json)!;
         snapshot.AsObject().Remove("Character"); snapshot.AsObject().Remove("State");
@@ -86,7 +86,7 @@ public sealed class SaveManager
     {
         save.CharacterStates ??= new(); save.CharacterIds ??= new();
         save.Player ??= new PlayerStats();
-        save.WorldLore ??= new(); save.AtlasNodes ??= new(); save.RecentEvents ??= new();
+        save.WorldLore ??= new(); save.AtlasNodes ??= new(); save.RecentEvents ??= new();save.CampResidents??=new();
         save.PlayerName=(save.PlayerName??"Viajante").Trim();
         if(string.IsNullOrWhiteSpace(save.PlayerName))save.PlayerName="Viajante";
         save.PlayerName=save.PlayerName[..Math.Min(32,save.PlayerName.Length)];
@@ -125,7 +125,13 @@ public sealed class SaveManager
             save.WorldLore ??= WorldLoreManager.CreateOffline(save.WorldSeed == 0 ? 1 : save.WorldSeed);
             save.AtlasNodes = AtlasGenerator.Create(save.WorldSeed == 0 ? 1 : save.WorldSeed);
         }
+        // v6→v7: endless expeditions and persistent camp. Existing map IDs remain valid.
+        if(save.SaveVersion<7)
+        {
+            save.ExpeditionIndex=Math.Max(0,save.ExpeditionIndex);
+            foreach(var node in save.AtlasNodes)if(string.IsNullOrWhiteSpace(node.TemplateId))node.TemplateId=AtlasGenerator.TemplateFromId(node.Id);
+        }
         save.FirstPerson = false;
-        save.SaveVersion = 6;
+        save.SaveVersion = 7;
     }
 }

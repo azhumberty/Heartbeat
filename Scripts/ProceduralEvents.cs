@@ -41,6 +41,11 @@ public sealed class ProceduralEventService
             AtlasNodeKind.Mystery=>Mystery(node,rng),
             _=>Road(node,rng)
         };
+        if(node.Kind==AtlasNodeKind.Rest&&context.Game.CampResidents.Count>0)
+        {
+            var names=new CharacterRepository().List().Where(c=>context.Game.CampResidents.Contains(c.Id)).Select(c=>c.Name).ToList();
+            eventResult.Text+="\n\nMoradores presentes: "+(names.Count>0?string.Join(", ",names):string.Join(", ",context.Game.CampResidents));
+        }
         eventResult.BackgroundPath=node.BackgroundId;
         Sanitize(eventResult);
         return eventResult;

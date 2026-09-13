@@ -1,6 +1,6 @@
 # HEARTBEAT — HANDOFF ATUAL
 
-**Atualizado em:** 12 de setembro de 2026  
+**Atualizado em:** 13 de setembro de 2026
 **Stack:** Godot 4.7.2 Mono, C# e .NET 8
 
 ## Direção atual
@@ -31,6 +31,11 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - Estrada, taverna, descanso e mistério usam `ProceduralEventService`: cada cena oferece duas escolhas, aplica consequências limitadas pelo C# e salva um resumo curto.
 - Quando a IA online está ativa, `GroqEventProvider` sugere o texto e as escolhas em JSON estrito; timeout, cancelamento, retry de 429/5xx e fallback local mantêm a campanha jogável.
 - O Atlas atualiza bloqueios, cores e caminhos imediatamente depois de concluir um evento, encontro ou combate.
+- Ao vencer o chefe, o Atlas gera uma nova expedição determinística com novos IDs e volta a ler os assets ativos do Criativo. O acampamento, o baralho, os relacionamentos e o restante do save permanecem.
+- Personagens de relacionamento com afeição 40 ou mais podem ser convidados pelo diálogo para morar no acampamento. Os moradores ficam persistidos no save e aparecem nos eventos de descanso.
+- Saves antigos migram para a versão 7, preservando IDs do primeiro Atlas e inferindo a identidade de rota necessária às expedições seguintes.
+- O painel inferior de combate usa 196 px e o diálogo usa 228 px de altura útil, mantendo o personagem visível.
+- O fluxo iniciado em memória agora passa imediatamente à persistência normal; progresso feito depois de Novo Jogo ou Carregar Jogo é salvo corretamente.
 
 ## Arquivos principais
 
@@ -52,7 +57,7 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - `dotnet build --no-restore`: concluído com **0 erros e 0 avisos**.
 - Godot aberto em modo sem interface com a cena `Scenes/World/World.tscn`: sem erro de inicialização.
 - Menu principal iniciado com o lote Grok: sem erros de carregamento no console.
-- `Scenes/CampaignChecks.tscn`: `CAMPAIGN_CHECKS_PASS assets=40 nodes=7`.
+- `Scenes/CampaignChecks.tscn`: `CAMPAIGN_CHECKS_PASS assets=40 nodes=7`, incluindo nova expedição e acampamento persistente.
 - A verificação de campanha também confirma duas a quatro escolhas, persistência do resultado e ausência de recompensa indevida de carta.
 - O teste HTTP simulado confirmou retry após 429, clamp de consequências, JSON válido e fallback diante de resposta inválida.
 - O controlador do modo Criativo foi instanciado em árvore pelo teste sem erro de interface.
@@ -63,9 +68,8 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 ## Próximas tarefas recomendadas
 
 1. Adicionar edição de carta de companheiro e quatro golpes ao cadastro de Personagem.
-2. Expandir o Atlas para expedições sucessivas e acampamento persistente.
-3. Testar visualmente o fluxo completo em 1280×720 no editor.
-4. Ajustar os detalhes de layout encontrados nesse teste visual.
+2. Testar visualmente o fluxo completo em 1280×720 no editor.
+3. Ajustar os detalhes de layout encontrados nesse teste visual.
 
 ## Regras essenciais
 

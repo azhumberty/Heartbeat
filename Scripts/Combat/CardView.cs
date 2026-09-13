@@ -13,7 +13,7 @@ public partial class CardView : PanelContainer
 
     public override void _Ready()
     {
-        CustomMinimumSize = Compact ? new(160, 230) : new(240, 350);
+        CustomMinimumSize = Compact ? new(138, 174) : new(240, 350);
         MouseDefaultCursorShape = CursorShape.PointingHand;
         
         var color = Color.FromString(Card.FrameColor, new Color("b39a64"));

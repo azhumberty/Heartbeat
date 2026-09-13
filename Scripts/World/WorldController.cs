@@ -32,7 +32,7 @@ public partial class WorldController : Node
 
     public override void _Ready()
     {
-        _game = InitialSave ?? _saves.Load() ?? new GameSave();
+        var initial=InitialSave;InitialSave=null;_game = initial ?? _saves.Load() ?? new GameSave();_saves.Migrate(_game);
         
         // Ensure UI layer is top-level
         _uiLayer = new CanvasLayer { Layer = 1 };
@@ -156,7 +156,8 @@ public partial class WorldController : Node
             return;
         }
 
-        if (destinationId == "knight")
+        var template=string.IsNullOrWhiteSpace(node.TemplateId)?AtlasGenerator.TemplateFromId(node.Id):node.TemplateId;
+        if (template == "knight")
         {
             ShowVnMeet(ChromaArt.KnightSprite, "Cavaleiro");
             return;
@@ -184,7 +185,7 @@ public partial class WorldController : Node
             return;
         }
 
-        if(destinationId=="tavern")
+        if(template=="tavern")
         {
             _vnCharacter.Texture=ChromaArt.LoadArt(ChromaArt.BarmaidSprite);
             ChromaArt.ApplyChroma(_vnCharacter);
@@ -237,6 +238,7 @@ public partial class WorldController : Node
             Actor = actor,
             Game = _game,
             DuelRequested = StartDuel,
+            Changed = Save,
             Closed = () =>
             {
                 FinishAtlasNode();
@@ -278,18 +280,25 @@ public partial class WorldController : Node
     void FinishAtlasNode()
     {
         if (string.IsNullOrEmpty(_activeAtlasNodeId)) return;
+        var finished=_game.AtlasNodes.FirstOrDefault(node=>node.Id==_activeAtlasNodeId);
         AtlasGenerator.Complete(_game, _activeAtlasNodeId);
         _game.RecentEvents.Add(_activeAtlasNodeId);
         if (_game.RecentEvents.Count > 16) _game.RecentEvents.RemoveAt(0);
         _activeAtlasNodeId = "";
-        _atlas.RefreshProgress();
+        if(finished?.Kind==AtlasNodeKind.Boss){AtlasGenerator.BeginNextExpedition(_game);RebuildAtlas();}
+        else _atlas.RefreshProgress();
         Save();
+    }
+
+    void RebuildAtlas()
+    {
+        var previous=_atlas;_atlas=new AtlasController{Game=_game,NodeSelected=OnTravel};_uiLayer.AddChild(_atlas);previous.QueueFree();
     }
 
     void Save()
     {
         _game.FirstPerson = false;
-        if (InitialSave == null) _saves.Save(_game);
+        _saves.Save(_game);
     }
 
     void ResumeCombat()
@@ -302,8 +311,8 @@ public partial class WorldController : Node
     {
         if(_screen!=null)return;
         var arena = enemy.Id is "forest" or "night" ? "forest" : "camp";
-        var manager=CombatManager.Start(_game,new CardRepository().Catalog(), "wild_encounter", enemy.Id, arena, _time.Hour);
-        manager.State.RewardXp=enemy.RewardXp;
+        var encounterId="atlas_"+(string.IsNullOrWhiteSpace(_activeAtlasNodeId)?enemy.Id:_activeAtlasNodeId);var manager=CombatManager.Start(_game,new CardRepository().Catalog(), encounterId, enemy.Id, arena, _time.Hour);
+        var scale=Math.Min(25,_game.ExpeditionIndex);manager.State.Enemy.MaxHealth+=scale*10;manager.State.Enemy.Health=manager.State.Enemy.MaxHealth;manager.State.RewardXp=enemy.RewardXp+scale*3;
         manager.State.Cooldown=0;
         manager.State.Repeat=true;
         await ShowCombat(manager);
@@ -332,7 +341,7 @@ public partial class WorldController : Node
         _combat.Finished=()=>_ = LeaveCombat(manager,fade);
         PersistCombat();await Fade(fade,0,.4);fade.MouseFilter=Control.MouseFilterEnum.Ignore;
     }
-    void PersistCombat(){if(InitialSave==null)_saves.Save(_game);}
+    void PersistCombat()=>_saves.Save(_game);
     async Task LeaveCombat(CombatManager manager,ColorRect fade)
     {
         if(manager.State.Result.Length==0)return;

@@ -21,9 +21,9 @@ public static class WorldLoreManager
 
 public static class AtlasGenerator
 {
-    public static List<AtlasNodeData> Create(long seed)
+    public static List<AtlasNodeData> Create(long seed,int expeditionIndex=0)
     {
-        var rng=new Random(unchecked((int)seed));
+        expeditionIndex=Math.Max(0,expeditionIndex);var rng=new Random(unchecked((int)(seed+expeditionIndex*104729L)));
         var library=new ContentLibrary();var backgrounds=library.Enabled("Cenários");var enemies=library.Enabled("Inimigos");var characters=library.Enabled("Personagens");var merchants=library.Enabled("Mercadores");
         if(characters.Any(a=>!a.BuiltIn))characters=characters.Where(a=>!a.BuiltIn).ToList();
         if(merchants.Any(a=>!a.BuiltIn))merchants=merchants.Where(a=>!a.BuiltIn).ToList();
@@ -34,9 +34,10 @@ public static class AtlasGenerator
             var total=pool.Sum(a=>Math.Max(.1f,a.Weight));var roll=rng.NextDouble()*total;
             foreach(var item in pool){roll-=Math.Max(.1f,item.Weight);if(roll<=0)return item;}return pool[^1];
         }
-        AtlasNodeData N(string id,string title,AtlasNodeKind kind,float x,float y,string fallbackArt,string hint,string text,AtlasNodeStatus status,params string[] links)
+        string NodeId(string template)=>expeditionIndex==0?template:$"e{expeditionIndex}_{template}";
+        AtlasNodeData N(string template,string title,AtlasNodeKind kind,float x,float y,string fallbackArt,string hint,string text,AtlasNodeStatus status,params string[] links)
         {
-            var art=Pick(backgrounds,hint);var content=kind switch{AtlasNodeKind.Combat or AtlasNodeKind.Boss=>Pick(enemies,hint)?.Id??"",AtlasNodeKind.Character=>Pick(characters,hint)?.Id??"knight",AtlasNodeKind.Merchant=>Pick(merchants,hint)?.Id??"merchant",_=>art?.Id??""};return new(){Id=id,Title=title,Kind=kind,X=Math.Clamp(x+(float)(rng.NextDouble()-.5)*.025f,.08f,.92f),Y=Math.Clamp(y+(float)(rng.NextDouble()-.5)*.04f,.14f,.82f),BackgroundId=art?.Path??fallbackArt,ContentId=content,Description=text,Status=status,Connections=links.ToList()};
+            var art=Pick(backgrounds,hint);var content=kind switch{AtlasNodeKind.Combat or AtlasNodeKind.Boss=>Pick(enemies,hint)?.Id??"",AtlasNodeKind.Character=>Pick(characters,hint)?.Id??"knight",AtlasNodeKind.Merchant=>Pick(merchants,hint)?.Id??"merchant",_=>art?.Id??""};return new(){Id=NodeId(template),TemplateId=template,Title=title,Kind=kind,X=Math.Clamp(x+(float)(rng.NextDouble()-.5)*.025f,.08f,.92f),Y=Math.Clamp(y+(float)(rng.NextDouble()-.5)*.04f,.14f,.82f),BackgroundId=art?.Path??fallbackArt,ContentId=content,Description=text,Status=status,Connections=links.Select(NodeId).ToList()};
         }
         return new()
         {
@@ -55,6 +56,25 @@ public static class AtlasGenerator
         node.Status=AtlasNodeStatus.Completed;
         foreach(var next in node.Connections)
             if(save.AtlasNodes.FirstOrDefault(n=>n.Id==next) is { Status:AtlasNodeStatus.Locked } unlocked)unlocked.Status=AtlasNodeStatus.Available;
+    }
+    public static void BeginNextExpedition(GameSave save)
+    {
+        save.ExpeditionIndex=Math.Min(save.ExpeditionIndex+1,1000000);save.AtlasNodes=Create(save.WorldSeed,save.ExpeditionIndex);
+        save.RecentEvents.Add($"expedition:{save.ExpeditionIndex}:iniciada");while(save.RecentEvents.Count>16)save.RecentEvents.RemoveAt(0);
+    }
+    public static string TemplateFromId(string id)
+    {
+        if(string.IsNullOrWhiteSpace(id))return "event";var separator=id.IndexOf('_');return id.Length>2&&id[0]=='e'&&separator>1&&int.TryParse(id[1..separator],out _)?id[(separator+1)..]:id;
+    }
+}
+
+public static class CampService
+{
+    public static bool CanInvite(GameSave game,CharacterData character,CharacterState state)=>character.CanBuildRelationship&&state.Affection>=40&&!game.CampResidents.Contains(character.Id);
+    public static bool Invite(GameSave game,CharacterData character,CharacterState state)
+    {
+        if(!CanInvite(game,character,state))return false;game.CampResidents.Add(character.Id);if(!state.Flags.Contains("camp_resident"))state.Flags.Add("camp_resident");
+        state.RecentMemories.Insert(0,$"Aceitou morar no acampamento de {game.PlayerName}.");while(state.RecentMemories.Count>12)state.RecentMemories.RemoveAt(state.RecentMemories.Count-1);return true;
     }
 }
 

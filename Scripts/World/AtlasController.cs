@@ -23,7 +23,7 @@ public partial class AtlasController : Control
 
         var title = Ui.Text("ATLAS DE MEMÓRIAS", 34);
         title.Position = new Vector2(44, 30); title.AddThemeColorOverride("font_color", new Color("e5c276")); AddChild(title);
-        var subtitle = Ui.Text($"{Game.WorldLore.RegionName} · {Game.WorldLore.Threat}", 16);
+        var subtitle = Ui.Text($"EXPEDIÇÃO {Game.ExpeditionIndex+1} · {Game.WorldLore.RegionName} · {Game.WorldLore.Threat}", 16);
         subtitle.Position = new Vector2(46, 76); subtitle.AddThemeColorOverride("font_color", new Color("aab8c9")); AddChild(subtitle);
 
         _paths = new AtlasCanvas { Game = Game, MouseFilter = MouseFilterEnum.Ignore };

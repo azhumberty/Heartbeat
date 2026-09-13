@@ -247,7 +247,7 @@ public sealed class GameSave
     public Dictionary<string, EncounterProgress> Encounters { get; set; } = new();
     public CombatState? ActiveCombat { get; set; }
     public List<string> CombatHistory { get; set; } = new();
-    public int SaveVersion { get; set; } = 6;
+    public int SaveVersion { get; set; } = 7;
     // Legacy fields are retained only to migrate existing slot files safely.
     public CharacterData? Character { get; set; } = null; public CharacterState? State { get; set; } = null;
     public List<string> CharacterIds { get; set; } = new(); public Dictionary<string, CharacterState> CharacterStates { get; set; } = new(); public PlayerStats Player { get; set; } = new();
@@ -273,6 +273,10 @@ public sealed class GameSave
     public WorldLore WorldLore { get; set; } = new();
     public List<AtlasNodeData> AtlasNodes { get; set; } = new();
     public List<string> RecentEvents { get; set; } = new();
+    /// <summary>Zero-based endless expedition number.</summary>
+    public int ExpeditionIndex { get; set; }
+    /// <summary>Relationship characters invited to the persistent camp.</summary>
+    public List<string> CampResidents { get; set; } = new();
 }
 
 public sealed class WorldLore
@@ -291,6 +295,7 @@ public enum AtlasNodeStatus { Locked, Available, Completed }
 public sealed class AtlasNodeData
 {
     public string Id { get; set; } = Guid.NewGuid().ToString("N");
+    public string TemplateId { get; set; } = "";
     public string Title { get; set; } = "Novo caminho";
     public AtlasNodeKind Kind { get; set; } = AtlasNodeKind.Event;
     public AtlasNodeStatus Status { get; set; } = AtlasNodeStatus.Locked;

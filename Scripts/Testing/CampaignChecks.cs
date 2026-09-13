@@ -43,14 +43,18 @@ public partial class CampaignChecks : Node
             Require(atlas.Count(n=>n.Status==AtlasNodeStatus.Available)==1,"Início do Atlas inválido.");
             Require(atlas.All(n=>n.Connections.All(id=>atlas.Any(other=>other.Id==id))),"Atlas contém conexão inexistente.");
             Require(atlas.All(n=>!string.IsNullOrWhiteSpace(n.BackgroundId)),"Nó sem cenário.");
+            Require(atlas.All(n=>!string.IsNullOrWhiteSpace(n.TemplateId)),"Nó sem identidade de rota.");
             foreach(var combat in atlas.Where(n=>n.Kind is AtlasNodeKind.Combat or AtlasNodeKind.Boss))
                 _=EnemyDefinition.Get(string.IsNullOrWhiteSpace(combat.ContentId)?"forest":combat.ContentId);
             var save=new GameSave {WorldSeed=20260912,AtlasNodes=atlas};
+            var resident=new CharacterData{Id="qa_resident",Name="Aren",Age=25,CanBuildRelationship=true};var residentState=new CharacterState{Affection=39};Require(!CampService.Invite(save,resident,residentState),"Convite ignorou afeição mínima.");residentState.Affection=40;Require(CampService.Invite(save,resident,residentState)&&save.CampResidents.Contains(resident.Id),"Morador não persistiu.");
+            AtlasGenerator.BeginNextExpedition(save);Require(save.ExpeditionIndex==1&&save.AtlasNodes.All(n=>n.Id.StartsWith("e1_"))&&save.CampResidents.Contains(resident.Id),"Próxima expedição não preservou o acampamento.");
+            atlas=save.AtlasNodes;
             var story=new ProceduralEventService().Create(new EventContext {Game=save,Node=atlas[0],Assets=assets});
             Require(story.Choices.Count is >=2 and <=4,"Evento sem escolhas válidas.");
-            int ownedBefore=save.Deck.Owned.Count;
+            int ownedBefore=save.Deck.Owned.Count,eventCountBefore=save.RecentEvents.Count;
             _=new ProceduralEventService().Apply(save,story,story.Choices[0]);
-            Require(save.RecentEvents.Count==1,"Escolha de evento não foi persistida.");
+            Require(save.RecentEvents.Count==eventCountBefore+1,"Escolha de evento não foi persistida.");
             Require(save.Deck.Owned.Count==ownedBefore,"Evento concedeu carta indevidamente.");
             await CheckGroqEvent(save,atlas[0],assets);
             await CheckGroqLore();

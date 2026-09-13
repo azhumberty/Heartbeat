@@ -5,7 +5,7 @@ public partial class DialogueController : Control
 {
     public GameSave Game { get; set; }=new(); public NpcActor Actor { get; set; }=null!; public Action? Closed; public Action? Changed; public Action<NpcActor>? DuelRequested;
     const int MaxPlayerTurns = 8;
-    Label _line=null!,_status=null!; TextEdit _input=null!; bool _busy; int _turns; readonly CancellationTokenSource _cancel=new();
+    Label _line=null!,_status=null!; TextEdit _input=null!;Button? _invite; bool _busy; int _turns; readonly CancellationTokenSource _cancel=new();
     
     public override void _Ready()
     {
@@ -14,7 +14,7 @@ public partial class DialogueController : Control
         // Minimalist Bottom Panel
         var panel = new PanelContainer(); AddChild(panel);
         panel.SetAnchorsPreset(LayoutPreset.BottomWide);
-        panel.OffsetTop = -280; panel.OffsetBottom = -20;
+        panel.OffsetTop = -248; panel.OffsetBottom = -20;
         panel.OffsetLeft = 100; panel.OffsetRight = -100;
         
         var style = new StyleBoxFlat { BgColor = new Color(0f, 0f, 0f, 0.75f), ContentMarginLeft = 24, ContentMarginRight = 24, ContentMarginTop = 18, ContentMarginBottom = 18, CornerRadiusTopLeft = 12, CornerRadiusTopRight = 12, CornerRadiusBottomLeft = 12, CornerRadiusBottomRight = 12 };
@@ -54,6 +54,10 @@ public partial class DialogueController : Control
         {
             actions.AddChild(Ui.Button("Parque", () => { _input.Text = "Quer passar um tempo comigo no parque?"; _=Send(); }));
             actions.AddChild(Ui.Button("⚔️ Duelo", () => { DuelRequested?.Invoke(Actor); Closed?.Invoke(); }));
+            _invite=Ui.Button("Convidar para o acampamento",()=>
+            {
+                if(CampService.Invite(Game,Actor.Data,Actor.State)){_line.Text=$"{Actor.Data.Name} aceita dividir o acampamento com você.";_status.Text="Novo morador · progresso salvo";RefreshInvite();Changed?.Invoke();}
+            });RefreshInvite();actions.AddChild(_invite);
         }
         actions.AddChild(Ui.Button("Perfil", () => _line.Text = Actor.Data.CanBuildRelationship ? $"{Actor.Data.Description}\nAfeto {Actor.State.Affection} · Confiança {Actor.State.Trust}" : Actor.Data.Description));
         
@@ -85,6 +89,7 @@ public partial class DialogueController : Control
             {
                 new RelationshipSystem().Apply(s,r.AffectionDelta,r.TrustDelta,r.RomanceDelta,r.AttractionDelta);
                 s.Energy+=r.EnergyDelta; s.Stress+=r.StressDelta; s.Mood+=r.AffectionDelta; s.CurrentDesire=r.Desire;
+                RefreshInvite();
             }
             s.CurrentEmotion=r.Emotion; s.Clamp();
             memory.RecordConfirmedPlayerAction(Actor.Data,s,input,Game.Day,Game.WorldMinutes);
@@ -94,6 +99,10 @@ public partial class DialogueController : Control
         catch(OperationCanceledException) { }
         catch(Exception e) { if(IsInsideTree()) { var alternative = new ProceduralDialogueProvider().Reply(Actor.Data, Actor.State, input); _line.Text = alternative.Dialogue; Actor.State.CurrentEmotion = alternative.Emotion; _status.Text=$"Falha técnica ({e.GetType().Name})"; } }
         finally { _busy=false; }
+    }
+    void RefreshInvite()
+    {
+        if(_invite==null)return;var resident=Game.CampResidents.Contains(Actor.Data.Id);_invite.Text=resident?"Mora no acampamento":"Convidar para o acampamento";_invite.Disabled=resident||!CampService.CanInvite(Game,Actor.Data,Actor.State);_invite.TooltipText=resident?"Morador permanente do acampamento.":_invite.Disabled?"Requer 40 de afeição.":"Convidar para morar no acampamento.";
     }
     public override void _ExitTree() { _cancel.Cancel(); _cancel.Dispose(); }
 }
