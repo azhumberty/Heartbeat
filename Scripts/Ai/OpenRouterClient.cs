@@ -9,13 +9,13 @@ namespace Heartbeat;
 public static class OpenRouterClient
 {
     public const string Url = "https://openrouter.ai/api/v1/chat/completions";
-    public const string DefaultModel = "openrouter/free";
+    public const string DefaultModel = "mistralai/mistral-small-3.1-24b-instruct:free";
     static readonly string[] Fallbacks =
     {
-        "openrouter/free",
-        "z-ai/glm-5.2:free",
-        "google/gemma-4-31b-it:free",
-        "inclusionai/ling-3.0-flash-fin:free"
+        "mistralai/mistral-small-3.1-24b-instruct:free",
+        "google/gemma-3-12b-it:free",
+        "mistralai/mistral-7b-instruct:free",
+        "meta-llama/llama-3.1-8b-instruct:free"
     };
 
     public static string Key(GameSettings? settings)
@@ -86,6 +86,9 @@ public static class OpenRouterClient
         using var json = JsonDocument.Parse(raw);
         var content = json.RootElement.GetProperty("choices")[0].GetProperty("message").GetProperty("content").GetString() ?? "{}";
         content = content.Trim().TrimStart('`').TrimEnd('`').Replace("json\n", "", StringComparison.OrdinalIgnoreCase);
+        var start = content.IndexOf('{');
+        var end = content.LastIndexOf('}');
+        if (start >= 0 && end > start) content = content[start..(end + 1)];
         return content;
     }
 }

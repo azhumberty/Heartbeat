@@ -107,7 +107,14 @@ public sealed class OpenRouterEventProvider : IEventProvider
             var result = JsonSerializer.Deserialize<EventResult>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             if (result == null) throw new JsonException("Evento vazio");
             result.BackgroundPath = context.Node.BackgroundId;
-            result.ProviderStatus = "Online · OpenRouter (Dolphin)";
+            result.ProviderStatus = "Online · OpenRouter";
+            if (result.Choices == null || result.Choices.Count(c => !string.IsNullOrWhiteSpace(c.Text)) < 2)
+            {
+                var offline = new ProceduralEventService().Create(context);
+                if (string.IsNullOrWhiteSpace(result.Title)) result.Title = offline.Title;
+                if (string.IsNullOrWhiteSpace(result.Text)) result.Text = offline.Text;
+                result.Choices = offline.Choices;
+            }
             GD.Print("[AI] Evento OpenRouter validado");
             return ProceduralEventService.Sanitize(result);
         }

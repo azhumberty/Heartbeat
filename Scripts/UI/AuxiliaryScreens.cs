@@ -50,18 +50,34 @@ public static class AuxiliaryScreens
         box.AddChild(volume); volume.ValueChanged+=v=>{ settings.Volume=(float)v; AudioServer.SetBusVolumeDb(0, Mathf.LinearToDb(Math.Max(.001f,(float)v))); Persist(); };
         box.AddChild(Toggle("Tela cheia", DisplayServer.WindowGetMode()==DisplayServer.WindowMode.Fullscreen, v=>DisplayServer.WindowSetMode(v?DisplayServer.WindowMode.Fullscreen:DisplayServer.WindowMode.Windowed)));
 
-        var status=Ui.Body(OpenRouterClient.HasKey(settings) ? "Chave gravada. Clica Testar." : "Ainda sem chave.", 14);
-        status.AutowrapMode=TextServer.AutowrapMode.WordSmart;
+        var status=new Label
+        {
+            Text = OpenRouterClient.HasKey(settings) ? "Chave gravada. Clica TESTAR IA." : "Ainda sem chave.",
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+            ClipText = false,
+            CustomMinimumSize = new Vector2(0, 56)
+        };
+        status.AddThemeFontSizeOverride("font_size", 15);
         status.AddThemeColorOverride("font_color", new Color("a0c4e8"));
         box.AddChild(status);
         var testing=false;
-        box.AddChild(Ui.Button("TESTAR IA", async ()=>
+        Button testBtn=null!;
+        testBtn=Ui.Button("TESTAR IA", async ()=>
         {
-            if(testing)return; testing=true; Persist(); status.Text="A testar OpenRouter...";
+            if(testing)return; testing=true; Persist();
+            status.Text="A testar... espera uns segundos.";
+            testBtn.Text="A testar...";
             var r=await new OpenRouterDialogueProvider().ReplyAsync(new CharacterData { Name="Silas", Age=32 }, new CharacterState(), "Ola", settings);
-            if(GodotObject.IsInstanceValid(status)) status.Text=r.ProviderStatus;
+            var ok=r.ProviderStatus.StartsWith("Online", StringComparison.OrdinalIgnoreCase);
+            var line=ok
+                ? "OK · IA online. Silas: "+(r.Dialogue??"").Replace('\n',' ')
+                : "FALHOU · "+r.ProviderStatus;
+            if(line.Length>180)line=line[..180]+"...";
+            if(GodotObject.IsInstanceValid(status)) { status.Text=line; status.AddThemeColorOverride("font_color", ok?new Color("8fd19e"):new Color("e5b18b")); }
+            if(GodotObject.IsInstanceValid(testBtn)) testBtn.Text=ok?"TESTE OK":"TESTAR DE NOVO";
             testing=false;
-        }));
+        });
+        box.AddChild(testBtn);
         return screen;
     }
 

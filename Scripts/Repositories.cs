@@ -66,7 +66,8 @@ public sealed class SaveManager
             var settings=JsonSerializer.Deserialize<GameSettings>(File.ReadAllText(full),_json)??new GameSettings();
             if(string.IsNullOrWhiteSpace(settings.OpenRouterModel)
                 || settings.OpenRouterModel.Contains("mistral-7b-instruct",StringComparison.OrdinalIgnoreCase)
-                || settings.OpenRouterModel.Contains("dolphin-mistral-24b-venice",StringComparison.OrdinalIgnoreCase))
+                || settings.OpenRouterModel.Contains("dolphin-mistral-24b-venice",StringComparison.OrdinalIgnoreCase)
+                || settings.OpenRouterModel.Equals("openrouter/free",StringComparison.OrdinalIgnoreCase))
                 settings.OpenRouterModel=OpenRouterClient.DefaultModel;
             return settings;
         }
