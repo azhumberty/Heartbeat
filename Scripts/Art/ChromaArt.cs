@@ -40,9 +40,10 @@ public static class ChromaArt
 	public static string BackgroundForDestination(string destinationId) =>
 		destinationId.ToLowerInvariant() switch
 		{
-			"merchant" => "Backgrounds/merchant_tent.png",
-			"forest" => "Backgrounds/forest_dark.png",
+			"merchant" or "merchant_tent" => "Backgrounds/merchant_tent.png",
+			"forest" or "forest_dark" => "Backgrounds/forest_dark.png",
 			"camp" => "Backgrounds/camp.png",
+			"knight" => "Interiors/street.png",
 			"tavern" => "Interiors/tavern.png",
 			"ruin" or "ruins" => "Interiors/ruins_hall.png",
 			"cave" or "cave_chamber" => "Interiors/cave_chamber.png",

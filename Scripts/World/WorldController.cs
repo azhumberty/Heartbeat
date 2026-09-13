@@ -86,30 +86,87 @@ public partial class WorldController : Node3D
         Save();
     }
     
+    Button? _vnBack;
+
+    void ClearVnMeet()
+    {
+        _vnCharacter.Texture = null;
+        _vnCharacter.Material = null;
+        if (_vnBack != null)
+        {
+            _vnBack.QueueFree();
+            _vnBack = null;
+        }
+    }
+
+    void ShowVnMeet(string spritePath, string caption)
+    {
+        ClearVnMeet();
+        _vnCharacter.Texture = ChromaArt.LoadArt(spritePath);
+        ChromaArt.ApplyChroma(_vnCharacter);
+
+        _vnBack = Ui.Button(caption + " — Voltar ao atlas", () =>
+        {
+            ClearVnMeet();
+            _vnBackground.Texture = null;
+            _atlas.Visible = true;
+        });
+        _vnBack.Position = new Vector2(40, 620);
+        _vnBack.CustomMinimumSize = new Vector2(420, 44);
+        _uiLayer.AddChild(_vnBack);
+    }
+
+    void ShowScenicStop()
+    {
+        ClearVnMeet();
+        _vnBack = Ui.Button("Voltar ao atlas", () =>
+        {
+            ClearVnMeet();
+            _vnBackground.Texture = null;
+            _atlas.Visible = true;
+        });
+        _vnBack.Position = new Vector2(40, 620);
+        _vnBack.CustomMinimumSize = new Vector2(280, 44);
+        _uiLayer.AddChild(_vnBack);
+    }
+
     void OnTravel(string destinationId)
     {
-        // Hide Atlas, show Visual Novel view
         _atlas.Visible = false;
+        ClearVnMeet();
 
         _vnBackground.Modulate = new Color(0.85f, 0.85f, 0.88f);
         _vnBackground.Texture = ChromaArt.LoadArt(ChromaArt.BackgroundForDestination(destinationId));
 
-        if (destinationId == "merchant_tent")
+        if (destinationId is "merchant_tent" or "merchant")
         {
             var merchant = _npcs.GetNpc("merchant");
             if (merchant != null) OnNpcInteracted(merchant);
+            else ShowVnMeet(ChromaArt.MerchantSprite, "Mercador");
+            return;
         }
-        else if (destinationId == "forest_dark" || destinationId == "camp")
+
+        if (destinationId == "tavern")
         {
-            // Give 50% chance to encounter a character, 50% to encounter an enemy
+            ShowVnMeet(ChromaArt.BarmaidSprite, "Donzela da taverna");
+            return;
+        }
+
+        if (destinationId == "knight")
+        {
+            ShowVnMeet(ChromaArt.KnightSprite, "Cavaleiro");
+            return;
+        }
+
+        if (destinationId is "forest_dark" or "forest" or "camp")
+        {
             if (new Random().NextDouble() < 0.5)
             {
                 var rng = new Random();
                 var npcList = new System.Collections.Generic.List<string>(_game.CharacterStates.Keys);
                 if (npcList.Count > 0)
                 {
-                    string randomNpcId = npcList[rng.Next(npcList.Count)];
-                    var npc = _npcs.GetNpc(randomNpcId);
+                    var npc = _npcs.GetNpc(npcList[rng.Next(npcList.Count)]);
                     if (npc != null)
                     {
                         OnNpcInteracted(npc);
@@ -118,9 +175,12 @@ public partial class WorldController : Node3D
                 }
             }
 
-            var randomEnemy = EnemyDefinition.All[new Random().Next(EnemyDefinition.All.Length)];
-            _ = EnterCombat(randomEnemy);
+            var foeId = destinationId == "camp" ? "camp" : "forest";
+            _ = EnterCombat(EnemyDefinition.Get(foeId));
+            return;
         }
+
+        ShowScenicStop();
     }
     void OnNpcInteracted(NpcActor actor)
     {

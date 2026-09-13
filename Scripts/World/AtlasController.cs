@@ -11,15 +11,14 @@ public partial class AtlasController : Control
     public override void _Ready()
     {
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        
-        // Dark background
+
         var bg = new ColorRect { Color = new Color("0a0a0f") };
         bg.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         AddChild(bg);
 
         var title = new Label
         {
-            Text = "ATLAS DE MEMÃ“RIAS",
+            Text = "ATLAS DE MEMORIAS",
             HorizontalAlignment = HorizontalAlignment.Center
         };
         title.AddThemeFontSizeOverride("font_size", 32);
@@ -32,28 +31,31 @@ public partial class AtlasController : Control
         AddChild(container);
 
         var grid = new GridContainer { Columns = 3 };
-        grid.AddThemeConstantOverride("h_separation", 100);
-        grid.AddThemeConstantOverride("v_separation", 80);
+        grid.AddThemeConstantOverride("h_separation", 70);
+        grid.AddThemeConstantOverride("v_separation", 50);
         container.AddChild(grid);
 
-        // Define our fixed Nodes for the demo
+        // VN destinations (ids match ChromaArt.BackgroundForDestination)
         grid.AddChild(CreateNode("O Mercador", "merchant_tent", Colors.Gold));
         grid.AddChild(CreateNode("Floresta Sombria", "forest_dark", Colors.DarkGreen));
         grid.AddChild(CreateNode("Acampamento", "camp", Colors.SaddleBrown));
+        grid.AddChild(CreateNode("Taverna", "tavern", Colors.IndianRed));
+        grid.AddChild(CreateNode("O Cavaleiro", "knight", Colors.SteelBlue));
+        grid.AddChild(CreateNode("Rua", "street", Colors.DimGray));
     }
 
     Control CreateNode(string title, string id, Color color)
     {
         var box = new VBoxContainer();
         box.AddThemeConstantOverride("separation", 15);
-        
+
         var btn = new Button
         {
             CustomMinimumSize = new Vector2(120, 120),
-            Text = " ", // Empty, we will style it
+            Text = " ",
             MouseDefaultCursorShape = CursorShape.PointingHand
         };
-        
+
         var style = new StyleBoxFlat
         {
             BgColor = color * 0.5f,
@@ -62,20 +64,20 @@ public partial class AtlasController : Control
             CornerRadiusBottomLeft = 60, CornerRadiusBottomRight = 60, CornerRadiusTopLeft = 60, CornerRadiusTopRight = 60
         };
         btn.AddThemeStyleboxOverride("normal", style);
-        
+
         var hoverStyle = (StyleBoxFlat)style.Duplicate();
         hoverStyle.BgColor = color * 0.8f;
         btn.AddThemeStyleboxOverride("hover", hoverStyle);
 
         btn.Pressed += () => NodeSelected?.Invoke(id);
-        
+
         var label = new Label
         {
             Text = title,
             HorizontalAlignment = HorizontalAlignment.Center
         };
         label.AddThemeFontSizeOverride("font_size", 20);
-        
+
         box.AddChild(btn);
         box.AddChild(label);
         return box;
