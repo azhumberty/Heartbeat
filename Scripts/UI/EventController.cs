@@ -13,7 +13,7 @@ public partial class EventController : Control
     {
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         var spacer=new Control {MouseFilter=MouseFilterEnum.Ignore};spacer.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);AddChild(spacer);
-        var panel=new PanelContainer();panel.SetAnchorsPreset(LayoutPreset.BottomWide);panel.OffsetLeft=70;panel.OffsetRight=-70;panel.OffsetTop=-285;panel.OffsetBottom=-28;AddChild(panel);
+        var panel=new PanelContainer();panel.SetAnchorsPreset(LayoutPreset.BottomWide);panel.OffsetLeft=70;panel.OffsetRight=-70;panel.OffsetTop=-230;panel.OffsetBottom=-24;AddChild(panel);
         panel.AddThemeStyleboxOverride("panel",new StyleBoxFlat {BgColor=new Color("081019e8"),BorderColor=new Color("b9985d99"),BorderWidthTop=1,BorderWidthBottom=1,BorderWidthLeft=1,BorderWidthRight=1,CornerRadiusTopLeft=14,CornerRadiusTopRight=14,CornerRadiusBottomLeft=14,CornerRadiusBottomRight=14,ContentMarginLeft=24,ContentMarginRight=24,ContentMarginTop=18,ContentMarginBottom=18});
         _body=new VBoxContainer();_body.AddThemeConstantOverride("separation",9);panel.AddChild(_body);ShowChoices();
     }

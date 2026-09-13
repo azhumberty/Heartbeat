@@ -13,5 +13,5 @@
 
 ## P2 — Interface
 
-1. Testar os layouts em 1280×720, 1600×900 e 1920×1080.
+1. Testar visualmente o Atlas ilustrado, o acampamento e os layouts em 1280×720, 1600×900 e 1920×1080.
 2. Ajustar os detalhes visuais encontrados no teste manual.

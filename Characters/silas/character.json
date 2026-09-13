@@ -1,0 +1,26 @@
+{
+  "CharacterFormatVersion": 4,
+  "Id": "silas",
+  "Name": "Silas",
+  "Age": 31,
+  "CanBuildRelationship": false,
+  "Description": "Mercador viajante de terras quentes. Vende cartas, amuletos e rumores — nunca romance.",
+  "Personality": "exótico, encantador, calculista",
+  "Traits": ["persuasivo", "viajado", "observador"],
+  "Likes": ["moedas", "histórias raras", "adornos"],
+  "Dislikes": ["dívidas", "escoltas longas"],
+  "Interests": ["comércio", "relíquias", "rotas secretas"],
+  "SpeechStyle": "cantado, irônico, cheio de ofertas",
+  "Profession": "mercador",
+  "MainImagePath": "res://Assets/ArtKit/Characters/NPCs/merchant_traveler_chroma.png",
+  "Tags": ["merchant", "npc", "adulto-fictício"],
+  "Images": [
+    {
+      "OriginalPath": "res://Assets/ArtKit/Characters/NPCs/merchant_traveler_chroma.png",
+      "ProcessedPath": "res://Assets/ArtKit/Characters/NPCs/merchant_traveler_chroma.png",
+      "Tags": ["neutral", "chroma"]
+    }
+  ],
+  "HeightMeters": 1.84,
+  "HomeLocation": "Camp"
+}

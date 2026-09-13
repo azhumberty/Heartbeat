@@ -16,7 +16,8 @@ public sealed record EnemyDefinition(
         new("camp", "Saqueador da fogueira", 90, 16, 30, "ac684d", 16, 28, 2),
         // Night HP strongly increased; ruin slightly tougher
         new("night", "Predador do breu", 168, 20, 42, "725584", 24, 40, 3),
-        new("ruin", "Vigia esquecido", 135, 18, 52, "a58c65", 32, 52, 4)
+        new("ruin", "Vigia esquecido", 135, 18, 52, "a58c65", 32, 52, 4),
+        new("minotaur", "Minotauro da muralha", 155, 22, 48, "6b4a32", 28, 46, 3)
     };
 
     public static EnemyDefinition Get(string id)

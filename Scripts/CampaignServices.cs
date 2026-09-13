@@ -24,35 +24,67 @@ public static class AtlasGenerator
     public static List<AtlasNodeData> Create(long seed,int expeditionIndex=0)
     {
         expeditionIndex=Math.Max(0,expeditionIndex);var rng=new Random(unchecked((int)(seed+expeditionIndex*104729L)));
-        var library=new ContentLibrary();var backgrounds=library.Enabled("Cenários");var enemies=library.Enabled("Inimigos");var characters=library.Enabled("Personagens");var merchants=library.Enabled("Mercadores");
+        var library=new ContentLibrary();var backgrounds=library.Enabled("Cenários");var enemies=library.Enabled("Inimigos");var characters=library.Enabled("Personagens");var merchants=library.Enabled("Mercadores");var cast=new CharacterRepository().List();
         if(characters.Any(a=>!a.BuiltIn))characters=characters.Where(a=>!a.BuiltIn).ToList();
         if(merchants.Any(a=>!a.BuiltIn))merchants=merchants.Where(a=>!a.BuiltIn).ToList();
         ContentAssetRecord? Pick(List<ContentAssetRecord> source,string hint)
         {
-            var matching=source.Where(a=>(a.Tags+","+a.Biome+","+a.DisplayName).Contains(hint,StringComparison.OrdinalIgnoreCase)).ToList();
+            var matching=source.Where(a=>(a.Tags+","+a.Biome+","+a.DisplayName+","+a.Path).Contains(hint,StringComparison.OrdinalIgnoreCase)).ToList();
             var pool=matching.Count>0?matching:source;if(pool.Count==0)return null;
             var total=pool.Sum(a=>Math.Max(.1f,a.Weight));var roll=rng.NextDouble()*total;
             foreach(var item in pool){roll-=Math.Max(.1f,item.Weight);if(roll<=0)return item;}return pool[^1];
         }
         string NodeId(string template)=>expeditionIndex==0?template:$"e{expeditionIndex}_{template}";
-        AtlasNodeData N(string template,string title,AtlasNodeKind kind,float x,float y,string fallbackArt,string hint,string text,AtlasNodeStatus status,params string[] links)
+        string Art(string hint,string fallback)=>Pick(backgrounds,hint)?.Path??fallback;
+        string CastId(ContentAssetRecord? record,string fallback)
         {
-            var art=Pick(backgrounds,hint);var content=kind switch{AtlasNodeKind.Combat or AtlasNodeKind.Boss=>Pick(enemies,hint)?.Id??"",AtlasNodeKind.Character=>Pick(characters,hint)?.Id??"knight",AtlasNodeKind.Merchant=>Pick(merchants,hint)?.Id??"merchant",_=>art?.Id??""};return new(){Id=NodeId(template),TemplateId=template,Title=title,Kind=kind,X=Math.Clamp(x+(float)(rng.NextDouble()-.5)*.025f,.08f,.92f),Y=Math.Clamp(y+(float)(rng.NextDouble()-.5)*.04f,.14f,.82f),BackgroundId=art?.Path??fallbackArt,ContentId=content,Description=text,Status=status,Connections=links.Select(NodeId).ToList()};
+            if(record==null)return fallback;if(!record.BuiltIn)return record.Id;var file=Path.GetFileName(record.Path);return cast.FirstOrDefault(character=>Path.GetFileName(character.MainImagePath).Equals(file,StringComparison.OrdinalIgnoreCase))?.Id??fallback;
         }
-        return new()
+        string Content(AtlasNodeKind kind,string hint)=>kind switch
         {
-            N("road","A estrada quebrada",AtlasNodeKind.Event,.12f,.55f,"street","street","O primeiro passo rumo ao desconhecido.",AtlasNodeStatus.Available,"merchant","forest"),
-            N("merchant","Tenda do mercador",AtlasNodeKind.Merchant,.34f,.31f,"merchant_tent","merchant","Cartas e rumores sob uma lona dourada.",AtlasNodeStatus.Locked,"tavern"),
-            N("forest","Floresta sombria",AtlasNodeKind.Combat,.36f,.70f,"forest_dark","forest","Algo observa entre as raízes.",AtlasNodeStatus.Locked,"camp","knight"),
-            N("tavern","Taverna da última chama",AtlasNodeKind.Scene,.58f,.23f,"tavern","tavern","Um lugar seguro para ouvir segredos.",AtlasNodeStatus.Locked,"ruin"),
-            N("camp","Acampamento abandonado",AtlasNodeKind.Rest,.59f,.72f,"camp","camp","Cinzas ainda guardam calor.",AtlasNodeStatus.Locked,"ruin"),
-            N("knight","O cavaleiro sem brasão",AtlasNodeKind.Character,.68f,.52f,"street","street","Um encontro que pode mudar seu caminho.",AtlasNodeStatus.Locked,"ruin"),
-            N("ruin","Salão das ruínas",AtlasNodeKind.Boss,.86f,.48f,"ruins_hall","ruin","A origem do rumor espera além do portão.",AtlasNodeStatus.Locked)
+            AtlasNodeKind.Combat or AtlasNodeKind.Boss=>Pick(enemies,hint)?.Id??(kind==AtlasNodeKind.Boss?"ruin":expeditionIndex>0?"minotaur":"forest"),
+            AtlasNodeKind.Character=>CastId(Pick(characters,hint),"roan"),
+            AtlasNodeKind.Merchant=>CastId(Pick(merchants,hint),"silas"),
+            _=>""
         };
+        var nodes=new List<AtlasNodeData>();
+        var camp=new AtlasNodeData
+        {
+            Id="camp",TemplateId="camp",Title="Acampamento",Kind=AtlasNodeKind.Rest,Status=AtlasNodeStatus.Available,
+            X=.08f,Y=.82f,BackgroundId=Art("camp","camp"),Description="Seu refúgio permanente entre expedições.",Persistent=true,Risk=0,Layer=expeditionIndex+1
+        };
+        nodes.Add(camp);
+        int columns=expeditionIndex>=2?6:5;var columnsNodes=new List<List<AtlasNodeData>>();
+        for(int col=0;col<columns;col++)
+        {
+            int count=col==0||col==columns-1?1:col==1?2:rng.Next(2,4);var column=new List<AtlasNodeData>();
+            for(int row=0;row<count;row++)
+            {
+                var kind=KindFor(col,columns,expeditionIndex,rng);var template=col==0?"road":col==columns-1?"ruin":$"n{col}_{row}";var spec=Spec(kind,rng);
+                float x=.20f+col*(.70f/Math.Max(1,columns-1)),y=count==1?.46f:.22f+row*(.56f/Math.Max(1,count-1));
+                var node=new AtlasNodeData {Id=NodeId(template),TemplateId=kind switch {AtlasNodeKind.Merchant=>"merchant",AtlasNodeKind.Character=>"knight",AtlasNodeKind.Scene=>"tavern",_=>template},Title=spec.Title,Kind=kind,Status=col==0?AtlasNodeStatus.Available:AtlasNodeStatus.Locked,X=Math.Clamp(x+(float)(rng.NextDouble()-.5)*.03f,.16f,.93f),Y=Math.Clamp(y+(float)(rng.NextDouble()-.5)*.04f,.16f,.80f),BackgroundId=Art(spec.Hint,spec.Fallback),ContentId=Content(kind,spec.Hint),Description=spec.Text,Risk=kind switch {AtlasNodeKind.Boss=>Math.Clamp(3+expeditionIndex,3,5),AtlasNodeKind.Combat=>Math.Clamp(2+expeditionIndex/2,2,5),AtlasNodeKind.Mystery=>Math.Clamp(1+expeditionIndex/2,1,4),_=>Math.Clamp(expeditionIndex/2,0,3)},Layer=expeditionIndex+1};
+                column.Add(node);nodes.Add(node);
+            }
+            columnsNodes.Add(column);
+        }
+        camp.Connections=columnsNodes[0].Select(n=>n.Id).ToList();
+        for(int col=0;col<columnsNodes.Count-1;col++)
+        {
+            var current=columnsNodes[col];var next=columnsNodes[col+1];
+            for(int i=0;i<current.Count;i++)
+            {
+                var links=new HashSet<string>{next[Math.Clamp((int)Math.Round(i*(next.Count-1)/(double)Math.Max(1,current.Count-1)),0,next.Count-1)].Id};if(next.Count>1&&rng.NextDouble()<.55)links.Add(next[rng.Next(next.Count)].Id);current[i].Connections=links.ToList();
+            }
+        }
+        foreach(var kind in new[]{AtlasNodeKind.Merchant,AtlasNodeKind.Character,AtlasNodeKind.Combat})
+        {
+            if(nodes.Any(n=>n.Kind==kind))continue;var target=nodes.First(n=>!n.Persistent&&n.Kind!=AtlasNodeKind.Boss&&n.TemplateId!="road"&&n.Kind is not (AtlasNodeKind.Merchant or AtlasNodeKind.Character or AtlasNodeKind.Combat));var spec=Spec(kind,rng);target.Kind=kind;target.TemplateId=kind==AtlasNodeKind.Merchant?"merchant":kind==AtlasNodeKind.Character?"knight":"forest";target.Title=spec.Title;target.Description=spec.Text;target.BackgroundId=Art(spec.Hint,spec.Fallback);target.ContentId=Content(kind,spec.Hint);
+        }
+        return nodes;
     }
     public static void Complete(GameSave save,string id)
     {
-        var node=save.AtlasNodes.FirstOrDefault(n=>n.Id==id);if(node==null)return;
+        var node=save.AtlasNodes.FirstOrDefault(n=>n.Id==id);if(node==null||node.Persistent)return;
         node.Status=AtlasNodeStatus.Completed;
         foreach(var next in node.Connections)
             if(save.AtlasNodes.FirstOrDefault(n=>n.Id==next) is { Status:AtlasNodeStatus.Locked } unlocked)unlocked.Status=AtlasNodeStatus.Available;
@@ -65,6 +97,26 @@ public static class AtlasGenerator
     public static string TemplateFromId(string id)
     {
         if(string.IsNullOrWhiteSpace(id))return "event";var separator=id.IndexOf('_');return id.Length>2&&id[0]=='e'&&separator>1&&int.TryParse(id[1..separator],out _)?id[(separator+1)..]:id;
+    }
+    static AtlasNodeKind KindFor(int col,int columns,int expedition,Random rng)
+    {
+        if(col==0)return AtlasNodeKind.Event;if(col==columns-1)return AtlasNodeKind.Boss;
+        var table=col==1?new[]{AtlasNodeKind.Merchant,AtlasNodeKind.Combat,AtlasNodeKind.Scene}:col==columns-2?new[]{AtlasNodeKind.Combat,AtlasNodeKind.Mystery,AtlasNodeKind.Rest,AtlasNodeKind.Character}:new[]{AtlasNodeKind.Combat,AtlasNodeKind.Character,AtlasNodeKind.Event,AtlasNodeKind.Mystery,AtlasNodeKind.Scene};
+        if(expedition>=2&&rng.NextDouble()<.18+Math.Min(.28,expedition*.04))return AtlasNodeKind.Combat;return table[rng.Next(table.Length)];
+    }
+    static (string Title,string Text,string Hint,string Fallback) Spec(AtlasNodeKind kind,Random rng)
+    {
+        var options=kind switch
+        {
+            AtlasNodeKind.Merchant=>new[]{("Tenda do mercador","Cartas, rumores e preços que mudam com a lua.","merchant","merchant_tent"),("Bazar de cinza","Um viajante oferece baralhos selados e mapas rasgados.","merchant","merchant_tent")},
+            AtlasNodeKind.Combat=>new[]{("Clareira hostil","Algo grande move as raízes à frente.","forest","forest_dark"),("Boca da caverna","Um uivo baixo ecoa na pedra molhada.","cave","cave_chamber"),("Trilha de sangue","Pegadas pesadas atravessam o barro.","street","street")},
+            AtlasNodeKind.Character=>new[]{("Encontro na névoa","Alguém espera, como se já soubesse o seu nome.","park","park"),("A ponte velha","Um vulto robusto observa a travessia.","street","street")},
+            AtlasNodeKind.Rest=>new[]{("Fogueira escondida","Um descanso breve antes da próxima curva.","camp","camp"),("Clareira segura","O vento baixa. Dá para respirar.","park","park")},
+            AtlasNodeKind.Scene=>new[]{("Taverna da última chama","Conversas baixas e olhares discretos.","tavern","tavern"),("Rua da chuva","Lanternas molhadas, portas entreabertas.","street","street")},
+            AtlasNodeKind.Mystery=>new[]{("Eco na pedra","Uma voz reconhece o seu nome.","ruin","ruins_hall"),("Poço da lua","A água mostra um caminho que ainda não existe.","park","park")},
+            AtlasNodeKind.Boss=>new[]{("Salão das ruínas","A origem do rumor espera além do portão.","ruin","ruins_hall"),("Coração da muralha","A expedição termina onde a pedra ainda respira.","cave","cave_chamber")},
+            _=>new[]{("A estrada quebrada","O primeiro passo rumo ao desconhecido.","street","street"),("Caminho antigo","Marcas recentes somem na lama.","forest","forest_dark")}
+        };return options[rng.Next(options.Length)];
     }
 }
 

@@ -247,7 +247,7 @@ public sealed class GameSave
     public Dictionary<string, EncounterProgress> Encounters { get; set; } = new();
     public CombatState? ActiveCombat { get; set; }
     public List<string> CombatHistory { get; set; } = new();
-    public int SaveVersion { get; set; } = 7;
+    public int SaveVersion { get; set; } = 8;
     // Legacy fields are retained only to migrate existing slot files safely.
     public CharacterData? Character { get; set; } = null; public CharacterState? State { get; set; } = null;
     public List<string> CharacterIds { get; set; } = new(); public Dictionary<string, CharacterState> CharacterStates { get; set; } = new(); public PlayerStats Player { get; set; } = new();
@@ -305,5 +305,8 @@ public sealed class AtlasNodeData
     public string ContentId { get; set; } = "";
     public string Description { get; set; } = "";
     public List<string> Connections { get; set; } = new();
+    public bool Persistent { get; set; }
+    public int Risk { get; set; } = 1;
+    public int Layer { get; set; } = 1;
 }
 public sealed class GameSettings { public float Volume { get; set; } = 0.8f; public float TextSpeed { get; set; } = 1f; public bool AutoAdvance { get; set; } = false; public bool UseOnlineAi { get; set; } = false; public string Provider { get; set; } = "Groq"; public string Endpoint { get; set; } = "https://api.groq.com/openai/v1"; public string Model { get; set; } = "openai/gpt-oss-20b"; public float Temperature { get; set; } = 0.75f; public int MaxResponseTokens { get; set; } = 180; public int ContextMemorySize { get; set; } = 5; public float WorldTimeScale { get; set; } = 1f; public bool WorldTimePaused { get; set; } }

@@ -5,6 +5,7 @@ namespace Heartbeat;
 
 public sealed class CharacterRepository
 {
+    static bool _optionalWarningShown;
     readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true, WriteIndented = true };
     public CharacterData LoadDemo()
     {
@@ -19,7 +20,7 @@ public sealed class CharacterRepository
         foreach (var absolute in roots.Where(Directory.Exists))
         {
             string[] files;
-            try{files=Directory.GetFiles(absolute,"character.json",SearchOption.AllDirectories);}catch(Exception e){GD.Print($"[CharacterRepository] Pasta opcional indisponível: {e.GetType().Name}");continue;}
+            try{files=Directory.GetFiles(absolute,"character.json",SearchOption.AllDirectories);}catch(Exception e){if(!_optionalWarningShown){GD.Print($"[CharacterRepository] Pasta opcional indisponível: {e.GetType().Name}");_optionalWarningShown=true;}continue;}
             foreach (var file in files)
             {
                 try { var item = JsonSerializer.Deserialize<CharacterData>(File.ReadAllText(file), _json); if (item != null) { Wardrobe.Migrate(item); SocialModelMigrator.Migrate(item); result.RemoveAll(x => x.Id == item.Id); result.Add(item); } }
@@ -68,7 +69,7 @@ public sealed class SaveManager
     }
     public void Save(GameSave game, int slot = 1)
     {
-        Migrate(game); game.SaveVersion = 7;
+        Migrate(game); game.SaveVersion = 8;
         DirAccess.MakeDirRecursiveAbsolute(ProjectSettings.GlobalizePath("user://saves"));
         var snapshot = JsonSerializer.SerializeToNode(game, _json)!;
         snapshot.AsObject().Remove("Character"); snapshot.AsObject().Remove("State");
@@ -131,7 +132,19 @@ public sealed class SaveManager
             save.ExpeditionIndex=Math.Max(0,save.ExpeditionIndex);
             foreach(var node in save.AtlasNodes)if(string.IsNullOrWhiteSpace(node.TemplateId))node.TemplateId=AtlasGenerator.TemplateFromId(node.Id);
         }
+        // v7→v8: illustrated branching Atlas and an always accessible camp node.
+        if(save.SaveVersion<8)
+        {
+            var camp=save.AtlasNodes.FirstOrDefault(node=>node.TemplateId=="camp"||node.Id=="camp");
+            if(camp==null)
+            {
+                camp=new AtlasNodeData {Id="camp",TemplateId="camp",Title="Acampamento",Kind=AtlasNodeKind.Rest,X=.08f,Y=.82f,BackgroundId="camp",Description="Seu refúgio permanente entre expedições."};
+                camp.Connections=save.AtlasNodes.Where(node=>node.Status==AtlasNodeStatus.Available).Take(2).Select(node=>node.Id).ToList();save.AtlasNodes.Insert(0,camp);
+            }
+            camp.Persistent=true;camp.Status=AtlasNodeStatus.Available;camp.Risk=0;camp.Layer=Math.Max(1,save.ExpeditionIndex+1);
+            foreach(var node in save.AtlasNodes){node.Layer=Math.Max(1,node.Layer);node.Risk=Math.Clamp(node.Risk,0,5);}
+        }
         save.FirstPerson = false;
-        save.SaveVersion = 7;
+        save.SaveVersion = 8;
     }
 }

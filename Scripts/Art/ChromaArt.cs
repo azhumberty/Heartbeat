@@ -43,14 +43,15 @@ public static class ChromaArt
 			"merchant" or "merchant_tent" => "Backgrounds/merchant_tent.png",
 			"forest" or "forest_dark" => "Backgrounds/forest_dark.png",
 			"camp" => "Backgrounds/camp.png",
-			"knight" => "Interiors/street.png",
+			"knight" => "Backgrounds/street.png",
 			"tavern" => "Interiors/tavern.png",
-			"ruin" or "ruins" => "Interiors/ruins_hall.png",
-			"cave" or "cave_chamber" => "Interiors/cave_chamber.png",
-			"street" => "Interiors/street.png",
-			"park" => "Interiors/park.png",
+			"ruin" or "ruins" or "ruins_hall" => "Interiors/ruins_hall.png",
+			"cave" or "cave_chamber" => "Backgrounds/cave_chamber.png",
+			"street" => "Backgrounds/street.png",
+			"park" => "Backgrounds/park.png",
 			"cafe" => "Interiors/cafe.png",
-			_ => "Interiors/" + destinationId + ".png"
+			"atlas" or "atlas_map" => "Backgrounds/atlas_map.png",
+			_ => "Backgrounds/" + destinationId + ".png"
 		};
 
 	/// <summary>Combat arena name â†’ ArtKit background.</summary>
@@ -63,9 +64,9 @@ public static class ChromaArt
 			"night" => "Backgrounds/forest_dark.png",
 			"ruin" or "ruins" => "Interiors/ruins_hall.png",
 			"tavern" => "Interiors/tavern.png",
-			"cave" or "cave_chamber" => "Interiors/cave_chamber.png",
-			"street" => "Interiors/street.png",
-			"park" => "Interiors/park.png",
+			"cave" or "cave_chamber" => "Backgrounds/cave_chamber.png",
+			"street" => "Backgrounds/street.png",
+			"park" => "Backgrounds/park.png",
 			"cafe" => "Interiors/cafe.png",
 			_ => "Backgrounds/camp.png"
 		};
@@ -76,10 +77,13 @@ public static class ChromaArt
 		{
 			"forest" or "night" => "Characters/Monsters/monster_horned_chroma.png",
 			"camp" or "ruin" => "Characters/Monsters/monster_stone_chroma.png",
+			"minotaur" => "Characters/Monsters/minotaur_chroma.png",
 			_ => "Characters/Monsters/monster_horned_chroma.png"
 		};
 
-	public const string MerchantSprite = "Characters/NPCs/merchant_sunga_chroma.png";
+	public const string MerchantSprite = "Characters/NPCs/merchant_traveler_chroma.png";
+	public const string BarbarianSprite = "Characters/NPCs/barbarian_chroma.png";
+	public const string MinotaurSprite = "Characters/Monsters/minotaur_chroma.png";
 
 	public static Texture2D LoadArt(string relativePath)
 	{

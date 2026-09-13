@@ -13,7 +13,7 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - Novo Jogo cria `WorldLore`, pede um nome textual e salva um Atlas inicial em `GameSave`.
 - Novo Jogo usa `GroqWorldLoreProvider` quando a IA está ativa e uma chave está disponível; o lore local continua sendo o fallback imediato. O painel informa claramente qual origem foi usada.
 - Configurações agora persistem em `user://settings.json` mesmo antes do primeiro save, permitindo ativar Groq antes de iniciar uma campanha.
-- Atlas é uma rede 2D persistente de nós: estrada, mercador, floresta, taverna, acampamento, cavaleiro e ruínas. Nós têm estado bloqueado, disponível ou concluído.
+- Atlas é uma rede 2D ilustrada e ramificada sobre a arte isométrica do Grok. Cada expedição varia a quantidade, posição, tipo e conexão dos nós, com risco, estado bloqueado/disponível/concluído e aumento de rotas nas camadas posteriores.
 - Personagens com `CanBuildRelationship=true` podem evoluir relacionamento e liberar cartas especiais. NPCs genéricos, mercadores e inimigos não acumulam vínculo romântico.
 - Combates dão XP e moeda; não dão mais cartas. Cartas são compradas no mercador ou vêm de personagens de vínculo.
 - Duelos amistosos mostram o retrato 2D do personagem escolhido na arena e retornam ao Atlas.
@@ -34,9 +34,11 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - O Atlas atualiza bloqueios, cores e caminhos imediatamente depois de concluir um evento, encontro ou combate.
 - Ao vencer o chefe, o Atlas gera uma nova expedição determinística com novos IDs e volta a ler os assets ativos do Criativo. O acampamento, o baralho, os relacionamentos e o restante do save permanecem.
 - Personagens de relacionamento com afeição 40 ou mais podem ser convidados pelo diálogo para morar no acampamento. Os moradores ficam persistidos no save e aparecem nos eventos de descanso.
-- Saves antigos migram para a versão 7, preservando IDs do primeiro Atlas e inferindo a identidade de rota necessária às expedições seguintes.
+- Saves antigos migram para a versão 8, preservando o progresso e transformando o acampamento existente em um hub permanente.
 - O painel inferior de combate usa 196 px e o diálogo usa 228 px de altura útil, mantendo o personagem visível.
 - O fluxo iniciado em memória agora passa imediatamente à persistência normal; progresso feito depois de Novo Jogo ou Carregar Jogo é salvo corretamente.
+- A entrega `DATING SIM.zip` do Grok foi comparada e fundida seletivamente: mapa do Atlas, cenários finais, Roan, Silas, Minotauro, hub do acampamento e utilitário de chroma foram incorporados. Arquivos mais antigos do ZIP não substituíram os sistemas atuais.
+- O combate atual foi preservado. O Minotauro foi adicionado ao catálogo e pode aparecer nas expedições, usando as mesmas regras de cartas, HUD compacto e recompensa somente em Reais.
 
 ## Arquivos principais
 
@@ -58,7 +60,7 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - `dotnet build --no-restore`: concluído com **0 erros e 0 avisos**.
 - Godot aberto em modo sem interface com a cena `Scenes/World/World.tscn`: sem erro de inicialização.
 - Menu principal iniciado com o lote Grok: sem erros de carregamento no console.
-- `Scenes/CampaignChecks.tscn`: `CAMPAIGN_CHECKS_PASS assets=40 nodes=7`, incluindo nova expedição e acampamento persistente.
+- `Scenes/CampaignChecks.tscn`: `CAMPAIGN_CHECKS_PASS assets=45 nodes=10`, incluindo 24 variações de seed/camada, arte do Atlas, Minotauro, Roan, Silas, nova expedição e acampamento persistente.
 - A verificação de campanha também confirma duas a quatro escolhas, persistência do resultado e ausência de recompensa indevida de carta.
 - O teste HTTP simulado confirmou retry após 429, clamp de consequências, JSON válido e fallback diante de resposta inválida.
 - O controlador do modo Criativo foi instanciado em árvore pelo teste sem erro de interface.

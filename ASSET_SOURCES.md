@@ -36,3 +36,16 @@ Os arquivos estão em Base64 (`.png.b64`) porque o GitHub MCP corrompe PNG biná
 | cabin | Assets/World/Billboards/cabin.png.b64 | AI-generated | Personal private test | Cabin/shelter POI billboard |
 
 Loaded at runtime via `BillboardSprites` (PNG or `.png.b64` sidecar).
+
+## Grok Imagine · 13 set 2026
+
+Assets gerados para o próprio Heartbeat e incorporados da entrega `DATING SIM.zip`; nenhum conteúdo foi extraído de jogos comerciais.
+
+| Asset | Caminho | Origem | Uso |
+|---|---|---|---|
+| Atlas isométrico | `Assets/ArtKit/Backgrounds/atlas_map.png` | Grok Imagine | Fundo do Atlas procedural |
+| Atlas iluminado | `Assets/ArtKit/Backgrounds/atlas_map_lit.png` | Grok Imagine | Variante visual do Atlas |
+| Acampamento, caverna, parque e rua | `Assets/ArtKit/Backgrounds/` | Grok Imagine | Cenas narrativas e arenas |
+| Roan | `Assets/ArtKit/Characters/NPCs/barbarian_chroma.png` | Grok Imagine + chroma | Personagem de relacionamento |
+| Silas | `Assets/ArtKit/Characters/NPCs/merchant_traveler_chroma.png` | Grok Imagine + chroma | Mercador sem romance |
+| Minotauro | `Assets/ArtKit/Characters/Monsters/minotaur_chroma.png` | Grok Imagine + chroma | Inimigo de expedição |

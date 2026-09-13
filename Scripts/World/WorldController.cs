@@ -26,6 +26,8 @@ public partial class WorldController : Node
     CombatArenaController? _combat;
     CancellationTokenSource? _eventCancel;
     string _activeAtlasNodeId = "";
+    bool _completeOnClose = true;
+    CampController? _camp;
 
     // Fast Save Access
     public static GameSave? InitialSave;
@@ -63,7 +65,7 @@ public partial class WorldController : Node
         AddChild(_npcs);
 
         // Atlas Map Initialization
-        _atlas = new AtlasController { Game = _game, NodeSelected = OnTravel };
+        _atlas = new AtlasController { Game = _game, NodeSelected = OnTravel, CampRequested = OpenCamp };
         _uiLayer.AddChild(_atlas);
 
         // HUD and Global Shortcuts can be rebuilt here if needed
@@ -134,8 +136,10 @@ public partial class WorldController : Node
     void OnTravel(string destinationId)
     {
         var node = _game.AtlasNodes.Find(n => n.Id == destinationId);
-        if (node == null || node.Status == AtlasNodeStatus.Locked) return;
+        if (node == null || (node.Status == AtlasNodeStatus.Locked && !node.Persistent)) return;
+        if(node.Persistent){OpenCamp();return;}
         _activeAtlasNodeId = node.Id;
+        _completeOnClose = true;
         _atlas.Visible = false;
         ClearVnMeet();
 
@@ -144,7 +148,7 @@ public partial class WorldController : Node
 
         if (node.Kind == AtlasNodeKind.Merchant)
         {
-            var merchant = _npcs.GetNpc(string.IsNullOrWhiteSpace(node.ContentId)?"merchant":node.ContentId)??_npcs.GetNpc("merchant");
+            var merchant = _npcs.GetNpc(string.IsNullOrWhiteSpace(node.ContentId)?"merchant":node.ContentId)??_npcs.GetNpc("silas")??_npcs.GetNpc("merchant");
             if (merchant != null) OnNpcInteracted(merchant);
             else ShowVnMeet(ChromaArt.MerchantSprite, "Mercador");
             return;
@@ -165,23 +169,9 @@ public partial class WorldController : Node
 
         if (node.Kind is AtlasNodeKind.Combat or AtlasNodeKind.Boss)
         {
-            if (new Random().NextDouble() < 0.5)
-            {
-                var rng = new Random();
-                var npcList = new System.Collections.Generic.List<string>(_game.CharacterStates.Keys);
-                if (npcList.Count > 0)
-                {
-                    var npc = _npcs.GetNpc(npcList[rng.Next(npcList.Count)]);
-                    if (npc != null)
-                    {
-                        OnNpcInteracted(npc);
-                        return;
-                    }
-                }
-            }
-
             var foeId = string.IsNullOrWhiteSpace(node.ContentId) ? (node.Kind==AtlasNodeKind.Boss?"ruin":"forest") : node.ContentId;
-            _ = EnterCombat(EnemyDefinition.Get(foeId));
+            var arena=node.BackgroundId.Contains("cave",StringComparison.OrdinalIgnoreCase)?"cave_chamber":node.Kind==AtlasNodeKind.Boss?"ruin":"forest";
+            _ = EnterCombat(EnemyDefinition.Get(foeId),arena);
             return;
         }
 
@@ -191,6 +181,25 @@ public partial class WorldController : Node
             ChromaArt.ApplyChroma(_vnCharacter);
         }
         OpenProceduralEvent(node);
+    }
+
+    void OpenCamp()
+    {
+        _atlas.Visible=false;_activeAtlasNodeId="";_completeOnClose=false;ClearVnMeet();
+        _vnBackground.Modulate=new Color(.92f,.9f,.86f);_vnBackground.Texture=ChromaArt.LoadArt("Backgrounds/camp.png");ShowCampPanel();
+    }
+    void ShowCampPanel()
+    {
+        if(GodotObject.IsInstanceValid(_camp)){_camp!.Visible=true;_camp.Refresh();_screen=_camp;return;}
+        _camp=new CampController {Game=_game,Closed=LeaveCamp,TalkRequested=OpenCampTalk,Rested=Save};_screen=_camp;_uiLayer.AddChild(_camp);
+    }
+    void LeaveCamp()
+    {
+        if(GodotObject.IsInstanceValid(_camp))_camp!.QueueFree();_camp=null;_screen=null;_completeOnClose=true;ClearVnMeet();_vnBackground.Texture=null;_atlas.Visible=true;_atlas.RefreshProgress();Save();
+    }
+    void OpenCampTalk(string id)
+    {
+        var actor=_npcs.GetNpc(id);if(actor==null)return;if(GodotObject.IsInstanceValid(_camp))_camp!.Visible=false;_screen=null;_completeOnClose=false;OnNpcInteracted(actor);
     }
 
     async void OpenProceduralEvent(AtlasNodeData node)
@@ -221,7 +230,7 @@ public partial class WorldController : Node
     }
     void OnNpcInteracted(NpcActor actor)
     {
-        if (actor.Data.Id == "merchant")
+        if (actor.Data.Id == "merchant" || actor.Data.Tags.Contains("merchant"))
         {
             _vnCharacter.Texture = ChromaArt.LoadArt(ChromaArt.MerchantSprite);
             ChromaArt.ApplyChroma(_vnCharacter);
@@ -230,6 +239,7 @@ public partial class WorldController : Node
         {
             _vnCharacter.Material = null;
             _vnCharacter.Texture = new PortraitCache().Get(actor.Data, actor.State, false);
+            if(actor.Data.MainImagePath.Contains("chroma",StringComparison.OrdinalIgnoreCase))ChromaArt.ApplyChroma(_vnCharacter);
         }
 
         DialogueController? dialog = null;
@@ -241,12 +251,13 @@ public partial class WorldController : Node
             Changed = Save,
             Closed = () =>
             {
-                FinishAtlasNode();
+                if(_completeOnClose)FinishAtlasNode();
                 dialog?.QueueFree();
                 _screen = null;
-                _atlas.Visible = true;
                 _vnCharacter.Texture = null;
                 _vnCharacter.Material = null;
+                if(_completeOnClose){_atlas.Visible=true;_vnBackground.Texture=null;}
+                else ShowCampPanel();
             }
         };
         _screen = dialog;
@@ -268,6 +279,8 @@ public partial class WorldController : Node
 
     void Close()
     {
+        if(_screen is CampController){LeaveCamp();return;}
+        if(_screen is DialogueController&&!_completeOnClose){_screen.QueueFree();_screen=null;ClearVnMeet();ShowCampPanel();return;}
         _eventCancel?.Cancel();
         _screen?.QueueFree();
         _screen = null;
@@ -292,7 +305,7 @@ public partial class WorldController : Node
 
     void RebuildAtlas()
     {
-        var previous=_atlas;_atlas=new AtlasController{Game=_game,NodeSelected=OnTravel};_uiLayer.AddChild(_atlas);previous.QueueFree();
+        var previous=_atlas;_atlas=new AtlasController{Game=_game,NodeSelected=OnTravel,CampRequested=OpenCamp};_uiLayer.AddChild(_atlas);previous.QueueFree();
     }
 
     void Save()
@@ -307,10 +320,10 @@ public partial class WorldController : Node
         _ = ShowCombat(new CombatManager(_game,_game.ActiveCombat));
     }
     
-    public async Task EnterCombat(EnemyDefinition enemy)
+    public async Task EnterCombat(EnemyDefinition enemy,string? arenaHint=null)
     {
         if(_screen!=null)return;
-        var arena = enemy.Id is "forest" or "night" ? "forest" : "camp";
+        var arena = arenaHint??(enemy.Id is "forest" or "night" or "minotaur" ? "forest" : "camp");
         var encounterId="atlas_"+(string.IsNullOrWhiteSpace(_activeAtlasNodeId)?enemy.Id:_activeAtlasNodeId);var manager=CombatManager.Start(_game,new CardRepository().Catalog(), encounterId, enemy.Id, arena, _time.Hour);
         var scale=Math.Min(25,_game.ExpeditionIndex);manager.State.Enemy.MaxHealth+=scale*10;manager.State.Enemy.Health=manager.State.Enemy.MaxHealth;manager.State.RewardXp=enemy.RewardXp+scale*3;
         manager.State.Cooldown=0;

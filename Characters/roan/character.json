@@ -1,0 +1,26 @@
+{
+  "CharacterFormatVersion": 4,
+  "Id": "roan",
+  "Name": "Roan",
+  "Age": 34,
+  "CanBuildRelationship": true,
+  "Description": "Lenhador e batedor das marcas antigas. Robusto, peludo e mais honesto do que gostaria de admitir.",
+  "Personality": "rústico, leal, direto e protetor",
+  "Traits": ["forte", "honesto", "teimoso"],
+  "Likes": ["fogueiras", "trabalho pesado", "silêncio da floresta"],
+  "Dislikes": ["mentira", "cidades barulhentas"],
+  "Interests": ["caça", "lenha", "histórias de estrada"],
+  "SpeechStyle": "curto, grave, sem floreios",
+  "Profession": "lenhador",
+  "MainImagePath": "res://Assets/ArtKit/Characters/NPCs/barbarian_chroma.png",
+  "Tags": ["barbarian", "relationship", "adulto-fictício"],
+  "Images": [
+    {
+      "OriginalPath": "res://Assets/ArtKit/Characters/NPCs/barbarian_chroma.png",
+      "ProcessedPath": "res://Assets/ArtKit/Characters/NPCs/barbarian_chroma.png",
+      "Tags": ["neutral", "chroma"]
+    }
+  ],
+  "HeightMeters": 1.92,
+  "HomeLocation": "Camp"
+}
