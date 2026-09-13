@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 namespace Heartbeat;
 
 public partial class DialogueController : Control
@@ -6,12 +6,13 @@ public partial class DialogueController : Control
     public GameSave Game { get; set; }=new(); public NpcActor Actor { get; set; }=null!; public Action? Closed; public Action? Changed; public Action<NpcActor>? DuelRequested;
     const int MaxPlayerTurns = 8;
     Label _line=null!,_status=null!; TextEdit _input=null!;Button? _invite; bool _busy; int _turns; readonly CancellationTokenSource _cancel=new();
+    CardShopController? _shop;
+    bool _exiting;
     
     public override void _Ready()
     {
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         
-        // Minimalist Bottom Panel
         var panel = new PanelContainer(); AddChild(panel);
         panel.SetAnchorsPreset(LayoutPreset.BottomWide);
         panel.OffsetTop = -248; panel.OffsetBottom = -20;
@@ -23,17 +24,17 @@ public partial class DialogueController : Control
         var content = new VBoxContainer(); content.AddThemeConstantOverride("separation", 10); panel.AddChild(content);
         
         var header = new HBoxContainer(); content.AddChild(header);
-        var label = Ui.Text(Actor.Data.Name, 26); label.AddThemeColorOverride("font_color", new Color("f2d388")); label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; header.AddChild(label);
+        var label = Ui.Text(Actor.Data.Name, 26); label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; label.AddThemeColorOverride("font_color", new Color("f2d388")); header.AddChild(label);
         
-        var closeBtn = Ui.Button("Fechar · Esc", () => Closed?.Invoke());
+        var closeBtn = Ui.Button("Fechar - Esc", RequestClose);
         var shortcut = new Shortcut(); shortcut.Events.Add(new InputEventKey { Keycode = Key.Escape }); closeBtn.Shortcut = shortcut;
         header.AddChild(closeBtn);
         
         var row = new HBoxContainer { SizeFlagsVertical = SizeFlags.ExpandFill }; content.AddChild(row);
         var text = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill }; row.AddChild(text);
         
-        _line = Ui.Text($"{Actor.Data.Name} olha para você. O que você quer dizer?", 22); _line.SizeFlagsVertical = SizeFlags.ExpandFill; _line.AutowrapMode = TextServer.AutowrapMode.Word; text.AddChild(_line);
-        _status = Ui.Text("", 14); _status.AddThemeColorOverride("font_color", new Color(0.6f, 0.6f, 0.6f)); text.AddChild(_status);
+        _line = Ui.Body($"{Actor.Data.Name} olha para você. O que você quer dizer?", 22); _line.SizeFlagsVertical = SizeFlags.ExpandFill; text.AddChild(_line);
+        _status = Ui.Body("", 14); _status.AddThemeColorOverride("font_color", new Color(0.6f, 0.6f, 0.6f)); text.AddChild(_status);
         
         var controls = new HBoxContainer(); text.AddChild(controls);
         _input = new TextEdit { PlaceholderText = "Digite aqui... Enter envia", CustomMinimumSize = new Vector2(0, 45), SizeFlagsHorizontal = SizeFlags.ExpandFill, WrapMode = TextEdit.LineWrappingMode.Boundary }; controls.AddChild(_input);
@@ -43,31 +44,61 @@ public partial class DialogueController : Control
         var actions = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.End }; text.AddChild(actions);
         if (Actor.Data.Id == "merchant" || Actor.Data.Tags.Contains("merchant"))
         {
-            actions.AddChild(Ui.Button("💰 Comprar Cartas", () => {
-                var shop = new CardShopController { Game = Game, MerchantId=Actor.Data.Id };
-                var onClosed = Closed;
-                shop.Closed = () => { onClosed?.Invoke(); shop.QueueFree(); };
-                GetParent().AddChild(shop); QueueFree();
-            }));
+            actions.AddChild(Ui.Button("Comprar Cartas", OpenShop));
         }
         else if (Actor.Data.CanBuildRelationship)
         {
             actions.AddChild(Ui.Button("Parque", () => { _input.Text = "Quer passar um tempo comigo no parque?"; _=Send(); }));
-            actions.AddChild(Ui.Button("⚔️ Duelo", () => { DuelRequested?.Invoke(Actor); Closed?.Invoke(); }));
+            actions.AddChild(Ui.Button("Duelo", () => { DuelRequested?.Invoke(Actor); RequestClose(); }));
             _invite=Ui.Button("Convidar para o acampamento",()=>
             {
+                if(!Alive())return;
                 if(CampService.Invite(Game,Actor.Data,Actor.State)){_line.Text=$"{Actor.Data.Name} aceita dividir o acampamento com você.";_status.Text="Novo morador · progresso salvo";RefreshInvite();Changed?.Invoke();}
             });RefreshInvite();actions.AddChild(_invite);
         }
-        actions.AddChild(Ui.Button("Perfil", () => _line.Text = Actor.Data.CanBuildRelationship ? $"{Actor.Data.Description}\nAfeto {Actor.State.Affection} · Confiança {Actor.State.Trust}" : Actor.Data.Description));
+        actions.AddChild(Ui.Button("Perfil", () => { if(Alive()) _line.Text = Actor.Data.CanBuildRelationship ? $"{Actor.Data.Description}\nAfeto {Actor.State.Affection} · Confiança {Actor.State.Trust}" : Actor.Data.Description; }));
         
         panel.Modulate = new Color(1,1,1,0); panel.CreateTween().TweenProperty(panel, "modulate:a", 1f, .2);
         _input.GrabFocus();
     }
+
+    public bool ShopOpen => GodotObject.IsInstanceValid(_shop) && _shop!.IsInsideTree();
+
+    void OpenShop()
+    {
+        if (!Alive() || ShopOpen) return;
+        var parent = GetParent();
+        if (parent == null) return;
+        Visible = false;
+        var shop = new CardShopController { Game = Game, MerchantId = Actor.Data.Id };
+        _shop = shop;
+        shop.Closed = OnShopClosed;
+        parent.AddChild(shop);
+    }
+
+    void OnShopClosed()
+    {
+        _shop = null;
+        if (!Alive()) return;
+        Visible = true;
+        _input.GrabFocus();
+    }
+
+    void RequestClose()
+    {
+        if (ShopOpen)
+        {
+            _shop?.CloseShop();
+            return;
+        }
+        Closed?.Invoke();
+    }
+
+    bool Alive() => !_exiting && GodotObject.IsInstanceValid(this) && IsInsideTree() && !IsQueuedForDeletion();
     
     async Task Send()
     {
-        if(_busy || string.IsNullOrWhiteSpace(_input.Text))return;
+        if(_busy || !Alive() || string.IsNullOrWhiteSpace(_input.Text))return;
         if(_turns >= MaxPlayerTurns) { _status.Text = "Esta conversa chegou a uma pausa natural. Feche para voltar ao atlas."; return; }
         var advancesRelationship = Actor.Data.CanBuildRelationship && Game.ActionsLeft > 0;
         var input=_input.Text.Trim(); input=input[..Math.Min(input.Length,1000)]; _input.Text=""; _busy=true; _status.Text=Actor.Data.Name+" está pensando...";
@@ -80,7 +111,7 @@ public partial class DialogueController : Control
                 ? new OpenRouterDialogueProvider()
                 : (Game.Settings.UseOnlineAi ? new GroqDialogueProvider() : new ProceduralDialogueProvider());
             var r=DialogueValidator.Sanitize(await provider.ReplyAsync(Actor.Data,s,input,Game.Settings,_cancel.Token));
-            if(_cancel.IsCancellationRequested || !IsInsideTree())return;
+            if(!Alive())return;
             _turns++;
             if (advancesRelationship) Game.ActionsLeft--;
             else { r.AffectionDelta = r.TrustDelta = r.RomanceDelta = r.AttractionDelta = r.EnergyDelta = r.StressDelta = 0; r.ProviderStatus += " · conversa livre"; }
@@ -99,12 +130,19 @@ public partial class DialogueController : Control
             _line.Text=r.Dialogue; _status.Text=Actor.Data.CanBuildRelationship ? r.ProviderStatus+$" · Rel: {s.Relationship} · Humor: {s.CurrentMood}" : r.ProviderStatus+$" · NPC do mundo · Turno {_turns}/{MaxPlayerTurns}"; Changed?.Invoke();
         }
         catch(OperationCanceledException) { }
-        catch(Exception e) { if(IsInsideTree()) { var alternative = new ProceduralDialogueProvider().Reply(Actor.Data, Actor.State, input); _line.Text = alternative.Dialogue; Actor.State.CurrentEmotion = alternative.Emotion; _status.Text=$"Falha técnica ({e.GetType().Name})"; } }
-        finally { _busy=false; }
+        catch(Exception e) { if(Alive()) { var alternative = new ProceduralDialogueProvider().Reply(Actor.Data, Actor.State, input); _line.Text = alternative.Dialogue; Actor.State.CurrentEmotion = alternative.Emotion; _status.Text=$"Falha técnica ({e.GetType().Name})"; } }
+        finally { if(Alive()) _busy=false; }
     }
     void RefreshInvite()
     {
-        if(_invite==null)return;var resident=Game.CampResidents.Contains(Actor.Data.Id);_invite.Text=resident?"Mora no acampamento":"Convidar para o acampamento";_invite.Disabled=resident||!CampService.CanInvite(Game,Actor.Data,Actor.State);_invite.TooltipText=resident?"Morador permanente do acampamento.":_invite.Disabled?"Requer 40 de afeição.":"Convidar para morar no acampamento.";
+        if(_invite==null||!Alive())return;var resident=Game.CampResidents.Contains(Actor.Data.Id);_invite.Text=resident?"Mora no acampamento":"Convidar para o acampamento";_invite.Disabled=resident||!CampService.CanInvite(Game,Actor.Data,Actor.State);_invite.TooltipText=resident?"Morador permanente do acampamento.":_invite.Disabled?"Requer 40 de afeição.":"Convidar para morar no acampamento.";
     }
-    public override void _ExitTree() { _cancel.Cancel(); _cancel.Dispose(); }
+    public override void _ExitTree()
+    {
+        _exiting = true;
+        if (GodotObject.IsInstanceValid(_shop) && !_shop!.IsQueuedForDeletion())
+            _shop.QueueFree();
+        _shop = null;
+        try { _cancel.Cancel(); } catch (ObjectDisposedException) { }
+    }
 }

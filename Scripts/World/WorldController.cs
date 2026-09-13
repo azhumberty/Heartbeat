@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 using System;
 using System.Threading.Tasks;
 
@@ -27,6 +27,7 @@ public partial class WorldController : Node
     CancellationTokenSource? _eventCancel;
     string _activeAtlasNodeId = "";
     bool _completeOnClose = true;
+    DateTime _sessionStart = DateTime.UtcNow;
     CampController? _camp;
 
     // Fast Save Access
@@ -275,19 +276,28 @@ public partial class WorldController : Node
             Game = _game,
             DuelRequested = StartDuel,
             Changed = Save,
-            Closed = () =>
-            {
-                if(_completeOnClose)FinishAtlasNode();
-                dialog?.QueueFree();
-                _screen = null;
-                _vnCharacter.Texture = null;
-                _vnCharacter.Material = null;
-                if(_completeOnClose){_atlas.Visible=true;_vnBackground.Texture=null;}
-                else ShowCampPanel();
-            }
+            Closed = () => LeaveDialogue(dialog)
         };
         _screen = dialog;
         _uiLayer.AddChild(dialog);
+    }
+
+    void LeaveDialogue(DialogueController? dialog)
+    {
+        if (dialog != null && GodotObject.IsInstanceValid(dialog) && dialog.ShopOpen) return;
+        var complete = _completeOnClose;
+        if (dialog != null && GodotObject.IsInstanceValid(dialog) && !dialog.IsQueuedForDeletion())
+            dialog.QueueFree();
+        if (ReferenceEquals(_screen, dialog)) _screen = null;
+        _vnCharacter.Texture = null;
+        _vnCharacter.Material = null;
+        if (complete)
+        {
+            FinishAtlasNode();
+            _vnBackground.Texture = null;
+            _atlas.Visible = true;
+        }
+        else ShowCampPanel();
     }
     public override void _UnhandledInput(InputEvent e)
     {
@@ -305,15 +315,23 @@ public partial class WorldController : Node
 
     void Close()
     {
-        if(_screen is CampController){LeaveCamp();return;}
-        if(_screen is DialogueController&&!_completeOnClose){_screen.QueueFree();_screen=null;ClearVnMeet();ShowCampPanel();return;}
+        if (_screen is CampController) { LeaveCamp(); return; }
+        if (_screen is DialogueController dialog && GodotObject.IsInstanceValid(dialog))
+        {
+            if (dialog.ShopOpen) return;
+            LeaveDialogue(dialog);
+            return;
+        }
+        var complete = _completeOnClose && !string.IsNullOrEmpty(_activeAtlasNodeId);
         _eventCancel?.Cancel();
-        _screen?.QueueFree();
+        if (GodotObject.IsInstanceValid(_screen)) _screen!.QueueFree();
         _screen = null;
-        _activeAtlasNodeId="";
         ClearVnMeet();
-        _vnBackground.Texture=null;
-        _atlas.Visible=true;
+        _vnBackground.Texture = null;
+        if (complete) FinishAtlasNode();
+        else _activeAtlasNodeId = "";
+        _atlas.Visible = true;
+        _atlas.RefreshProgress();
     }
 
     void FinishAtlasNode()
@@ -337,6 +355,10 @@ public partial class WorldController : Node
     void Save()
     {
         _game.FirstPerson = false;
+        var now = DateTime.UtcNow;
+        _game.LastPlayedAt = now.ToString("o");
+        _game.PlayedSeconds += Math.Max(0, (int)(now - _sessionStart).TotalSeconds);
+        _sessionStart = now;
         _saves.Save(_game);
     }
 
@@ -358,6 +380,7 @@ public partial class WorldController : Node
     }
     void StartDuel(NpcActor actor)
     {
+        if (_screen is DialogueController dialog && GodotObject.IsInstanceValid(dialog) && dialog.ShopOpen) return;
         if (_screen != null) _screen.QueueFree();
         _screen = null;
         var manager = CombatManager.Start(_game, new CardRepository().Catalog(), "duel_" + actor.Data.Id, "camp", "tavern", _time.Hour);

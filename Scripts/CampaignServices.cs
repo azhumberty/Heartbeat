@@ -1,4 +1,4 @@
-namespace Heartbeat;
+﻿namespace Heartbeat;
 
 /// <summary>Small, reusable campaign seed. It is intentionally local-first so a campaign is playable offline.</summary>
 public static class WorldLoreManager
@@ -37,16 +37,18 @@ public static class AtlasGenerator
         return selected;
     }
 
-    public static List<AtlasNodeData> Create(long seed,int expeditionIndex=0)
+    public static List<AtlasNodeData> Create(long seed,int expeditionIndex=0,IReadOnlyCollection<string>? preferredContent=null)
     {
         expeditionIndex=Math.Max(0,expeditionIndex);var rng=new Random(unchecked((int)(seed+expeditionIndex*104729L)));
         var library=new ContentLibrary();var backgrounds=library.Enabled("Cenários");var enemies=library.Enabled("Inimigos");var characters=library.Enabled("Personagens");var merchants=library.Enabled("Mercadores");var cast=new CharacterRepository().List();
         if(characters.Any(a=>!a.BuiltIn))characters=characters.Where(a=>!a.BuiltIn).ToList();
         if(merchants.Any(a=>!a.BuiltIn))merchants=merchants.Where(a=>!a.BuiltIn).ToList();
+        var prefer=new HashSet<string>(preferredContent??Array.Empty<string>(),StringComparer.OrdinalIgnoreCase);
         ContentAssetRecord? Pick(List<ContentAssetRecord> source,string hint)
         {
-            var matching=source.Where(a=>(a.Tags+","+a.Biome+","+a.DisplayName+","+a.Path).Contains(hint,StringComparison.OrdinalIgnoreCase)).ToList();
-            var pool=matching.Count>0?matching:source;if(pool.Count==0)return null;
+            var favored=prefer.Count==0?new List<ContentAssetRecord>():source.Where(a=>prefer.Contains(a.Id)).ToList();
+            var matching=(favored.Count>0?favored:source).Where(a=>(a.Tags+","+a.Biome+","+a.DisplayName+","+a.Path).Contains(hint,StringComparison.OrdinalIgnoreCase)).ToList();
+            var pool=matching.Count>0?matching:(favored.Count>0?favored:source);if(pool.Count==0)return null;
             var total=pool.Sum(a=>Math.Max(.1f,a.Weight));var roll=rng.NextDouble()*total;
             foreach(var item in pool){roll-=Math.Max(.1f,item.Weight);if(roll<=0)return item;}return pool[^1];
         }
@@ -102,12 +104,22 @@ public static class AtlasGenerator
     {
         var node=save.AtlasNodes.FirstOrDefault(n=>n.Id==id);if(node==null||node.Persistent)return;
         node.Status=AtlasNodeStatus.Completed;
+        int unlocked=0;
         foreach(var next in node.Connections)
-            if(save.AtlasNodes.FirstOrDefault(n=>n.Id==next) is { Status:AtlasNodeStatus.Locked } unlocked)unlocked.Status=AtlasNodeStatus.Available;
+            if(save.AtlasNodes.FirstOrDefault(n=>n.Id==next) is { Status:AtlasNodeStatus.Locked } target)
+            { target.Status=AtlasNodeStatus.Available; unlocked++; }
+        if(unlocked>0)return;
+        var later=save.AtlasNodes
+            .Where(n=>!n.Persistent&&n.Id!=node.Id&&n.Status==AtlasNodeStatus.Locked&&n.X>node.X+0.03f)
+            .OrderBy(n=>n.X).ThenBy(n=>Math.Abs(n.Y-node.Y)).ToList();
+        var first=later.FirstOrDefault();
+        if(first==null)return;
+        foreach(var sibling in later.Where(n=>Math.Abs(n.X-first.X)<0.06f))
+            sibling.Status=AtlasNodeStatus.Available;
     }
     public static void BeginNextExpedition(GameSave save)
     {
-        save.ExpeditionIndex=Math.Min(save.ExpeditionIndex+1,1000000);save.AtlasBackgroundPath=Backdrop(save.WorldSeed,save.ExpeditionIndex,save.AtlasBackgroundPath);save.AtlasNodes=Create(save.WorldSeed,save.ExpeditionIndex);
+        save.ExpeditionIndex=Math.Min(save.ExpeditionIndex+1,1000000);save.AtlasBackgroundPath=Backdrop(save.WorldSeed,save.ExpeditionIndex,save.AtlasBackgroundPath);save.AtlasNodes=Create(save.WorldSeed,save.ExpeditionIndex,save.SelectedLibraryIds);
         save.RecentEvents.Add($"expedition:{save.ExpeditionIndex}:iniciada");while(save.RecentEvents.Count>16)save.RecentEvents.RemoveAt(0);
     }
     public static string TemplateFromId(string id)

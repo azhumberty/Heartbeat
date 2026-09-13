@@ -69,7 +69,12 @@ public sealed class SaveManager
     }
     public void Save(GameSave game, int slot = 1)
     {
-        Migrate(game); game.SaveVersion = 9;
+        Migrate(game); game.SaveVersion = 10;
+        if (!string.IsNullOrWhiteSpace(game.WorldId))
+        {
+            new WorldStore().Save(game);
+            return;
+        }
         DirAccess.MakeDirRecursiveAbsolute(ProjectSettings.GlobalizePath("user://saves"));
         var snapshot = JsonSerializer.SerializeToNode(game, _json)!;
         snapshot.AsObject().Remove("Character"); snapshot.AsObject().Remove("State");
@@ -77,17 +82,29 @@ public sealed class SaveManager
         if (File.Exists(path)) File.Copy(path, path + ".bak", true);
         File.WriteAllText(path + ".tmp", snapshot.ToJsonString(_json)); File.Move(path + ".tmp", path, true);
     }
-    public GameSave? Load(int slot = 1)
+    public GameSave? LoadSlot(int slot = 1)
     {
         if (!Godot.FileAccess.FileExists(PathFor(slot))) return null;
         try { var save = JsonSerializer.Deserialize<GameSave>(Godot.FileAccess.GetFileAsString(PathFor(slot)), _json); if (save != null) Migrate(save); return save; }
         catch (Exception e) { var detail=e.Message.Replace('\n',' ').Replace('\r',' ');GD.PushWarning("[Save] Arquivo inválido preservado: "+e.GetType().Name+" · "+detail[..Math.Min(detail.Length,180)]); return null; }
+    }
+    public GameSave? Load(int slot = 1)
+    {
+        var worlds = new WorldStore();
+        worlds.ImportLegacy(this);
+        if (worlds.TryLoadActive(out var active) && active != null) return active;
+        return LoadSlot(slot);
     }
     public void Migrate(GameSave save)
     {
         save.CharacterStates ??= new(); save.CharacterIds ??= new();
         save.Player ??= new PlayerStats();
         save.WorldLore ??= new(); save.AtlasNodes ??= new(); save.RecentEvents ??= new();save.CampResidents??=new();
+        save.SelectedLibraryIds ??= new();
+        save.WorldId ??= "";
+        save.WorldPrompt ??= "";
+        save.CreatedAt ??= "";
+        save.LastPlayedAt ??= "";
         save.PlayerName=(save.PlayerName??"Viajante").Trim();
         if(string.IsNullOrWhiteSpace(save.PlayerName))save.PlayerName="Viajante";
         save.PlayerName=save.PlayerName[..Math.Min(32,save.PlayerName.Length)];
