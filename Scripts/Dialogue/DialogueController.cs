@@ -1,4 +1,4 @@
-﻿using Godot;
+using Godot;
 namespace Heartbeat;
 
 public partial class DialogueController : Control
@@ -45,7 +45,8 @@ public partial class DialogueController : Control
         {
             actions.AddChild(Ui.Button("💰 Comprar Cartas", () => {
                 var shop = new CardShopController { Game = Game };
-                shop.Closed = () => { Closed?.Invoke(); shop.QueueFree(); };
+                var onClosed = Closed;
+                shop.Closed = () => { onClosed?.Invoke(); shop.QueueFree(); };
                 GetParent().AddChild(shop); QueueFree();
             }));
         }

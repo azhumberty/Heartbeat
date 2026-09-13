@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 
 namespace Heartbeat;
 
@@ -9,7 +9,7 @@ public static class ChromaArt
 {
 	public const string ChromaShaderPath = "res://Assets/ArtKit/Characters/chroma_key.gdshader";
 
-	public static ShaderMaterial? CreateChromaMaterial(float threshold = 0.35f, float smoothness = 0.08f)
+	public static ShaderMaterial? CreateChromaMaterial(float threshold = 0.55f, float smoothness = 0.15f)
 	{
 		if (!ResourceLoader.Exists(ChromaShaderPath))
 		{
@@ -27,13 +27,13 @@ public static class ChromaArt
 		return mat;
 	}
 
-	public static void ApplyChroma(CanvasItem node, float threshold = 0.35f)
+	public static void ApplyChroma(CanvasItem node, float threshold = 0.55f)
 	{
 		var mat = CreateChromaMaterial(threshold);
 		if (mat != null) node.Material = mat;
 	}
 
-	/// <summary>Atlas destination id → ArtKit background relative path.</summary>
+	/// <summary>Atlas destination id â†’ ArtKit background relative path.</summary>
 	public const string BarmaidSprite = "Characters/NPCs/npc_barmaid_chroma.png";
 	public const string KnightSprite = "Characters/NPCs/npc_knight_chroma.png";
 
@@ -53,7 +53,7 @@ public static class ChromaArt
 			_ => "Interiors/" + destinationId + ".png"
 		};
 
-	/// <summary>Combat arena name → ArtKit background.</summary>
+	/// <summary>Combat arena name â†’ ArtKit background.</summary>
 	public static string BackgroundForArena(string arena) =>
 		arena.ToLowerInvariant() switch
 		{
@@ -70,7 +70,7 @@ public static class ChromaArt
 			_ => "Backgrounds/camp.png"
 		};
 
-	/// <summary>Enemy id → chroma sprite under Characters/Monsters.</summary>
+	/// <summary>Enemy id â†’ chroma sprite under Characters/Monsters.</summary>
 	public static string EnemySpritePath(string enemyId) =>
 		enemyId.ToLowerInvariant() switch
 		{
