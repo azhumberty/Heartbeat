@@ -21,7 +21,7 @@ public static class Ui
         var n = Text(text, size);
         n.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         n.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        n.TextOverrunBehavior = TextServer.OverrunBehavior.NoEllipsis;
+        n.TextOverrunBehavior = TextServer.OverrunBehavior.NoTrimming;
         return n;
     }
 

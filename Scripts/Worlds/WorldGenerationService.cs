@@ -42,7 +42,7 @@ public static class WorldGenerationService
     {
         var offline = CreateOffline(prompt, seed, selectedIds);
         if (!settings.UseOnlineAi) return offline;
-        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("GROQ_API_KEY")))
+        if (string.IsNullOrWhiteSpace(System.Environment.GetEnvironmentVariable("GROQ_API_KEY")))
         {
             offline.ProviderStatus = "Offline · sem chave Groq";
             return offline;
@@ -55,7 +55,7 @@ public static class WorldGenerationService
                 return offline;
             }
             using var client = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(20) };
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Environment.GetEnvironmentVariable("GROQ_API_KEY"));
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", System.Environment.GetEnvironmentVariable("GROQ_API_KEY"));
             var selected = selectedIds.Take(12).ToArray();
             var payload = new
             {
