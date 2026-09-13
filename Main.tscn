@@ -2,5 +2,5 @@
 
 [ext_resource type="Script" path="res://Scripts/World/WorldController.cs" id="1"]
 
-[node name="Heartbeat" type="Node3D"]
+[node name="Heartbeat" type="Node"]
 script = ExtResource("1")

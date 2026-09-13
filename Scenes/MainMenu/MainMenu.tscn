@@ -2,5 +2,5 @@
 
 [ext_resource type="Script" path="res://Scripts/UI/MainMenuController.cs" id="1"]
 
-[node name="MainMenu" type="Node"]
+[node name="MainMenu" type="Control"]
 script = ExtResource("1")
