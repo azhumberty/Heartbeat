@@ -56,7 +56,7 @@ public sealed class SaveManager
     string PathFor(int slot) => $"user://saves/slot_{slot}.json";
     public void Save(GameSave game, int slot = 1)
     {
-        Migrate(game); game.SaveVersion = 5;
+        Migrate(game); game.SaveVersion = 6;
         DirAccess.MakeDirRecursiveAbsolute(ProjectSettings.GlobalizePath("user://saves"));
         var snapshot = JsonSerializer.SerializeToNode(game, _json)!;
         snapshot.AsObject().Remove("Character"); snapshot.AsObject().Remove("State");
@@ -74,6 +74,10 @@ public sealed class SaveManager
     {
         save.CharacterStates ??= new(); save.CharacterIds ??= new();
         save.Player ??= new PlayerStats();
+        save.WorldLore ??= new(); save.AtlasNodes ??= new(); save.RecentEvents ??= new();
+        save.PlayerName=(save.PlayerName??"Viajante").Trim();
+        if(string.IsNullOrWhiteSpace(save.PlayerName))save.PlayerName="Viajante";
+        save.PlayerName=save.PlayerName[..Math.Min(32,save.PlayerName.Length)];
         save.Player.Clamp();
         DeckManager.Migrate(save);
 
@@ -103,9 +107,13 @@ public sealed class SaveManager
         {
             save.WorldMinutes = save.Period switch { "Morning" => 8 * 60, "Afternoon" => 14 * 60, "Evening" => 18 * 60, "Night" => 22 * 60, _ => 8 * 60 };
         }
-        // The forest generator remains deterministic and can safely replace old city chunks.
-        save.GeneratorVersion = 2;
-        save.FirstPerson = true;
-        save.SaveVersion = 5;
+        // v5→v6: narrative campaign data. Existing saves receive a stable offline campaign.
+        if (save.SaveVersion < 6 || save.AtlasNodes.Count == 0)
+        {
+            save.WorldLore ??= WorldLoreManager.CreateOffline(save.WorldSeed == 0 ? 1 : save.WorldSeed);
+            save.AtlasNodes = AtlasGenerator.Create(save.WorldSeed == 0 ? 1 : save.WorldSeed);
+        }
+        save.FirstPerson = false;
+        save.SaveVersion = 6;
     }
 }

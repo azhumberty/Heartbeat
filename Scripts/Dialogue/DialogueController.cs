@@ -4,7 +4,8 @@ namespace Heartbeat;
 public partial class DialogueController : Control
 {
     public GameSave Game { get; set; }=new(); public NpcActor Actor { get; set; }=null!; public Action? Closed; public Action? Changed; public Action<NpcActor>? DuelRequested;
-    Label _line=null!,_status=null!; TextEdit _input=null!; bool _busy; readonly CancellationTokenSource _cancel=new();
+    const int MaxPlayerTurns = 8;
+    Label _line=null!,_status=null!; TextEdit _input=null!; bool _busy; int _turns; readonly CancellationTokenSource _cancel=new();
     
     public override void _Ready()
     {
@@ -48,12 +49,12 @@ public partial class DialogueController : Control
                 GetParent().AddChild(shop); QueueFree();
             }));
         }
-        else
+        else if (Actor.Data.CanBuildRelationship)
         {
             actions.AddChild(Ui.Button("Parque", () => { _input.Text = "Quer passar um tempo comigo no parque?"; _=Send(); }));
             actions.AddChild(Ui.Button("⚔️ Duelo", () => { DuelRequested?.Invoke(Actor); Closed?.Invoke(); }));
         }
-        actions.AddChild(Ui.Button("Perfil", () => _line.Text = $"{Actor.Data.Description}\nAfeto {Actor.State.Affection} · Confiança {Actor.State.Trust}"));
+        actions.AddChild(Ui.Button("Perfil", () => _line.Text = Actor.Data.CanBuildRelationship ? $"{Actor.Data.Description}\nAfeto {Actor.State.Affection} · Confiança {Actor.State.Trust}" : Actor.Data.Description));
         
         panel.Modulate = new Color(1,1,1,0); panel.CreateTween().TweenProperty(panel, "modulate:a", 1f, .2);
         _input.GrabFocus();
@@ -62,7 +63,8 @@ public partial class DialogueController : Control
     async Task Send()
     {
         if(_busy || string.IsNullOrWhiteSpace(_input.Text))return;
-        var advancesRelationship = Game.ActionsLeft > 0;
+        if(_turns >= MaxPlayerTurns) { _status.Text = "Esta conversa chegou a uma pausa natural. Feche para voltar ao atlas."; return; }
+        var advancesRelationship = Actor.Data.CanBuildRelationship && Game.ActionsLeft > 0;
         var input=_input.Text.Trim(); input=input[..Math.Min(input.Length,1000)]; _input.Text=""; _busy=true; _status.Text=Actor.Data.Name+" está pensando...";
         try
         {
@@ -72,16 +74,21 @@ public partial class DialogueController : Control
             IDialogueProvider provider=Game.Settings.UseOnlineAi?new GroqDialogueProvider():new ProceduralDialogueProvider();
             var r=DialogueValidator.Sanitize(await provider.ReplyAsync(Actor.Data,s,input,Game.Settings,_cancel.Token));
             if(_cancel.IsCancellationRequested || !IsInsideTree())return;
+            _turns++;
             if (advancesRelationship) Game.ActionsLeft--;
             else { r.AffectionDelta = r.TrustDelta = r.RomanceDelta = r.AttractionDelta = r.EnergyDelta = r.StressDelta = 0; r.ProviderStatus += " · conversa livre"; }
             var normalized=input.ToLowerInvariant(); var repeated=s.RecentInputs.Contains(normalized);
             if(repeated) { r.AffectionDelta=Math.Min(0,r.AffectionDelta); r.TrustDelta=Math.Min(0,r.TrustDelta); }
             s.RecentInputs.Add(normalized); if(s.RecentInputs.Count>12)s.RecentInputs.RemoveAt(0);
-            new RelationshipSystem().Apply(s,r.AffectionDelta,r.TrustDelta,r.RomanceDelta,r.AttractionDelta);
-            s.Energy+=r.EnergyDelta; s.Stress+=r.StressDelta; s.Mood+=r.AffectionDelta; s.CurrentEmotion=r.Emotion; s.CurrentDesire=r.Desire; s.Clamp();
+            if (Actor.Data.CanBuildRelationship)
+            {
+                new RelationshipSystem().Apply(s,r.AffectionDelta,r.TrustDelta,r.RomanceDelta,r.AttractionDelta);
+                s.Energy+=r.EnergyDelta; s.Stress+=r.StressDelta; s.Mood+=r.AffectionDelta; s.CurrentDesire=r.Desire;
+            }
+            s.CurrentEmotion=r.Emotion; s.Clamp();
             memory.RecordConfirmedPlayerAction(Actor.Data,s,input,Game.Day,Game.WorldMinutes);
             s.Conversation.Add("Jogador: "+input); s.Conversation.Add(Actor.Data.Name+": "+r.Dialogue); while(s.Conversation.Count>8)s.Conversation.RemoveAt(0);
-            _line.Text=r.Dialogue; _status.Text=r.ProviderStatus+$" · Rel: {s.Relationship} · Humor: {s.CurrentMood}"; Changed?.Invoke();
+            _line.Text=r.Dialogue; _status.Text=Actor.Data.CanBuildRelationship ? r.ProviderStatus+$" · Rel: {s.Relationship} · Humor: {s.CurrentMood}" : r.ProviderStatus+$" · NPC do mundo · Turno {_turns}/{MaxPlayerTurns}"; Changed?.Invoke();
         }
         catch(OperationCanceledException) { }
         catch(Exception e) { if(IsInsideTree()) { var alternative = new ProceduralDialogueProvider().Reply(Actor.Data, Actor.State, input); _line.Text = alternative.Dialogue; Actor.State.CurrentEmotion = alternative.Emotion; _status.Text=$"Falha técnica ({e.GetType().Name})"; } }

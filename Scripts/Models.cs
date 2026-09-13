@@ -36,6 +36,8 @@ public sealed class ScheduleEntry
 
 public sealed class CharacterData
 {
+    /// <summary>Only named relationship characters accumulate affinity and unlock companion cards.</summary>
+    public bool CanBuildRelationship { get; set; } = true;
     public CompanionCardData? CardData { get; set; }
     public List<CharacterOutfit> Outfits { get; set; } = new();
     public string DefaultOutfitId { get; set; } = "";
@@ -245,7 +247,7 @@ public sealed class GameSave
     public Dictionary<string, EncounterProgress> Encounters { get; set; } = new();
     public CombatState? ActiveCombat { get; set; }
     public List<string> CombatHistory { get; set; } = new();
-    public int SaveVersion { get; set; } = 5;
+    public int SaveVersion { get; set; } = 6;
     // Legacy fields are retained only to migrate existing slot files safely.
     public CharacterData? Character { get; set; } = null; public CharacterState? State { get; set; } = null;
     public List<string> CharacterIds { get; set; } = new(); public Dictionary<string, CharacterState> CharacterStates { get; set; } = new(); public PlayerStats Player { get; set; } = new();
@@ -266,5 +268,36 @@ public sealed class GameSave
     /// <summary>Minutes since midnight, persisted independently from display labels.</summary>
     public float WorldMinutes { get; set; } = -1f;
     public bool FirstPerson { get; set; } = true;
+    /// <summary>Narrative identity only. The player never receives a visual avatar.</summary>
+    public string PlayerName { get; set; } = "Viajante";
+    public WorldLore WorldLore { get; set; } = new();
+    public List<AtlasNodeData> AtlasNodes { get; set; } = new();
+    public List<string> RecentEvents { get; set; } = new();
+}
+
+public sealed class WorldLore
+{
+    public string RegionName { get; set; } = "Terras sem nome";
+    public string Premise { get; set; } = "Uma estrada antiga chama viajantes para segredos esquecidos.";
+    public string Threat { get; set; } = "Algo desperta nas ruínas.";
+    public List<string> Factions { get; set; } = new();
+    public List<string> Rumors { get; set; } = new();
+    public string Atmosphere { get; set; } = "melancólica e misteriosa";
+}
+
+public enum AtlasNodeKind { Event, Scene, Combat, Character, Merchant, Rest, Mystery, Boss }
+public enum AtlasNodeStatus { Locked, Available, Completed }
+
+public sealed class AtlasNodeData
+{
+    public string Id { get; set; } = Guid.NewGuid().ToString("N");
+    public string Title { get; set; } = "Novo caminho";
+    public AtlasNodeKind Kind { get; set; } = AtlasNodeKind.Event;
+    public AtlasNodeStatus Status { get; set; } = AtlasNodeStatus.Locked;
+    public float X { get; set; }
+    public float Y { get; set; }
+    public string BackgroundId { get; set; } = "forest_dark";
+    public string Description { get; set; } = "";
+    public List<string> Connections { get; set; } = new();
 }
 public sealed class GameSettings { public float Volume { get; set; } = 0.8f; public float TextSpeed { get; set; } = 1f; public bool AutoAdvance { get; set; } = false; public bool UseOnlineAi { get; set; } = false; public string Provider { get; set; } = "Groq"; public string Endpoint { get; set; } = "https://api.groq.com/openai/v1"; public string Model { get; set; } = "openai/gpt-oss-20b"; public float Temperature { get; set; } = 0.75f; public int MaxResponseTokens { get; set; } = 180; public int ContextMemorySize { get; set; } = 5; public float WorldTimeScale { get; set; } = 1f; public bool WorldTimePaused { get; set; } }

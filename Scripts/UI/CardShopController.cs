@@ -65,14 +65,13 @@ public partial class CardShopController : Control
 
     void BuyPack(int cost, int count, bool forceRare, bool potionsOnly)
     {
-        if (Game.Player.Coins < cost)
+        if (!EconomyService.TrySpend(Game, cost))
         {
             CardUi.Clear(_resultsContainer);
             _resultsContainer.AddChild(Ui.Text("Você não tem reais suficientes!", 16));
             return;
         }
 
-        Game.Player.Coins -= cost;
         _coinsLabel.Text = $"💰 {Game.Player.Coins} Reais";
 
         CardUi.Clear(_resultsContainer);

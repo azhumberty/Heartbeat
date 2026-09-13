@@ -41,7 +41,7 @@ public sealed class CardRepository
         var all=Generic.Concat(Custom()).ToDictionary(c=>c.Id,c=>CardRules.Copy(c));
         foreach(var person in cast??new CharacterRepository().List())
         {
-            if(person.Age<18 || person.CardData is not {Enabled:true} config)continue;
+            if(!person.CanBuildRelationship || person.Age<18 || person.CardData is not {Enabled:true} config)continue;
             void Add(CardDefinition source,string id,bool companion)
             {
                 var c=CardRules.Validate(source); c.Id=id;c.CharacterId=person.Id;

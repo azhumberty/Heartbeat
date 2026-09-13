@@ -21,33 +21,17 @@ public sealed partial class CombatManager
             _game.Player.Experience += xp;
             _game.Player.Level = 1 + _game.Player.Experience / 100;
 
-            var generic = new CardRepository().Generic.ToList();
-            var reward = PickLootCard(generic, foe.LootTier, rng);
-            State.RewardId = reward.Id;
-            _game.Deck.Owned[State.RewardId] = _game.Deck.Owned.GetValueOrDefault(State.RewardId) + 1;
+            State.RewardId = "";
+            int coins = State.IsDuel ? 8 : EconomyService.GrantCombatReward(_game, foe, rng);
+            if (State.IsDuel) EconomyService.Grant(_game, coins);
 
-            int coins = rng.Next(foe.CoinMin, foe.CoinMax + 1);
-            if (State.IsDuel) coins = Math.Max(8, coins / 2);
-            _game.Player.Coins += coins;
-
-            string bonus = "";
-            if (foe.LootTier >= 3 && rng.NextDouble() < 0.35)
-            {
-                var potion = PickPotionCard(generic, rng);
-                if (potion != null && potion.Id != reward.Id)
-                {
-                    _game.Deck.Owned[potion.Id] = _game.Deck.Owned.GetValueOrDefault(potion.Id) + 1;
-                    bonus = $" · Poção: {potion.Name}";
-                }
-            }
-
-            State.RewardText = $"+{xp} XP · +{coins} Reais · Carta: {reward.Name}{bonus}";
+            State.RewardText = $"+{xp} XP · +{coins} Reais";
             _game.Player.Health = State.Player.Health;
         }
         else if (State.IsDuel)
         {
             int coins = rng.Next(5, 12);
-            _game.Player.Coins += coins;
+            EconomyService.Grant(_game, coins);
             _game.Player.Health = Math.Max(1, State.Player.Health);
             State.RewardText = $"Você perdeu o duelo, mas ganhou experiência. +{coins} Reais.";
         }

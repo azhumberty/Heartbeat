@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Heartbeat;
 
-public partial class WorldController : Node3D
+public partial class WorldController : Node
 {
     GameSave _game = null!;
     SaveManager _saves = new();
@@ -24,6 +24,7 @@ public partial class WorldController : Node3D
     // Top-Level Screens
     Control? _screen;
     CombatArenaController? _combat;
+    string _activeAtlasNodeId = "";
 
     // Fast Save Access
     public static GameSave? InitialSave;
@@ -73,10 +74,7 @@ public partial class WorldController : Node3D
         {
             ResumeCombat();
         }
-        else if (!_game.Flags.Contains("creator_done"))
-        {
-            OpenCreator();
-        }
+        else _atlas.Visible = true;
     }
     
     void OnPeriodChanged(string period)
@@ -107,6 +105,7 @@ public partial class WorldController : Node3D
 
         _vnBack = Ui.Button(caption + " — Voltar ao atlas", () =>
         {
+            FinishAtlasNode();
             ClearVnMeet();
             _vnBackground.Texture = null;
             _atlas.Visible = true;
@@ -121,6 +120,7 @@ public partial class WorldController : Node3D
         ClearVnMeet();
         _vnBack = Ui.Button("Voltar ao atlas", () =>
         {
+            FinishAtlasNode();
             ClearVnMeet();
             _vnBackground.Texture = null;
             _atlas.Visible = true;
@@ -132,13 +132,16 @@ public partial class WorldController : Node3D
 
     void OnTravel(string destinationId)
     {
+        var node = _game.AtlasNodes.Find(n => n.Id == destinationId);
+        if (node == null || node.Status == AtlasNodeStatus.Locked) return;
+        _activeAtlasNodeId = node.Id;
         _atlas.Visible = false;
         ClearVnMeet();
 
         _vnBackground.Modulate = new Color(0.85f, 0.85f, 0.88f);
-        _vnBackground.Texture = ChromaArt.LoadArt(ChromaArt.BackgroundForDestination(destinationId));
+        _vnBackground.Texture = ChromaArt.LoadArt(ChromaArt.BackgroundForDestination(node.BackgroundId));
 
-        if (destinationId is "merchant_tent" or "merchant")
+        if (node.Kind == AtlasNodeKind.Merchant)
         {
             var merchant = _npcs.GetNpc("merchant");
             if (merchant != null) OnNpcInteracted(merchant);
@@ -195,17 +198,22 @@ public partial class WorldController : Node3D
             _vnCharacter.Texture = new PortraitCache().Get(actor.Data, actor.State, false);
         }
 
-        var dialog = new DialogueController
+        DialogueController? dialog = null;
+        dialog = new DialogueController
         {
             Actor = actor,
             Game = _game,
             Closed = () =>
             {
+                FinishAtlasNode();
+                dialog?.QueueFree();
+                _screen = null;
                 _atlas.Visible = true;
                 _vnCharacter.Texture = null;
                 _vnCharacter.Material = null;
             }
         };
+        _screen = dialog;
         _uiLayer.AddChild(dialog);
     }
     public override void _UnhandledInput(InputEvent e)
@@ -228,13 +236,14 @@ public partial class WorldController : Node3D
         _screen = null;
     }
 
-    void OpenCreator()
+    void FinishAtlasNode()
     {
-        if (_screen != null) return;
-        var creator = new CharacterCreatorController { Game = _game };
-        creator.Closed = () => { _game.Flags.Add("creator_done"); Close(); Save(); _atlas.Visible = true; };
-        _screen = creator;
-        _uiLayer.AddChild(creator);
+        if (string.IsNullOrEmpty(_activeAtlasNodeId)) return;
+        AtlasGenerator.Complete(_game, _activeAtlasNodeId);
+        _game.RecentEvents.Add(_activeAtlasNodeId);
+        if (_game.RecentEvents.Count > 16) _game.RecentEvents.RemoveAt(0);
+        _activeAtlasNodeId = "";
+        Save();
     }
 
     void Save()
@@ -280,6 +289,7 @@ public partial class WorldController : Node3D
         if(manager.State.Result.Length==0)return;
         fade.MouseFilter=Control.MouseFilterEnum.Stop;await Fade(fade,1,.35);
         manager.Settle();
+        if (manager.State.Result == "Victory") FinishAtlasNode();
         _game.ActiveCombat=null;_combat?.QueueFree();_combat=null;Save();
         _atlas.Visible = true; // Return to map
         await Fade(fade,0,.35);fade.QueueFree();
