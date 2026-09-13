@@ -3,7 +3,7 @@
 **Você está assumindo um projeto existente. Não recrie o projeto e não substitua sistemas funcionais sem primeiro analisar a implementação atual.**
 
 ## SOBRE O PROJETO
-**Heartbeat** é um RPG social / Dating Sim medieval em primeira pessoa ambientado em um mundo *dark fantasy*. O foco principal está na interação com NPCs masculinos, memorização de eventos sociais (usando IA procedural via Groq), exploração de florestas atmosféricas e um sistema de combate/duelos por cartas.
+**Heartbeat** é uma Visual Novel / Dating Sim / RPG narrativo 2D com Card Game e Atlas procedural de expedições, ambientado em um mundo *dark fantasy*. O jogador existe como nome e escolhas; cenários e personagens são imagens 2D. Não há exploração 3D, FPS, WASD ou avatar.
 
 ## INFORMAÇÕES TÉCNICAS
 - **Engine:** Godot 4.7.2 Forward+
@@ -16,7 +16,7 @@ Para assumir o projeto de forma coesa e evitar refactors destrutivos, leia os se
 
 1. `GROK_START_HERE.md` (Você está aqui)
 2. `AGENTS.md` (Regras de desenvolvimento e continuidade)
-3. `HANDOFF_HEARTBEAT_CURRENT.md` (Estado detalhado atual de todas as features)
+3. `HEARTBEAT_HANDOFF.md` (Estado detalhado e vigente de todas as features)
 4. `PROJECT_ARCHITECTURE.md` (Como os sistemas de mundo e UI se conectam)
 5. `CURRENT_SYSTEMS.md` (Checklist rápido do status de cada funcionalidade)
 6. `NEXT_TASKS.md` (A lista hierárquica do próximo trabalho que você deve executar)
@@ -30,5 +30,5 @@ Consulte **`NEXT_TASKS.md`** para iniciar a tarefa **P1**.
 
 ## REGRAS CRÍTICAS
 - A API da Groq usa estritamente a variável de ambiente `GROQ_API_KEY`. **Nunca adicione chaves em código ou arquivos.**
-- Tudo é construído focado em primeira pessoa e na exploração gerada proceduralmente via `ChunkManager`.
-- Leia o arquivo `HANDOFF_HEARTBEAT_CURRENT.md` para entender exatamente onde o agente anterior (Antigravity/Gemini) parou.
+- Tudo é construído para cenas 2D, narrativa por escolhas, combate de cartas e expedições geradas pelo `AtlasGenerator`.
+- Leia o arquivo `HEARTBEAT_HANDOFF.md` para entender exatamente onde o agente anterior parou.

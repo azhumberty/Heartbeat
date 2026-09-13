@@ -1,3 +1,7 @@
+# HANDOFF HISTÓRICO — DIREÇÃO 3D DESCONTINUADA
+
+> Este documento registra uma versão antiga em primeira pessoa e não deve orientar novas mudanças. A direção vigente é totalmente 2D e está em `HEARTBEAT_HANDOFF.md`; leia esse arquivo antes de editar.
+
 # ESTADO DE HANDOFF DO HEARTBEAT
 
 **DATA DO HANDOFF:** 12 de Setembro de 2026

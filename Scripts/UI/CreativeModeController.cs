@@ -137,7 +137,7 @@ public partial class CreativeModeController : Control
         _coinMax=new SpinBox {MinValue=0,MaxValue=999,Value=22};Field("Reais máx.",_coinMax);
         _shopStock=new TextEdit {CustomMinimumSize=new Vector2(0,54),PlaceholderText="g01:12, g05:20, custom_id:30"};Field("Estoque Carta:preço",_shopStock);
         _info=Ui.Text("Escolha um asset.",14);detail.AddChild(_info);
-        var buttons=new HBoxContainer();detail.AddChild(buttons);buttons.AddChild(Ui.Button("Escolher imagem…",Choose));buttons.AddChild(Ui.Button("Salvar",Save));buttons.AddChild(Ui.Button("Duplicar",Duplicate));buttons.AddChild(Ui.Button("Ativar/Desativar",Toggle));buttons.AddChild(Ui.Button("Editor de cartas",OpenCardEditor));
+        var buttons=new GridContainer {Columns=3};detail.AddChild(buttons);buttons.AddChild(Ui.Button("Escolher imagem…",Choose));buttons.AddChild(Ui.Button("Salvar",Save));buttons.AddChild(Ui.Button("Duplicar",Duplicate));buttons.AddChild(Ui.Button("Ativar/Desativar",Toggle));buttons.AddChild(Ui.Button("Cartas genéricas",OpenCardEditor));buttons.AddChild(Ui.Button("Carta e golpes do personagem",OpenCompanionEditor));
         _assets=_library.Load();Refresh();
     }
     string Category=>_category.GetItemText(_category.Selected);
@@ -168,6 +168,14 @@ public partial class CreativeModeController : Control
     void Duplicate(){if(_selected==null)return;var copy=JsonSerializer.Deserialize<ContentAssetRecord>(JsonSerializer.Serialize(_selected))!;copy.Id="custom_"+Guid.NewGuid().ToString("N")[..10];copy.DisplayName+=" (cópia)";copy.BuiltIn=false;_assets.Add(copy);_library.SaveUser(_assets);_library.SyncCharacter(copy);Refresh();}
     void Toggle(){if(_selected==null||_selected.BuiltIn){_info.Text="Assets incluídos no jogo permanecem ativos.";return;}_selected.Enabled=!_selected.Enabled;_library.SaveUser(_assets);_library.SyncCharacter(_selected);Refresh();}
     void OpenCardEditor(){if(Category!="Cartas"){_info.Text="Selecione a categoria Cartas para abrir o editor completo.";return;}var editor=new CardEditor();editor.Closed=editor.QueueFree;AddChild(editor);}
+    void OpenCompanionEditor()
+    {
+        if(Category!="Personagens"||_selected==null){_info.Text="Selecione um personagem já salvo para editar sua carta e golpes.";return;}
+        if(_selected.BuiltIn){_info.Text="Duplique este personagem, salve a cópia e edite as cartas da cópia.";return;}
+        var repository=new CharacterRepository();_library.SyncCharacter(_selected);var character=repository.Load(_selected.Id);
+        if(character==null){_info.Text="Salve o personagem antes de editar suas cartas.";return;}
+        var editor=new CompanionCardEditor{Data=character};editor.Closed=()=>{repository.Save(character);editor.QueueFree();_info.Text="Carta de companheiro e golpes especiais salvos.";};AddChild(editor);
+    }
     static Texture2D? LoadTexture(string path)
     {
         return ContentLibrary.LoadTexture(path);

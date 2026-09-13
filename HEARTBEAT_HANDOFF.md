@@ -26,6 +26,7 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - Cadastros personalizados de Personagem, NPC e Mercador agora geram/atualizam pacotes no `CharacterRepository`; sua imagem, descrição, idade, personalidade, fala, função e permissão de relacionamento chegam ao jogo.
 - Personagens desativados no Criativo deixam de entrar em novas campanhas sem que seus arquivos sejam apagados. Quando existem personagens ou mercadores personalizados ativos, o Atlas os prioriza.
 - A categoria Cartas abre o editor completo existente, que já salva cartas personalizadas na coleção.
+- A categoria Personagens oferece um atalho para editar a carta de companheiro e até quatro golpes especiais do personagem salvo. Assets internos devem ser duplicados antes da edição.
 - Mercadores personalizados aceitam `ShopStock` no formato `Carta:preço` (ex.: `g01:12, custom_cura:30`). A loja vende essas cartas individualmente e usa os pacotes padrão quando não há estoque válido.
 - O diálogo limita cada encontro a oito mensagens do jogador e encerra corretamente quando o painel é fechado.
 - Estrada, taverna, descanso e mistério usam `ProceduralEventService`: cada cena oferece duas escolhas, aplica consequências limitadas pelo C# e salva um resumo curto.
@@ -67,9 +68,8 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 
 ## Próximas tarefas recomendadas
 
-1. Adicionar edição de carta de companheiro e quatro golpes ao cadastro de Personagem.
-2. Testar visualmente o fluxo completo em 1280×720 no editor.
-3. Ajustar os detalhes de layout encontrados nesse teste visual.
+1. Testar visualmente o fluxo completo em 1280×720 no editor.
+2. Ajustar os detalhes de layout encontrados nesse teste visual.
 
 ## Regras essenciais
 

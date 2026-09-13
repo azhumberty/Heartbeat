@@ -6,9 +6,9 @@ Este arquivo define o protocolo padrão de trabalho aplicável ao **Codex, Gemin
 1. **Preservar Sistemas Existentes:** Não reescreva arquivos grandes sem necessidade e nunca substitua sistemas funcionais por outros (não recrie a roda).
 2. **Analisar Antes de Editar:** Leia os scripts fundamentais afetados por um pedido antes de aplicar modificações usando ferramentas de regex/replace.
 3. **Não Migrar de Godot:** O projeto é estritamente **Godot 4.7.2 Mono / C# / .NET 8**. Não sugira nem tente converter para GDScript, C++, Unity ou Unreal sem autorização explícita.
-4. **Visão Fixa:** O jogo é **sempre** em primeira pessoa. Atualmente não há corpo/braços visíveis para o jogador. Preserve isso salvo pedido explícito para alterar.
+4. **Visão Fixa:** O jogo é **sempre 2D**, combinando Visual Novel, Dating Sim, RPG narrativo, Card Game e Atlas procedural. O jogador não possui avatar ou aparência e não há FPS, WASD nem exploração 3D.
 5. **Alergia à Pirataria:** Não utilize assets (modelos 3D, sons, imagens) ripados de outros jogos comerciais. 
-6. **Performance Sempre:** Priorize a performance em C#. Evite coletas de lixo excessivas em loops processuais, especialmente no `ChunkGenerator` e `EncounterManager`.
+6. **Performance Sempre:** Priorize a performance em C#. Evite coletas de lixo excessivas em geração procedural, combate e atualização da interface.
 
 ## ELEMENTOS INQUEBRÁVEIS
 Você **deve obrigatoriamente preservar e não quebrar**:
@@ -16,8 +16,8 @@ Você **deve obrigatoriamente preservar e não quebrar**:
 - O Criador de Personagens.
 - Os NPCs, a importação de sprites estáticos/animados deles, e suas memórias estruturais.
 - O diálogo misto (Online Groq / Offline Fallback).
-- A geração de Chunks procedurais e Culling.
-- O ciclo de tempo (Dia/Noite e Skyboxes/Fog associados).
+- A geração procedural e persistência do Atlas por expedições.
+- A apresentação 2D de cenários, personagens, eventos e combate.
 
 ## TESTES E INTEGRIDADE
 - Sempre **compile** usando `dotnet build` após fazer mudanças relevantes.

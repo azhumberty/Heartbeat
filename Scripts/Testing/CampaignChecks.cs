@@ -60,6 +60,7 @@ public partial class CampaignChecks : Node
             await CheckGroqLore();
             Require(ChromaArt.LoadArt("UI/Frames/menu_background.png")!=null,"Arte do menu indisponível.");
             var creative=new CreativeModeController();AddChild(creative);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(creative.IsInsideTree(),"Criativo não abriu.");creative.QueueFree();
+            var companionEditor=new CompanionCardEditor{Data=resident};AddChild(companionEditor);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(companionEditor.IsInsideTree(),"Editor de carta do personagem não abriu.");companionEditor.QueueFree();
             var newGame=new NewGameController{Settings=new GameSettings{UseOnlineAi=false}};AddChild(newGame);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(newGame.IsInsideTree(),"Novo Jogo não abriu.");newGame.QueueFree();
             DeckManager.Migrate(save);var combatManager=CombatManager.Start(save,new CardRepository().Catalog(),"qa_combat","forest","forest",12);var arenaView=new CombatArenaController{Manager=combatManager,Game=save,ReduceMotion=true};AddChild(arenaView);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(arenaView.IsInsideTree(),"Arena de combate não abriu.");arenaView.QueueFree();
             var shopView=new CardShopController{Game=save,MerchantId="merchant"};AddChild(shopView);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(shopView.IsInsideTree(),"Mercador não abriu.");shopView.QueueFree();

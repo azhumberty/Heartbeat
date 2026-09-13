@@ -2,7 +2,7 @@
 
 ## P0 — Conteúdo Criativo restante
 
-1. Adicionar, ao cadastro de Personagem, atalhos para carta de companheiro e até quatro golpes especiais.
+1. [x] Adicionar, ao cadastro de Personagem, atalho para carta de companheiro e até quatro golpes especiais.
 2. Adicionar campos específicos restantes por categoria sem sobrecarregar a tela.
 
 ## P1 — Atlas infinito e acampamento (concluído em código)
