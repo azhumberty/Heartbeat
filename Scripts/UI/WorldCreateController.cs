@@ -60,8 +60,18 @@ public partial class WorldCreateController : Control
 
     void Clear()
     {
-        foreach (var c in _body.GetChildren().ToArray()) { _body.RemoveChild(c); c.QueueFree(); }
-        foreach (var c in _footer.GetChildren().ToArray()) { _footer.RemoveChild(c); c.QueueFree(); }
+        while (_body.GetChildCount() > 0)
+        {
+            var c = _body.GetChild(0);
+            _body.RemoveChild(c);
+            c.QueueFree();
+        }
+        while (_footer.GetChildCount() > 0)
+        {
+            var c = _footer.GetChild(0);
+            _footer.RemoveChild(c);
+            c.QueueFree();
+        }
     }
 
     void ShowPrompt()

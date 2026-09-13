@@ -260,7 +260,22 @@ public static class WorldGenerationService
             ["factions"] = new { type = "array", items = new { type = "string" } },
             ["storyHooks"] = new { type = "array", items = new { type = "string" } }
         };
-        return new { type = "json_schema", json_schema = new { name = "heartbeat_world_definition", strict = true, schema = new { type = "object", properties, required = properties.Keys.ToArray(), additionalProperties = false } } };
+        return new Dictionary<string, object>
+        {
+            ["type"] = "json_schema",
+            ["json_schema"] = new Dictionary<string, object>
+            {
+                ["name"] = "heartbeat_world_definition",
+                ["strict"] = true,
+                ["schema"] = new Dictionary<string, object>
+                {
+                    ["type"] = "object",
+                    ["properties"] = properties,
+                    ["required"] = properties.Keys.ToArray(),
+                    ["additionalProperties"] = false
+                }
+            }
+        };
     }
 
     static readonly HashSet<string> Stop = new(StringComparer.OrdinalIgnoreCase)
