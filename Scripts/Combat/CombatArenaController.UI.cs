@@ -6,7 +6,7 @@ public partial class CombatArenaController
     void BuildInterface()
     {
         var shade=new ColorRect {Color=new Color("0a0f1288"),MouseFilter=MouseFilterEnum.Ignore};AddChild(shade);shade.SetAnchorsAndOffsetsPreset(LayoutPreset.TopWide);shade.OffsetBottom=150;
-        var header=new HBoxContainer {Position=new(24,16)}; header.AddThemeConstantOverride("separation",18); AddChild(header);
+        var header=new HBoxContainer();header.SetAnchorsPreset(LayoutPreset.TopWide);header.OffsetLeft=24;header.OffsetRight=-282;header.OffsetTop=16;header.OffsetBottom=145;header.AddThemeConstantOverride("separation",18); AddChild(header);
 
         var playerPanel=StatPanel(Game.PlayerName.ToUpperInvariant(), out _playerName, out _playerHpText, out _playerHealth, out _playerManaText, out _playerMana, true);
         header.AddChild(playerPanel);
@@ -19,23 +19,23 @@ public partial class CombatArenaController
         ((VBoxContainer)enemyPanel.GetChild(0)).AddChild(Ui.Text("INTENÇÃO",12));
         ((VBoxContainer)enemyPanel.GetChild(0)).AddChild(_intentRow);
 
-        var actions=new VBoxContainer {Position=new(1010,18),CustomMinimumSize=new(240,0)};AddChild(actions);
+        var actions=new VBoxContainer {CustomMinimumSize=new(240,0)};actions.SetAnchorsPreset(LayoutPreset.TopRight);actions.OffsetLeft=-264;actions.OffsetRight=-24;actions.OffsetTop=18;actions.OffsetBottom=155;AddChild(actions);
         _turn=Ui.Text("",16); _turn.AutowrapMode=TextServer.AutowrapMode.Off; actions.AddChild(_turn);
         _end=Ui.Button("Encerrar turno",()=>_ = EndTurnAnimated());actions.AddChild(_end);
         _flee=Ui.Button("Recuar",()=>_ = Retreat());actions.AddChild(_flee);
         var reduced=new CheckButton {Text="Reduzir movimento",ButtonPressed=ReduceMotion};actions.AddChild(reduced);reduced.Toggled+=v=>ReduceMotion=v;
 
-        var detailPanel=new PanelContainer {Position=new(28,175),CustomMinimumSize=new(280,0)};AddChild(detailPanel);
-        detailPanel.AddThemeStyleboxOverride("panel",new StyleBoxFlat {BgColor=new Color("0a0e12e0"),BorderWidthLeft=1,BorderWidthTop=1,BorderWidthRight=1,BorderWidthBottom=1,BorderColor=new Color("b39a64"),ContentMarginLeft=14,ContentMarginRight=14,ContentMarginTop=12,ContentMarginBottom=12,CornerRadiusTopLeft=12,CornerRadiusTopRight=12,CornerRadiusBottomLeft=12,CornerRadiusBottomRight=12,ShadowColor=new Color(0,0,0,.5f),ShadowSize=6});
-        var details=new VBoxContainer();detailPanel.AddChild(details);_detail=new VBoxContainer();details.AddChild(_detail);
+        _detailPanel=new PanelContainer {Position=new(28,175),CustomMinimumSize=new(300,0),Visible=false};AddChild(_detailPanel);
+        _detailPanel.AddThemeStyleboxOverride("panel",new StyleBoxFlat {BgColor=new Color("0a0e12e0"),BorderWidthLeft=1,BorderWidthTop=1,BorderWidthRight=1,BorderWidthBottom=1,BorderColor=new Color("b39a64"),ContentMarginLeft=14,ContentMarginRight=14,ContentMarginTop=12,ContentMarginBottom=12,CornerRadiusTopLeft=12,CornerRadiusTopRight=12,CornerRadiusBottomLeft=12,CornerRadiusBottomRight=12,ShadowColor=new Color(0,0,0,.5f),ShadowSize=6});
+        var details=new VBoxContainer();_detailPanel.AddChild(details);var detailHeader=new HBoxContainer();details.AddChild(detailHeader);var detailTitle=Ui.Text("DETALHES DA CARTA",13);detailTitle.SizeFlagsHorizontal=SizeFlags.ExpandFill;detailHeader.AddChild(detailTitle);detailHeader.AddChild(Ui.Button("×",()=>_detailPanel.Visible=false));_detail=new VBoxContainer();details.AddChild(_detail);
         _play=Ui.Button("Jogar carta",()=>_ = PlaySelected());details.AddChild(_play);
-        _message=Ui.Text("Escolha uma carta. Revele fraquezas, defenda e ataque.",17);_message.Position=new(880,300);_message.Size=new(350,150);_message.HorizontalAlignment=HorizontalAlignment.Right;_message.AutowrapMode=TextServer.AutowrapMode.Word;_message.AddThemeColorOverride("font_color", new Color("f2d388"));_message.AddThemeColorOverride("font_shadow_color", new Color(0,0,0));AddChild(_message);
+        _message=Ui.Text("Escolha uma carta. Revele fraquezas, defenda e ataque.",17);_message.SetAnchorsPreset(LayoutPreset.TopRight);_message.OffsetLeft=-410;_message.OffsetRight=-30;_message.OffsetTop=190;_message.OffsetBottom=330;_message.HorizontalAlignment=HorizontalAlignment.Right;_message.AutowrapMode=TextServer.AutowrapMode.Word;_message.AddThemeColorOverride("font_color", new Color("f2d388"));_message.AddThemeColorOverride("font_shadow_color", new Color(0,0,0));AddChild(_message);
         var bottom=new PanelContainer();AddChild(bottom);bottom.SetAnchorsAndOffsetsPreset(LayoutPreset.BottomWide);bottom.OffsetTop=-280;
         bottom.AddThemeStyleboxOverride("panel",new StyleBoxFlat {BgColor=new Color(0f, 0f, 0f, 0.65f),ContentMarginLeft=30,ContentMarginRight=30,ContentMarginTop=20,ContentMarginBottom=10});
         var scroll=new ScrollContainer {HorizontalScrollMode=ScrollContainer.ScrollMode.Auto,VerticalScrollMode=ScrollContainer.ScrollMode.Disabled};bottom.AddChild(scroll);
         _hand=new HBoxContainer();_hand.AddThemeConstantOverride("separation", -8);scroll.AddChild(_hand);
         _effects=new Control {MouseFilter=MouseFilterEnum.Ignore};AddChild(_effects);_effects.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        _return=Ui.Button("Retornar ao atlas",()=>Finished?.Invoke());_return.Position=new(470,407);_return.CustomMinimumSize=new(340,46);_return.Visible=false;AddChild(_return);
+        _return=Ui.Button("Retornar ao atlas",()=>Finished?.Invoke());_return.SetAnchorsPreset(LayoutPreset.Center);_return.OffsetLeft=-170;_return.OffsetRight=170;_return.OffsetTop=45;_return.OffsetBottom=91;_return.Visible=false;AddChild(_return);
     }
     static ProgressBar Bar(Control parent,Color fill,Color light)
     {

@@ -14,6 +14,7 @@ public partial class CombatArenaController : Control
     ProgressBar _playerHealth=null!,_enemyHealth=null!,_playerMana=null!;
     HBoxContainer _intentRow=null!;
     VBoxContainer _detail=null!;
+    PanelContainer _detailPanel=null!;
     Button _play=null!,_end=null!,_return=null!,_flee=null!;
     TextureRect _enemy=null!;
     int _selected=-1;
@@ -60,7 +61,7 @@ public partial class CombatArenaController : Control
         }
         AddChild(_enemy);
     }
-    PanelContainer StatPanel(string title, out Label nameLabel, out Label hpLabel, out ProgressBar hpBar, out Label? manaLabel, out ProgressBar? manaBar, bool withMana)
+    PanelContainer StatPanel(string title, out Label nameLabel, out Label hpLabel, out ProgressBar hpBar, out Label manaLabel, out ProgressBar manaBar, bool withMana)
     {
         var panel=new PanelContainer {CustomMinimumSize=new(300,0)};
         panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat {
@@ -78,7 +79,7 @@ public partial class CombatArenaController : Control
             manaLabel=Ui.Text("Mana",13); manaLabel.AutowrapMode=TextServer.AutowrapMode.Off; col.AddChild(manaLabel);
             manaBar=Bar(col,new Color("3d6ebd"),new Color("7eb6ff"));
         }
-        else { manaLabel=null; manaBar=null; }
+        else { manaLabel=null!; manaBar=null!; }
         return panel;
     }
 }

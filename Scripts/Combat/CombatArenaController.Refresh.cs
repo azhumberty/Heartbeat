@@ -28,7 +28,7 @@ public partial class CombatArenaController
             appear.TweenProperty(card,"scale",Vector2.One,.2+i*.03).SetTrans(Tween.TransitionType.Back).SetEase(Tween.EaseType.Out);
             if(s.Mana<data.Cost)card.SelfModulate=new Color(.6f,.6f,.6f);
         }
-        _selected=-1;CardUi.Clear(_detail);_detail.AddChild(Ui.Text("SELECIONE UMA CARTA",16));_detail.AddChild(Ui.Text(Status(s.Player),13));_play.Disabled=true;
+        _selected=-1;CardUi.Clear(_detail);_play.Disabled=true;_detailPanel.Visible=false;
         _end.Disabled=Busy||s.Result.Length>0;_flee.Disabled=Busy||s.Result.Length>0;
         if(s.Result.Length>0)
         {
@@ -39,6 +39,7 @@ public partial class CombatArenaController
     {
         if(Busy||Manager.State.Result.Length>0||index<0||index>=Manager.State.Hand.Count)return;
         _selected=index;var c=Manager.State.Cards[Manager.State.Hand[index]];
+        _detailPanel.Visible=true;_detailPanel.Modulate=new Color(1,1,1,0);_detailPanel.CreateTween().TweenProperty(_detailPanel,"modulate:a",1f,.14);
         CardUi.Clear(_detail);_detail.AddChild(Ui.Text(c.Name,22));_detail.AddChild(Ui.Text(c.Description,15));_detail.AddChild(Ui.Text(CardRules.Describe(c),16));
         if(c.Passive!=null)_detail.AddChild(Ui.Text("Passiva por turno: "+CardRules.EffectName(c.Passive.Kind)+" "+c.Passive.Value,14));
         string reason=Manager.CanPlay(index);_play.Disabled=reason.Length>0;_message.Text=reason.Length>0?reason:c.Phrase;

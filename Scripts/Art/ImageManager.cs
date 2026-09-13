@@ -34,8 +34,8 @@ public partial class ImageManager : Node
 	{
 		if (string.IsNullOrWhiteSpace(relativeOrLogicalPath))
 		{
-			GD.PushWarning("[ImageManager] Empty path requested â€” returning IMAGE MISSING placeholder.");
-			return _missingPlaceholder!;
+			GD.PushWarning("[ImageManager] Caminho vazio; usando imagem alternativa.");
+			return _missingPlaceholder??=BuildMissingPlaceholder();
 		}
 
 		var key = NormalizeKey(relativeOrLogicalPath);
@@ -81,8 +81,9 @@ public partial class ImageManager : Node
 		}
 
 		GD.PushWarning($"[ImageManager] IMAGE MISSING: '{relativeOrLogicalPath}' (tried under {ArtKitRoot}). Using placeholder.");
-		_cache[key] = _missingPlaceholder;
-		return _missingPlaceholder!;
+		var placeholder=_missingPlaceholder??=BuildMissingPlaceholder();
+		_cache[key] = placeholder;
+		return placeholder;
 	}
 
 	public static Image? LoadImage(string absolutePath)

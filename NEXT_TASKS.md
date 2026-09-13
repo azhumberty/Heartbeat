@@ -8,6 +8,5 @@
 
 ## P1 — Interface
 
-1. Tornar o painel de detalhes do combate recolhível para preservar a arte central.
-2. Testar os layouts em 1280×720, 1600×900 e 1920×1080.
-3. Substituir os textos com codificação antiga restantes.
+1. Testar os layouts em 1280×720, 1600×900 e 1920×1080.
+2. Ajustar os detalhes visuais encontrados no teste manual.
