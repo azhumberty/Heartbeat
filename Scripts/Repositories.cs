@@ -69,7 +69,7 @@ public sealed class SaveManager
     }
     public void Save(GameSave game, int slot = 1)
     {
-        Migrate(game); game.SaveVersion = 8;
+        Migrate(game); game.SaveVersion = 9;
         DirAccess.MakeDirRecursiveAbsolute(ProjectSettings.GlobalizePath("user://saves"));
         var snapshot = JsonSerializer.SerializeToNode(game, _json)!;
         snapshot.AsObject().Remove("Character"); snapshot.AsObject().Remove("State");
@@ -144,7 +144,10 @@ public sealed class SaveManager
             camp.Persistent=true;camp.Status=AtlasNodeStatus.Available;camp.Risk=0;camp.Layer=Math.Max(1,save.ExpeditionIndex+1);
             foreach(var node in save.AtlasNodes){node.Layer=Math.Max(1,node.Layer);node.Risk=Math.Clamp(node.Risk,0,5);}
         }
+        // v8→v9: each endless expedition persists its own deterministic backdrop.
+        if(save.SaveVersion<9||string.IsNullOrWhiteSpace(save.AtlasBackgroundPath))
+            save.AtlasBackgroundPath=AtlasGenerator.Backdrop(save.WorldSeed==0?1:save.WorldSeed,save.ExpeditionIndex);
         save.FirstPerson = false;
-        save.SaveVersion = 8;
+        save.SaveVersion = 9;
     }
 }

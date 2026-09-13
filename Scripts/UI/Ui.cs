@@ -4,7 +4,11 @@ namespace Heartbeat;
 public static class Ui
 {
     public static Label Text(string text, int size = 18)
-    { var n = new Label { Text = text, AutowrapMode = TextServer.AutowrapMode.WordSmart }; n.AddThemeFontSizeOverride("font_size", size); return n; }
+    { 
+        var n = new Label { Text = text, AutowrapMode = TextServer.AutowrapMode.Off }; 
+        n.AddThemeFontSizeOverride("font_size", size); 
+        return n; 
+    }
     public static Button Button(string text, Action action)
     {
         var n = new Button { Text = text, CustomMinimumSize = new(0, 42) };

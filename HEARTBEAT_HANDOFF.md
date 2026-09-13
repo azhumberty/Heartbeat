@@ -34,11 +34,15 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - O Atlas atualiza bloqueios, cores e caminhos imediatamente depois de concluir um evento, encontro ou combate.
 - Ao vencer o chefe, o Atlas gera uma nova expedição determinística com novos IDs e volta a ler os assets ativos do Criativo. O acampamento, o baralho, os relacionamentos e o restante do save permanecem.
 - Personagens de relacionamento com afeição 40 ou mais podem ser convidados pelo diálogo para morar no acampamento. Os moradores ficam persistidos no save e aparecem nos eventos de descanso.
-- Saves antigos migram para a versão 8, preservando o progresso e transformando o acampamento existente em um hub permanente.
+- Saves antigos migram para a versão 9, preservando o progresso, o acampamento e o fundo escolhido para a expedição atual.
 - O painel inferior de combate usa 196 px e o diálogo usa 228 px de altura útil, mantendo o personagem visível.
 - O fluxo iniciado em memória agora passa imediatamente à persistência normal; progresso feito depois de Novo Jogo ou Carregar Jogo é salvo corretamente.
 - A entrega `DATING SIM.zip` do Grok foi comparada e fundida seletivamente: mapa do Atlas, cenários finais, Roan, Silas, Minotauro, hub do acampamento e utilitário de chroma foram incorporados. Arquivos mais antigos do ZIP não substituíram os sistemas atuais.
 - O combate atual foi preservado. O Minotauro foi adicionado ao catálogo e pode aparecer nas expedições, usando as mesmas regras de cartas, HUD compacto e recompensa somente em Reais.
+- A loja de cartas agora controla o próprio fechamento: **Fechar** e **Esc** removem a tela mesmo depois de uma compra e devolvem o mouse ao jogo. O retorno de saldo insuficiente usa uma linha larga e legível.
+- Cada nova expedição seleciona e persiste outro fundo entre os cenários ativos do Criativo e os cenários internos. A seed ainda permite reproduzir a campanha, e o fundo anterior não se repete quando há outra opção disponível.
+- A integração Groq está ativa nas três superfícies narrativas adequadas: introdução do mundo, eventos procedurais dos nós e diálogo dos personagens. Atlas, economia e combate usam geração local validada para não depender da rede; todos os três fluxos narrativos mantêm fallback offline.
+- Roan, Silas e o Minotauro foram reconstruídos a partir das artes do Grok para remover os buracos verdes internos. Os PNGs agora possuem transparência alfa real e preservam os mesmos caminhos usados pelo jogo.
 
 ## Arquivos principais
 
@@ -67,6 +71,8 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - O teste HTTP simulado da introdução confirmou JSON válido, limites de texto e carregamento do fluxo de Novo Jogo offline.
 - A arena 2D foi instanciada pelo teste de campanha depois de iniciar um combate real de QA.
 - A tela do mercador foi instanciada pelo teste e o parser confirmou estoque válido, deduplicação e rejeição de entradas incorretas.
+- O teste do mercador agora efetua uma compra real, aciona o botão **Fechar** e confirma que a janela saiu da árvore.
+- O teste de expedição confirma a troca do fundo do Atlas; o teste de arte confirma alfa transparente no Minotauro reparado.
 
 ## Próximas tarefas recomendadas
 

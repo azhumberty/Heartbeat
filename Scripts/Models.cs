@@ -247,7 +247,7 @@ public sealed class GameSave
     public Dictionary<string, EncounterProgress> Encounters { get; set; } = new();
     public CombatState? ActiveCombat { get; set; }
     public List<string> CombatHistory { get; set; } = new();
-    public int SaveVersion { get; set; } = 8;
+    public int SaveVersion { get; set; } = 9;
     // Legacy fields are retained only to migrate existing slot files safely.
     public CharacterData? Character { get; set; } = null; public CharacterState? State { get; set; } = null;
     public List<string> CharacterIds { get; set; } = new(); public Dictionary<string, CharacterState> CharacterStates { get; set; } = new(); public PlayerStats Player { get; set; } = new();
@@ -275,6 +275,8 @@ public sealed class GameSave
     public List<string> RecentEvents { get; set; } = new();
     /// <summary>Zero-based endless expedition number.</summary>
     public int ExpeditionIndex { get; set; }
+    /// <summary>Backdrop selected for the current procedural Atlas expedition.</summary>
+    public string AtlasBackgroundPath { get; set; } = "res://Assets/ArtKit/Backgrounds/atlas_map.png";
     /// <summary>Relationship characters invited to the persistent camp.</summary>
     public List<string> CampResidents { get; set; } = new();
 }

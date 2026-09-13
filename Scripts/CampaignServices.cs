@@ -21,6 +21,22 @@ public static class WorldLoreManager
 
 public static class AtlasGenerator
 {
+    const string DefaultAtlasBackground="res://Assets/ArtKit/Backgrounds/atlas_map.png";
+
+    public static string Backdrop(long seed,int expeditionIndex,string? previous=null)
+    {
+        if(expeditionIndex<=0)return DefaultAtlasBackground;
+        var candidates=new ContentLibrary().Enabled("Cenários")
+            .Where(asset=>!asset.Path.StartsWith("res://",StringComparison.OrdinalIgnoreCase)||asset.Path.Contains("/Backgrounds/",StringComparison.OrdinalIgnoreCase))
+            .Select(asset=>asset.Path).Where(path=>!string.IsNullOrWhiteSpace(path))
+            .Append(DefaultAtlasBackground).Append("res://Assets/ArtKit/Backgrounds/atlas_map_lit.png")
+            .Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(path=>path,StringComparer.OrdinalIgnoreCase).ToList();
+        if(candidates.Count==0)return DefaultAtlasBackground;
+        var rng=new Random(unchecked((int)(seed+expeditionIndex*130363L)));var selected=candidates[rng.Next(candidates.Count)];
+        if(candidates.Count>1&&selected.Equals(previous,StringComparison.OrdinalIgnoreCase))selected=candidates[(candidates.IndexOf(selected)+1)%candidates.Count];
+        return selected;
+    }
+
     public static List<AtlasNodeData> Create(long seed,int expeditionIndex=0)
     {
         expeditionIndex=Math.Max(0,expeditionIndex);var rng=new Random(unchecked((int)(seed+expeditionIndex*104729L)));
@@ -91,7 +107,7 @@ public static class AtlasGenerator
     }
     public static void BeginNextExpedition(GameSave save)
     {
-        save.ExpeditionIndex=Math.Min(save.ExpeditionIndex+1,1000000);save.AtlasNodes=Create(save.WorldSeed,save.ExpeditionIndex);
+        save.ExpeditionIndex=Math.Min(save.ExpeditionIndex+1,1000000);save.AtlasBackgroundPath=Backdrop(save.WorldSeed,save.ExpeditionIndex,save.AtlasBackgroundPath);save.AtlasNodes=Create(save.WorldSeed,save.ExpeditionIndex);
         save.RecentEvents.Add($"expedition:{save.ExpeditionIndex}:iniciada");while(save.RecentEvents.Count>16)save.RecentEvents.RemoveAt(0);
     }
     public static string TemplateFromId(string id)

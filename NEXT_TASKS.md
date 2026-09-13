@@ -15,3 +15,6 @@
 
 1. Testar visualmente o Atlas ilustrado, o acampamento e os layouts em 1280×720, 1600×900 e 1920×1080.
 2. Ajustar os detalhes visuais encontrados no teste manual.
+3. [x] Corrigir o fechamento do mercador após compra e a mensagem de saldo comprimida.
+4. [x] Alternar o cenário de fundo ao iniciar cada nova expedição.
+5. [x] Reparar a transparência de Roan, Silas e Minotauro.

@@ -49,3 +49,7 @@ Assets gerados para o próprio Heartbeat e incorporados da entrega `DATING SIM.z
 | Roan | `Assets/ArtKit/Characters/NPCs/barbarian_chroma.png` | Grok Imagine + chroma | Personagem de relacionamento |
 | Silas | `Assets/ArtKit/Characters/NPCs/merchant_traveler_chroma.png` | Grok Imagine + chroma | Mercador sem romance |
 | Minotauro | `Assets/ArtKit/Characters/Monsters/minotaur_chroma.png` | Grok Imagine + chroma | Inimigo de expedição |
+
+### Reparação dos recortes · 13 set 2026
+
+Roan, Silas e o Minotauro foram reparados com OpenAI ImageGen a partir das imagens originais do Grok. A reconstrução preencheu os buracos verdes que atravessavam cabelo, roupas e anatomia; o acabamento local converteu o fundo em transparência alfa real. Os mesmos caminhos acima foram mantidos para preservar saves e referências existentes. Uso: sprites internos do projeto Heartbeat.
