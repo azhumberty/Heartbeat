@@ -68,6 +68,7 @@ public sealed class GroqEventProvider : IEventProvider
     {
         var result=await _fallback.CreateAsync(context,settings,token);result.ProviderStatus=status;return result;
     }
+    internal static string SharedPrompt(EventContext context) => BuildPrompt(context);
     static string BuildPrompt(EventContext context)
     {
         var assets=context.Assets.Where(a=>a.Enabled&&a.Procedural).Take(8).Select(a=>new {a.Id,a.DisplayName,a.Category,a.Tags}).ToArray();
@@ -89,5 +90,39 @@ public sealed class GroqEventProvider : IEventProvider
         var choiceProperties=new Dictionary<string,object>{["id"]=new{type="string"},["text"]=new{type="string"},["resultText"]=new{type="string"},["coinsDelta"]=new{type="integer"},["healthDelta"]=new{type="integer"},["energyDelta"]=new{type="integer"}};
         var properties=new Dictionary<string,object>{["id"]=new{type="string"},["title"]=new{type="string"},["text"]=new{type="string"},["choices"]=new{type="array",minItems=2,maxItems=4,items=new{type="object",properties=choiceProperties,required=choiceProperties.Keys.ToArray(),additionalProperties=false}}};
         return new {type="json_schema",json_schema=new{name="heartbeat_event",strict=true,schema=new{type="object",properties,required=properties.Keys.ToArray(),additionalProperties=false}}};
+    }
+}
+
+public sealed class OpenRouterEventProvider : IEventProvider
+{
+    readonly OfflineEventProvider _fallback = new();
+
+    public async Task<EventResult> CreateAsync(EventContext context, GameSettings settings, CancellationToken cancellationToken = default)
+    {
+        if (!OpenRouterClient.HasKey(settings))
+            return await Fallback("Cole a chave OpenRouter em Opcoes · evento offline", context, settings, cancellationToken);
+        try
+        {
+            var content = await OpenRouterClient.CompleteJson(settings, GroqEventProvider.SharedPrompt(context), 700, cancellationToken);
+            var result = JsonSerializer.Deserialize<EventResult>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            if (result == null) throw new JsonException("Evento vazio");
+            result.BackgroundPath = context.Node.BackgroundId;
+            result.ProviderStatus = "Online · OpenRouter (Dolphin)";
+            GD.Print("[AI] Evento OpenRouter validado");
+            return ProceduralEventService.Sanitize(result);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
+        catch (Exception e)
+        {
+            GD.Print("[AI] Evento OpenRouter indisponivel (" + e.GetType().Name + "); usando offline");
+            return await Fallback("Falha na IA · evento criado offline", context, settings, cancellationToken);
+        }
+    }
+
+    async Task<EventResult> Fallback(string status, EventContext context, GameSettings settings, CancellationToken token)
+    {
+        var result = await _fallback.CreateAsync(context, settings, token);
+        result.ProviderStatus = status;
+        return result;
     }
 }

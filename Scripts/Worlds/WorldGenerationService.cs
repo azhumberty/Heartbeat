@@ -41,6 +41,29 @@ public static class WorldGenerationService
     public static async Task<WorldDefinition> CreateAsync(string prompt, long seed, IReadOnlyList<string> selectedIds, GameSettings settings, CancellationToken token = default)
     {
         var offline = CreateOffline(prompt, seed, selectedIds);
+        if (OpenRouterClient.HasKey(settings) && settings.UseOpenRouter)
+        {
+            try
+            {
+                var selected = selectedIds.Take(12).ToArray();
+                var payload = new { seed, prompt = Limit(prompt, 1500, ""), selectedLibraryIds = selected };
+                var user = "Crie o COMECO de uma campanha 2D (nao a campanha inteira) em portugues, a partir do pedido do jogador. Responda somente JSON com: name, description, genre, tone, startingRegion, threat, atmosphere, biomes, regions, factions, storyHooks. Nao cite IDs. Pedido: " + JsonSerializer.Serialize(payload);
+                var content = await OpenRouterClient.CompleteJson(settings, user, 700, token);
+                var parsed = JsonSerializer.Deserialize<WorldDefinition>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? throw new JsonException("definicao vazia");
+                parsed.Seed = seed;
+                parsed.Prompt = Limit(prompt, 1500, parsed.Prompt);
+                parsed.SelectedLibraryIds = selectedIds.ToList();
+                parsed.Origin = selectedIds.Count > 0 ? "CreativeLibrary" : "WorldGenerator";
+                parsed.ProviderStatus = "Online · OpenRouter (Dolphin)";
+                GD.Print("[AI] WorldDefinition OpenRouter validada");
+                return Sanitize(parsed);
+            }
+            catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
+            catch (Exception e)
+            {
+                GD.Print("[AI] Mundo OpenRouter indisponivel (" + e.GetType().Name + "); tentando Groq/offline");
+            }
+        }
         if (!settings.UseOnlineAi) return offline;
         if (string.IsNullOrWhiteSpace(System.Environment.GetEnvironmentVariable("GROQ_API_KEY")))
         {

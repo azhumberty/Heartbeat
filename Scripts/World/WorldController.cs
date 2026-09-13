@@ -211,7 +211,9 @@ public partial class WorldController : Node
         EventResult story;
         try
         {
-            IEventProvider provider=_game.Settings.UseOnlineAi?new GroqEventProvider():new OfflineEventProvider();
+            IEventProvider provider = _game.Settings.UseOpenRouter && OpenRouterClient.HasKey(_game.Settings)
+                ? new OpenRouterEventProvider()
+                : (_game.Settings.UseOnlineAi ? new GroqEventProvider() : new OfflineEventProvider());
             // Run event generation and image generation concurrently
             var eventTask = provider.CreateAsync(context,_game.Settings,cts.Token);
             var fallbackPrompt = ImageGenerationService.BuildPromptForNode(node, _game.WorldLore?.RegionName ?? "medieval kingdom");

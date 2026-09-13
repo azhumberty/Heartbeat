@@ -111,7 +111,7 @@ public partial class DialogueController : Control
             var worldCtx=$"Mundo {lore.RegionName}. Pedido do jogador: {prompt}. Ameaca: {lore.Threat}. Tom: {lore.Atmosphere}. Local {s.CurrentLocation}; {s.TimeContext}; atividade {s.CurrentActivity}";
             var memory=new SocialMemoryService();
             memory.PrepareTurn(Actor.Data,s,worldCtx,Game.Day,Game.WorldMinutes);
-            IDialogueProvider provider = Game.Settings.UseOpenRouter
+            IDialogueProvider provider = Game.Settings.UseOpenRouter && OpenRouterClient.HasKey(Game.Settings)
                 ? new OpenRouterDialogueProvider()
                 : (Game.Settings.UseOnlineAi ? new GroqDialogueProvider() : new ProceduralDialogueProvider());
             var r=DialogueValidator.Sanitize(await provider.ReplyAsync(Actor.Data,s,input,Game.Settings,_cancel.Token));
