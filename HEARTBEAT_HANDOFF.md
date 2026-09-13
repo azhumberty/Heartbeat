@@ -26,6 +26,7 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - Cadastros personalizados de Personagem, NPC e Mercador agora geram/atualizam pacotes no `CharacterRepository`; sua imagem, descrição, idade, personalidade, fala, função e permissão de relacionamento chegam ao jogo.
 - Personagens desativados no Criativo deixam de entrar em novas campanhas sem que seus arquivos sejam apagados. Quando existem personagens ou mercadores personalizados ativos, o Atlas os prioriza.
 - A categoria Cartas abre o editor completo existente, que já salva cartas personalizadas na coleção.
+- Mercadores personalizados aceitam `ShopStock` no formato `Carta:preço` (ex.: `g01:12, custom_cura:30`). A loja vende essas cartas individualmente e usa os pacotes padrão quando não há estoque válido.
 - O diálogo limita cada encontro a oito mensagens do jogador e encerra corretamente quando o painel é fechado.
 - Estrada, taverna, descanso e mistério usam `ProceduralEventService`: cada cena oferece duas escolhas, aplica consequências limitadas pelo C# e salva um resumo curto.
 - Quando a IA online está ativa, `GroqEventProvider` sugere o texto e as escolhas em JSON estrito; timeout, cancelamento, retry de 429/5xx e fallback local mantêm a campanha jogável.
@@ -57,11 +58,12 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - O controlador do modo Criativo foi instanciado em árvore pelo teste sem erro de interface.
 - O teste HTTP simulado da introdução confirmou JSON válido, limites de texto e carregamento do fluxo de Novo Jogo offline.
 - A arena 2D foi instanciada pelo teste de campanha depois de iniciar um combate real de QA.
+- A tela do mercador foi instanciada pelo teste e o parser confirmou estoque válido, deduplicação e rejeição de entradas incorretas.
 
 ## Próximas tarefas recomendadas
 
-1. Ligar estoques e preços próprios aos mercadores personalizados.
-2. Adicionar edição de carta de companheiro e quatro golpes ao cadastro de Personagem.
+1. Adicionar edição de carta de companheiro e quatro golpes ao cadastro de Personagem.
+2. Expandir o Atlas para expedições sucessivas e acampamento persistente.
 3. Testar visualmente o fluxo completo em 1280×720 no editor.
 4. Ajustar os detalhes de layout encontrados nesse teste visual.
 

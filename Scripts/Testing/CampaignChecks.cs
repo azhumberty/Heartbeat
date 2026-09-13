@@ -37,6 +37,7 @@ public partial class CampaignChecks : Node
             var assets=new ContentLibrary().Load();
             Require(assets.Any(a=>a.Category=="Cenários"&&a.Enabled),"Nenhum cenário ativo.");
             Require(assets.Any(a=>a.Category=="Inimigos"&&a.Enabled),"Nenhum inimigo ativo.");
+            var stock=MerchantStock.Parse("g01:12, g05:20; inválida, g01:99");Require(stock.Count==2&&stock[0].Price==12,"Estoque do mercador inválido.");
             var atlas=AtlasGenerator.Create(20260912);
             Require(atlas.Count>=7,"Atlas incompleto.");
             Require(atlas.Count(n=>n.Status==AtlasNodeStatus.Available)==1,"Início do Atlas inválido.");
@@ -57,6 +58,7 @@ public partial class CampaignChecks : Node
             var creative=new CreativeModeController();AddChild(creative);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(creative.IsInsideTree(),"Criativo não abriu.");creative.QueueFree();
             var newGame=new NewGameController{Settings=new GameSettings{UseOnlineAi=false}};AddChild(newGame);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(newGame.IsInsideTree(),"Novo Jogo não abriu.");newGame.QueueFree();
             DeckManager.Migrate(save);var combatManager=CombatManager.Start(save,new CardRepository().Catalog(),"qa_combat","forest","forest",12);var arenaView=new CombatArenaController{Manager=combatManager,Game=save,ReduceMotion=true};AddChild(arenaView);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(arenaView.IsInsideTree(),"Arena de combate não abriu.");arenaView.QueueFree();
+            var shopView=new CardShopController{Game=save,MerchantId="merchant"};AddChild(shopView);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(shopView.IsInsideTree(),"Mercador não abriu.");shopView.QueueFree();
             GD.Print($"CAMPAIGN_CHECKS_PASS assets={assets.Count} nodes={atlas.Count}");
             GetTree().Quit();
         }

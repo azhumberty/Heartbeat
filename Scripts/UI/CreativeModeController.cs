@@ -25,6 +25,8 @@ public sealed class ContentAssetRecord
     public int RewardXp {get;set;}=24;
     public int CoinMin {get;set;}=10;
     public int CoinMax {get;set;}=22;
+    /// <summary>Merchant inventory in CardId:Price format, separated by commas or lines.</summary>
+    public string ShopStock {get;set;}="";
     public bool Enabled {get;set;}=true;
     public bool BuiltIn {get;set;}
 }
@@ -100,7 +102,7 @@ public partial class CreativeModeController : Control
     readonly ContentLibrary _library=new();
     List<ContentAssetRecord> _assets=new();
     OptionButton _category=null!;ItemList _list=null!;TextureRect _preview=null!;LineEdit _id=null!,_name=null!,_tags=null!,_biome=null!,_period=null!;TextEdit _description=null!;SpinBox _weight=null!,_health=null!,_damage=null!,_xp=null!,_coinMin=null!,_coinMax=null!;CheckButton _procedural=null!;Label _info=null!;
-    SpinBox _age=null!;LineEdit _personality=null!,_speechStyle=null!;CheckButton _relationship=null!;
+    SpinBox _age=null!;LineEdit _personality=null!,_speechStyle=null!;TextEdit _shopStock=null!;CheckButton _relationship=null!;
     ContentAssetRecord? _selected;string? _source;
     readonly string[] _categories={"Cenários","Personagens","NPCs","Inimigos","Mercadores","Cartas"};
     public override void _Ready()
@@ -133,6 +135,7 @@ public partial class CreativeModeController : Control
         _xp=new SpinBox {MinValue=0,MaxValue=999,Value=24};Field("XP",_xp);
         _coinMin=new SpinBox {MinValue=0,MaxValue=999,Value=10};Field("Reais mín.",_coinMin);
         _coinMax=new SpinBox {MinValue=0,MaxValue=999,Value=22};Field("Reais máx.",_coinMax);
+        _shopStock=new TextEdit {CustomMinimumSize=new Vector2(0,54),PlaceholderText="g01:12, g05:20, custom_id:30"};Field("Estoque Carta:preço",_shopStock);
         _info=Ui.Text("Escolha um asset.",14);detail.AddChild(_info);
         var buttons=new HBoxContainer();detail.AddChild(buttons);buttons.AddChild(Ui.Button("Escolher imagem…",Choose));buttons.AddChild(Ui.Button("Salvar",Save));buttons.AddChild(Ui.Button("Duplicar",Duplicate));buttons.AddChild(Ui.Button("Ativar/Desativar",Toggle));buttons.AddChild(Ui.Button("Editor de cartas",OpenCardEditor));
         _assets=_library.Load();Refresh();
@@ -140,11 +143,11 @@ public partial class CreativeModeController : Control
     string Category=>_category.GetItemText(_category.Selected);
     void Refresh()
     {
-        _list.Clear();foreach(var asset in _assets.Where(a=>a.Category==Category))_list.AddItem((asset.Enabled?"":"[inativo] ")+asset.DisplayName);_selected=null;_preview.Texture=null;_id.Editable=true;_id.Text="";_name.Text="";_tags.Text="";_description.Text="";_biome.Text="forest";_period.Text="Any";_weight.Value=1;_procedural.ButtonPressed=true;_age.Value=25;_personality.Text="misterioso e atento";_speechStyle.Text="natural";_relationship.ButtonPressed=Category=="Personagens";_health.Value=80;_damage.Value=12;_xp.Value=24;_coinMin.Value=10;_coinMax.Value=22;_info.Text="Escolha um asset ou importe uma imagem.";
+        _list.Clear();foreach(var asset in _assets.Where(a=>a.Category==Category))_list.AddItem((asset.Enabled?"":"[inativo] ")+asset.DisplayName);_selected=null;_preview.Texture=null;_id.Editable=true;_id.Text="";_name.Text="";_tags.Text="";_description.Text="";_biome.Text="forest";_period.Text="Any";_weight.Value=1;_procedural.ButtonPressed=true;_age.Value=25;_personality.Text="misterioso e atento";_speechStyle.Text="natural";_relationship.ButtonPressed=Category=="Personagens";_health.Value=80;_damage.Value=12;_xp.Value=24;_coinMin.Value=10;_coinMax.Value=22;_shopStock.Text="";_info.Text="Escolha um asset ou importe uma imagem.";
     }
     void Select(int index)
     {
-        _selected=_assets.Where(a=>a.Category==Category).ElementAt(index);_id.Text=_selected.Id;_id.Editable=!_selected.BuiltIn;_name.Text=_selected.DisplayName;_tags.Text=_selected.Tags;_description.Text=_selected.Description;_biome.Text=_selected.Biome;_period.Text=_selected.Period;_weight.Value=_selected.Weight;_procedural.ButtonPressed=_selected.Procedural;_age.Value=_selected.Age;_personality.Text=_selected.Personality;_speechStyle.Text=_selected.SpeechStyle;_relationship.ButtonPressed=_selected.CanBuildRelationship;_health.Value=_selected.Health;_damage.Value=_selected.Damage;_xp.Value=_selected.RewardXp;_coinMin.Value=_selected.CoinMin;_coinMax.Value=_selected.CoinMax;_source=null;_preview.Texture=LoadTexture(_selected.Path);_info.Text=$"Tipo: {_selected.Category}\nCaminho: {_selected.Path}";
+        _selected=_assets.Where(a=>a.Category==Category).ElementAt(index);_id.Text=_selected.Id;_id.Editable=!_selected.BuiltIn;_name.Text=_selected.DisplayName;_tags.Text=_selected.Tags;_description.Text=_selected.Description;_biome.Text=_selected.Biome;_period.Text=_selected.Period;_weight.Value=_selected.Weight;_procedural.ButtonPressed=_selected.Procedural;_age.Value=_selected.Age;_personality.Text=_selected.Personality;_speechStyle.Text=_selected.SpeechStyle;_relationship.ButtonPressed=_selected.CanBuildRelationship;_health.Value=_selected.Health;_damage.Value=_selected.Damage;_xp.Value=_selected.RewardXp;_coinMin.Value=_selected.CoinMin;_coinMax.Value=_selected.CoinMax;_shopStock.Text=_selected.ShopStock;_source=null;_preview.Texture=LoadTexture(_selected.Path);_info.Text=$"Tipo: {_selected.Category}\nCaminho: {_selected.Path}";
     }
     void Choose()
     {
@@ -155,7 +158,7 @@ public partial class CreativeModeController : Control
     {
         try
         {
-            var record=_selected??new ContentAssetRecord {Category=Category};var wantedId=_id.Text.Trim();if(!record.BuiltIn){if(wantedId.Length<2||wantedId.Any(c=>!char.IsLetterOrDigit(c)&&c!='_'&&c!='-'))throw new ArgumentException("Use um ID com letras, números, _ ou -.");if(_assets.Any(a=>a!=record&&a.Id.Equals(wantedId,StringComparison.OrdinalIgnoreCase)))throw new ArgumentException("Este ID já existe.");record.Id=wantedId;}record.Category=Category;record.DisplayName=string.IsNullOrWhiteSpace(_name.Text)?"Sem nome":_name.Text.Trim();record.Tags=_tags.Text.Trim();record.Description=_description.Text.Trim();record.Biome=_biome.Text.Trim();record.Period=_period.Text.Trim();record.Weight=(float)_weight.Value;record.Procedural=_procedural.ButtonPressed;record.Age=(int)_age.Value;record.Personality=_personality.Text.Trim();record.SpeechStyle=_speechStyle.Text.Trim();record.Health=(int)_health.Value;record.Damage=(int)_damage.Value;record.RewardXp=(int)_xp.Value;record.CoinMin=(int)_coinMin.Value;record.CoinMax=Math.Max(record.CoinMin,(int)_coinMax.Value);record.CanBuildRelationship=Category=="Personagens"&&_relationship.ButtonPressed;record.Enabled=true;
+            var record=_selected??new ContentAssetRecord {Category=Category};var wantedId=_id.Text.Trim();if(!record.BuiltIn){if(wantedId.Length<2||wantedId.Any(c=>!char.IsLetterOrDigit(c)&&c!='_'&&c!='-'))throw new ArgumentException("Use um ID com letras, números, _ ou -.");if(_assets.Any(a=>a!=record&&a.Id.Equals(wantedId,StringComparison.OrdinalIgnoreCase)))throw new ArgumentException("Este ID já existe.");record.Id=wantedId;}record.Category=Category;record.DisplayName=string.IsNullOrWhiteSpace(_name.Text)?"Sem nome":_name.Text.Trim();record.Tags=_tags.Text.Trim();record.Description=_description.Text.Trim();record.Biome=_biome.Text.Trim();record.Period=_period.Text.Trim();record.Weight=(float)_weight.Value;record.Procedural=_procedural.ButtonPressed;record.Age=(int)_age.Value;record.Personality=_personality.Text.Trim();record.SpeechStyle=_speechStyle.Text.Trim();record.Health=(int)_health.Value;record.Damage=(int)_damage.Value;record.RewardXp=(int)_xp.Value;record.CoinMin=(int)_coinMin.Value;record.CoinMax=Math.Max(record.CoinMin,(int)_coinMax.Value);record.ShopStock=Category=="Mercadores"?MerchantStock.Normalize(_shopStock.Text):record.ShopStock;record.CanBuildRelationship=Category=="Personagens"&&_relationship.ButtonPressed;record.Enabled=true;
             if(_source!=null)record.Path=_library.Import(Category,_source,record.DisplayName);
             if(string.IsNullOrWhiteSpace(record.Path))throw new ArgumentException("Escolha uma imagem antes de salvar.");
             if(_selected==null)_assets.Add(record);_library.SaveUser(_assets);_library.SyncCharacter(record);_info.Text="Salvo na biblioteca e integrado à campanha.";Refresh();

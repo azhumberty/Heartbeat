@@ -220,7 +220,7 @@ public partial class WorldController : Node
     }
     void OnNpcInteracted(NpcActor actor)
     {
-        if (actor.Data.Id == "merchant" || actor.Data.Tags.Contains("merchant"))
+        if (actor.Data.Id == "merchant")
         {
             _vnCharacter.Texture = ChromaArt.LoadArt(ChromaArt.MerchantSprite);
             ChromaArt.ApplyChroma(_vnCharacter);

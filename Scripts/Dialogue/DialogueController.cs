@@ -44,7 +44,7 @@ public partial class DialogueController : Control
         if (Actor.Data.Id == "merchant" || Actor.Data.Tags.Contains("merchant"))
         {
             actions.AddChild(Ui.Button("💰 Comprar Cartas", () => {
-                var shop = new CardShopController { Game = Game };
+                var shop = new CardShopController { Game = Game, MerchantId=Actor.Data.Id };
                 var onClosed = Closed;
                 shop.Closed = () => { onClosed?.Invoke(); shop.QueueFree(); };
                 GetParent().AddChild(shop); QueueFree();
