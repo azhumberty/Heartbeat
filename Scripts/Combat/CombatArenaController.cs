@@ -44,8 +44,15 @@ public partial class CombatArenaController : Control
             CustomMinimumSize = new Vector2(420, 560)
         };
         _enemy.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        _enemy.Texture = ChromaArt.LoadArt(ChromaArt.EnemySpritePath(Manager.State.EnemyId));
-        ChromaArt.ApplyChroma(_enemy);
+        if (!string.IsNullOrWhiteSpace(Manager.State.OpponentCharacterId) && new CharacterRepository().Load(Manager.State.OpponentCharacterId) is { } opponent)
+        {
+            _enemy.Texture = new PortraitCache().Get(opponent, Game.CharacterStates.GetValueOrDefault(opponent.Id) ?? new CharacterState(), false);
+        }
+        else
+        {
+            _enemy.Texture = ChromaArt.LoadArt(ChromaArt.EnemySpritePath(Manager.State.EnemyId));
+            ChromaArt.ApplyChroma(_enemy);
+        }
         AddChild(_enemy);
     }
     PanelContainer StatPanel(string title, out Label nameLabel, out Label hpLabel, out ProgressBar hpBar, out Label? manaLabel, out ProgressBar? manaBar, bool withMana)

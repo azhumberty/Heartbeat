@@ -71,6 +71,8 @@ public sealed class CombatState
     public double Cooldown {get;set;}=360;
     public bool Repeat {get;set;}=true;
     public bool IsDuel {get;set;} = false;
+    /// <summary>Character package used as the arena opponent for friendly duels.</summary>
+    public string OpponentCharacterId { get; set; } = "";
     public string EncounterId { get; set; } = "";
     public string EnemyId { get; set; } = "forest";
     public string Arena { get; set; } = "Forest";

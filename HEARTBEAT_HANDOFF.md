@@ -14,6 +14,7 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - Atlas é uma rede 2D persistente de nós: estrada, mercador, floresta, taverna, acampamento, cavaleiro e ruínas. Nós têm estado bloqueado, disponível ou concluído.
 - Personagens com `CanBuildRelationship=true` podem evoluir relacionamento e liberar cartas especiais. NPCs genéricos, mercadores e inimigos não acumulam vínculo romântico.
 - Combates dão XP e moeda; não dão mais cartas. Cartas são compradas no mercador ou vêm de personagens de vínculo.
+- Duelos amistosos mostram o retrato 2D do personagem escolhido na arena e retornam ao Atlas.
 - `CreativeModeController` mantém uma biblioteca simples de cenários, personagens, NPCs, inimigos e mercadores, com metadados e importação de PNG em `user://Content`.
 - O diálogo limita cada encontro a oito mensagens do jogador e encerra corretamente quando o painel é fechado.
 

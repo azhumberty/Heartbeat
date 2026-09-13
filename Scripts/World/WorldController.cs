@@ -203,6 +203,7 @@ public partial class WorldController : Node
         {
             Actor = actor,
             Game = _game,
+            DuelRequested = StartDuel,
             Closed = () =>
             {
                 FinishAtlasNode();
@@ -267,6 +268,15 @@ public partial class WorldController : Node
         manager.State.Cooldown=0;
         manager.State.Repeat=true;
         await ShowCombat(manager);
+    }
+    void StartDuel(NpcActor actor)
+    {
+        if (_screen != null) _screen.QueueFree();
+        _screen = null;
+        var manager = CombatManager.Start(_game, new CardRepository().Catalog(), "duel_" + actor.Data.Id, "camp", "tavern", _time.Hour);
+        manager.State.IsDuel = true;
+        manager.State.OpponentCharacterId = actor.Data.Id;
+        _ = ShowCombat(manager);
     }
     
     async Task Fade(ColorRect fade,float alpha,double duration)

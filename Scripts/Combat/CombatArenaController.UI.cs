@@ -8,7 +8,7 @@ public partial class CombatArenaController
         var shade=new ColorRect {Color=new Color("0a0f1288"),MouseFilter=MouseFilterEnum.Ignore};AddChild(shade);shade.SetAnchorsAndOffsetsPreset(LayoutPreset.TopWide);shade.OffsetBottom=150;
         var header=new HBoxContainer {Position=new(24,16)}; header.AddThemeConstantOverride("separation",18); AddChild(header);
 
-        var playerPanel=StatPanel("VIAJANTE", out _playerName, out _playerHpText, out _playerHealth, out _playerManaText, out _playerMana, true);
+        var playerPanel=StatPanel(Game.PlayerName.ToUpperInvariant(), out _playerName, out _playerHpText, out _playerHealth, out _playerManaText, out _playerMana, true);
         header.AddChild(playerPanel);
 
         var spacer=new Control {SizeFlagsHorizontal=SizeFlags.ExpandFill, CustomMinimumSize=new(40,0)}; header.AddChild(spacer);
@@ -16,7 +16,7 @@ public partial class CombatArenaController
         var enemyPanel=StatPanel(EnemyDefinition.Get(Manager.State.EnemyId).Name.ToUpperInvariant(), out _enemyName, out _enemyHpText, out _enemyHealth, out _, out _, false);
         header.AddChild(enemyPanel);
         _intentRow=new HBoxContainer(); _intentRow.AddThemeConstantOverride("separation", 8);
-        ((VBoxContainer)enemyPanel.GetChild(0)).AddChild(Ui.Text("INTENÃ‡ÃƒO",12));
+        ((VBoxContainer)enemyPanel.GetChild(0)).AddChild(Ui.Text("INTENÇÃO",12));
         ((VBoxContainer)enemyPanel.GetChild(0)).AddChild(_intentRow);
 
         var actions=new VBoxContainer {Position=new(1010,18),CustomMinimumSize=new(240,0)};AddChild(actions);
@@ -35,7 +35,7 @@ public partial class CombatArenaController
         var scroll=new ScrollContainer {HorizontalScrollMode=ScrollContainer.ScrollMode.Auto,VerticalScrollMode=ScrollContainer.ScrollMode.Disabled};bottom.AddChild(scroll);
         _hand=new HBoxContainer();_hand.AddThemeConstantOverride("separation", -8);scroll.AddChild(_hand);
         _effects=new Control {MouseFilter=MouseFilterEnum.Ignore};AddChild(_effects);_effects.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-        _return=Ui.Button("Retornar Ã  floresta",()=>Finished?.Invoke());_return.Position=new(470,407);_return.CustomMinimumSize=new(340,46);_return.Visible=false;AddChild(_return);
+        _return=Ui.Button("Retornar ao atlas",()=>Finished?.Invoke());_return.Position=new(470,407);_return.CustomMinimumSize=new(340,46);_return.Visible=false;AddChild(_return);
     }
     static ProgressBar Bar(Control parent,Color fill,Color light)
     {
@@ -43,7 +43,7 @@ public partial class CombatArenaController
         bar.AddThemeStyleboxOverride("background",new StyleBoxFlat{BgColor=new Color("0a0e12"),CornerRadiusTopLeft=6,CornerRadiusTopRight=6,CornerRadiusBottomLeft=6,CornerRadiusBottomRight=6,BorderWidthTop=1,BorderWidthBottom=1,BorderWidthLeft=1,BorderWidthRight=1,BorderColor=new Color("1f262a")});
         bar.AddThemeStyleboxOverride("fill",new StyleBoxFlat {BgColor=fill,CornerRadiusTopLeft=6,CornerRadiusTopRight=6,CornerRadiusBottomLeft=6,CornerRadiusBottomRight=6,ShadowColor=light,ShadowSize=3});parent.AddChild(bar);return bar;
     }
-    static string Status(CombatantState s)=>string.Join(" Â· ",s.Status.Where(x=>x.Value>0).Select(x=>CardRules.EffectName(x.Key)+" "+x.Value+"t"));
+    static string Status(CombatantState s)=>string.Join(" · ",s.Status.Where(x=>x.Value>0).Select(x=>CardRules.EffectName(x.Key)+" "+x.Value+"t"));
     void RefreshIntents()
     {
         CardUi.Clear(_intentRow);
