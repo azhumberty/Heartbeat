@@ -323,7 +323,7 @@ public sealed class GameSettings { public float Volume { get; set; } = 0.8f; pub
     /// <summary>When true, prefers OpenRouter (Dolphin uncensored) over Groq.</summary>
     public bool UseOpenRouter { get; set; } = true;
     /// <summary>OpenRouter model slug. Default is the free Venice/Dolphin uncensored endpoint.</summary>
-    public string OpenRouterModel { get; set; } = "cognitivecomputations/dolphin-mistral-24b-venice-edition:free";
+    public string OpenRouterModel { get; set; } = "openrouter/free";
     /// <summary>Pasted in Opções. Stored only in user://settings, never committed.</summary>
     public string OpenRouterApiKey { get; set; } = "";
 }

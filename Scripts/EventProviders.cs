@@ -115,7 +115,7 @@ public sealed class OpenRouterEventProvider : IEventProvider
         catch (Exception e)
         {
             GD.Print("[AI] Evento OpenRouter indisponivel (" + e.GetType().Name + "); usando offline");
-            return await Fallback("Falha na IA · evento criado offline", context, settings, cancellationToken);
+            return await Fallback("Falha na IA (" + e.GetType().Name + ") · evento offline", context, settings, cancellationToken);
         }
     }
 

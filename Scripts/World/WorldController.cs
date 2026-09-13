@@ -36,6 +36,11 @@ public partial class WorldController : Node
     public override void _Ready()
     {
         var initial=InitialSave;InitialSave=null;_game = initial ?? _saves.Load() ?? new GameSave();_saves.Migrate(_game);
+        var opts=_saves.LoadSettings();
+        _game.Settings.OpenRouterApiKey=opts.OpenRouterApiKey;
+        _game.Settings.OpenRouterModel=opts.OpenRouterModel;
+        _game.Settings.UseOpenRouter=opts.UseOpenRouter;
+        _game.Settings.UseOnlineAi=opts.UseOnlineAi;
         
         // Ensure UI layer is top-level
         _uiLayer = new CanvasLayer { Layer = 1 };
