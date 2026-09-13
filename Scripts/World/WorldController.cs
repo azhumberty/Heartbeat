@@ -149,12 +149,6 @@ public partial class WorldController : Node
             return;
         }
 
-        if (destinationId == "tavern")
-        {
-            ShowVnMeet(ChromaArt.BarmaidSprite, "Donzela da taverna");
-            return;
-        }
-
         if (destinationId == "knight")
         {
             ShowVnMeet(ChromaArt.KnightSprite, "Cavaleiro");
@@ -183,7 +177,27 @@ public partial class WorldController : Node
             return;
         }
 
-        ShowScenicStop();
+        if(destinationId=="tavern")
+        {
+            _vnCharacter.Texture=ChromaArt.LoadArt(ChromaArt.BarmaidSprite);
+            ChromaArt.ApplyChroma(_vnCharacter);
+        }
+        OpenProceduralEvent(node);
+    }
+
+    void OpenProceduralEvent(AtlasNodeData node)
+    {
+        var story=new ProceduralEventService().Create(new EventContext {Game=_game,Node=node,Assets=new ContentLibrary().Load()});
+        EventController? view=null;
+        view=new EventController
+        {
+            Game=_game,Story=story,
+            Completed=()=>
+            {
+                FinishAtlasNode();view?.QueueFree();_screen=null;ClearVnMeet();_vnBackground.Texture=null;_atlas.Visible=true;
+            }
+        };
+        _screen=view;_uiLayer.AddChild(view);
     }
     void OnNpcInteracted(NpcActor actor)
     {
@@ -235,6 +249,10 @@ public partial class WorldController : Node
     {
         _screen?.QueueFree();
         _screen = null;
+        _activeAtlasNodeId="";
+        ClearVnMeet();
+        _vnBackground.Texture=null;
+        _atlas.Visible=true;
     }
 
     void FinishAtlasNode()
@@ -244,6 +262,7 @@ public partial class WorldController : Node
         _game.RecentEvents.Add(_activeAtlasNodeId);
         if (_game.RecentEvents.Count > 16) _game.RecentEvents.RemoveAt(0);
         _activeAtlasNodeId = "";
+        _atlas.RefreshProgress();
         Save();
     }
 

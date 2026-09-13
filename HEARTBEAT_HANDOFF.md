@@ -21,6 +21,8 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - O Criativo aceita PNG/JPG/WebP, permite editar ID, descrição, bioma, período, peso procedural e atributos de inimigo, além de duplicar e ativar/desativar conteúdo.
 - Novas campanhas escolhem cenários e inimigos ativos da biblioteca por peso e seed. Inimigos personalizados levam imagem, nome, Vida, dano, XP e recompensa em Reais para o combate.
 - O diálogo limita cada encontro a oito mensagens do jogador e encerra corretamente quando o painel é fechado.
+- Estrada, taverna, descanso e mistério usam `ProceduralEventService`: cada cena oferece duas escolhas, aplica consequências limitadas pelo C# e salva um resumo curto.
+- O Atlas atualiza bloqueios, cores e caminhos imediatamente depois de concluir um evento, encontro ou combate.
 
 ## Arquivos principais
 
@@ -28,6 +30,8 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - `Scripts/UI/NewGameController.cs` — introdução, lore e nome.
 - `Scripts/UI/CreativeModeController.cs` — biblioteca criativa.
 - `Scripts/CampaignServices.cs` — lore offline, geração do Atlas e economia centralizada.
+- `Scripts/ProceduralEvents.cs` — modelos, geração local determinística, validação e aplicação de escolhas.
+- `Scripts/UI/EventController.cs` — painel de narrativa e escolhas sobre o cenário.
 - `Scripts/World/AtlasController.cs` — mapa 2D em rede.
 - `Scripts/World/WorldController.cs` — orquestra Atlas, VN, diálogo e combate.
 - `Scripts/Dialogue/DialogueController.cs` — diálogo online Groq ou fallback offline.
@@ -39,12 +43,13 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - Godot aberto em modo sem interface com a cena `Scenes/World/World.tscn`: sem erro de inicialização.
 - Menu principal iniciado com o lote Grok: sem erros de carregamento no console.
 - `Scenes/CampaignChecks.tscn`: `CAMPAIGN_CHECKS_PASS assets=40 nodes=7`.
+- A verificação de campanha também confirma duas a quatro escolhas, persistência do resultado e ausência de recompensa indevida de carta.
 
 ## Próximas tarefas recomendadas
 
-1. Criar eventos/a sistema data-driven de eventos com escolhas e fallback local.
-2. Adicionar o provedor de eventos Groq com JSON validado, timeout, cancelamento e contexto curto.
-3. Ligar personagens, NPCs, mercadores e cartas personalizados aos eventos procedurais.
+1. Adicionar o provedor de eventos Groq com JSON validado, timeout, cancelamento e contexto curto.
+2. Ligar personagens, NPCs, mercadores e cartas personalizados aos eventos procedurais.
+3. Ligar mercadores personalizados a estoques e preços.
 4. Polir a tela de combate 2D mantendo a arte principal visível.
 
 ## Regras essenciais

@@ -10,6 +10,9 @@ public partial class AtlasController : Control
     public GameSave Game { get; set; } = null!;
     public Action<string>? NodeSelected;
     Label _detailTitle = null!, _detailText = null!;
+    AtlasCanvas _paths = null!;
+    readonly Dictionary<string,Button> _buttons=new();
+    readonly Dictionary<string,Label> _labels=new();
     string _selectedId = "";
 
     public override void _Ready()
@@ -23,8 +26,8 @@ public partial class AtlasController : Control
         var subtitle = Ui.Text($"{Game.WorldLore.RegionName} · {Game.WorldLore.Threat}", 16);
         subtitle.Position = new Vector2(46, 76); subtitle.AddThemeColorOverride("font_color", new Color("aab8c9")); AddChild(subtitle);
 
-        var paths = new AtlasCanvas { Game = Game, MouseFilter = MouseFilterEnum.Ignore };
-        paths.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); AddChild(paths);
+        _paths = new AtlasCanvas { Game = Game, MouseFilter = MouseFilterEnum.Ignore };
+        _paths.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect); AddChild(_paths);
         BuildNodes(); BuildDetail();
     }
 
@@ -36,12 +39,22 @@ public partial class AtlasController : Control
             button.TooltipText = node.Title; button.CustomMinimumSize = new Vector2(78, 78);
             button.Position = new Vector2(node.X * Size.X - 39, node.Y * Size.Y - 39);
             button.AddThemeStyleboxOverride("normal", NodeStyle(node.Status));
-            button.Disabled = node.Status == AtlasNodeStatus.Locked; AddChild(button);
+            button.Disabled = node.Status == AtlasNodeStatus.Locked; AddChild(button);_buttons[node.Id]=button;
 
             var label = Ui.Text(node.Title, 13); label.HorizontalAlignment = HorizontalAlignment.Center;
             label.CustomMinimumSize = new Vector2(150, 0); label.Position = button.Position + new Vector2(-36, 84);
-            label.AddThemeColorOverride("font_color", node.Status == AtlasNodeStatus.Locked ? new Color("657080") : new Color("e4e9ef")); AddChild(label);
+            label.AddThemeColorOverride("font_color", node.Status == AtlasNodeStatus.Locked ? new Color("657080") : new Color("e4e9ef")); AddChild(label);_labels[node.Id]=label;
         }
+    }
+
+    public void RefreshProgress()
+    {
+        foreach(var node in Game.AtlasNodes)
+        {
+            if(_buttons.TryGetValue(node.Id,out var button)){button.Disabled=node.Status==AtlasNodeStatus.Locked;button.AddThemeStyleboxOverride("normal",NodeStyle(node.Status));}
+            if(_labels.TryGetValue(node.Id,out var label))label.AddThemeColorOverride("font_color",node.Status==AtlasNodeStatus.Locked?new Color("657080"):new Color("e4e9ef"));
+        }
+        _paths.QueueRedraw();
     }
 
     static StyleBoxFlat NodeStyle(AtlasNodeStatus status)
