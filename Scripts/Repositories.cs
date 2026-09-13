@@ -61,7 +61,14 @@ public sealed class SaveManager
     public GameSettings LoadSettings()
     {
         var full=ProjectSettings.GlobalizePath(SettingsPath);if(!File.Exists(full))return Load()?.Settings??new GameSettings();
-        try{return JsonSerializer.Deserialize<GameSettings>(File.ReadAllText(full),_json)??new GameSettings();}catch{return new GameSettings();}
+        try
+        {
+            var settings=JsonSerializer.Deserialize<GameSettings>(File.ReadAllText(full),_json)??new GameSettings();
+            if(string.IsNullOrWhiteSpace(settings.OpenRouterModel)||settings.OpenRouterModel.Contains("mistral-7b-instruct",StringComparison.OrdinalIgnoreCase))
+                settings.OpenRouterModel=OpenRouterClient.DefaultModel;
+            return settings;
+        }
+        catch{return new GameSettings();}
     }
     public void SaveSettings(GameSettings settings)
     {

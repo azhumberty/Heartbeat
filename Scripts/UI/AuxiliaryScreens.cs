@@ -5,32 +5,89 @@ public static class AuxiliaryScreens
 {
     public static Control Settings(Control parent, GameSettings settings, Action close)
     {
-        var screen=new Control(); parent.AddChild(screen); screen.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect); Ui.Panel(screen,"CONFIGURACOES",out var body,close);
-        var scroll=new ScrollContainer { SizeFlagsVertical=Control.SizeFlags.ExpandFill, HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled };
-        body.AddChild(scroll);
+        var screen=new Control(); parent.AddChild(screen); screen.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        var shade=new ColorRect { Color=new Color("03070add") };
+        shade.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        screen.AddChild(shade);
+        var center=new CenterContainer();
+        center.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        screen.AddChild(center);
+        var panel=new PanelContainer { CustomMinimumSize=new Vector2(620, 0) };
+        panel.AddThemeStyleboxOverride("panel", new StyleBoxFlat {
+            BgColor=new Color("0d1522f2"),
+            CornerRadiusTopLeft=14, CornerRadiusTopRight=14, CornerRadiusBottomLeft=14, CornerRadiusBottomRight=14,
+            ContentMarginLeft=22, ContentMarginRight=22, ContentMarginTop=16, ContentMarginBottom=16
+        });
+        center.AddChild(panel);
+        var box=new VBoxContainer(); box.AddThemeConstantOverride("separation", 8); panel.AddChild(box);
+        var header=new HBoxContainer(); box.AddChild(header);
+        var title=Ui.Text("CONFIGURACOES", 26); title.SizeFlagsHorizontal=Control.SizeFlags.ExpandFill;
+        title.AddThemeColorOverride("font_color", new Color("e6c27a"));
+        header.AddChild(title);
+        var closeBtn=Ui.Button("Fechar - Esc", close);
+        closeBtn.SizeFlagsHorizontal=Control.SizeFlags.ShrinkEnd;
+        closeBtn.CustomMinimumSize=new Vector2(140, 40);
+        var shortcut=new Shortcut(); shortcut.Events.Add(new InputEventKey { Keycode=Key.Escape });
+        closeBtn.Shortcut=shortcut; header.AddChild(closeBtn);
+
+        var scroll=new ScrollContainer { CustomMinimumSize=new Vector2(0, 420), HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled };
+        box.AddChild(scroll);
         var form=new VBoxContainer { SizeFlagsHorizontal=Control.SizeFlags.ExpandFill };
-        form.AddThemeConstantOverride("separation", 8);
+        form.AddThemeConstantOverride("separation", 7);
         scroll.AddChild(form);
         Ui.FitScrollChild(scroll, form);
-        var openRouter=new CheckButton { Text="IA padrao · OpenRouter Dolphin (sem censura, gratis)",ButtonPressed=settings.UseOpenRouter }; form.AddChild(openRouter); openRouter.Toggled+=v=>settings.UseOpenRouter=v;
-        form.AddChild(Ui.Body("1) Abre openrouter.ai/keys  2) cria chave gratis  3) cola abaixo. Sem cartao.",14));
-        form.AddChild(Ui.Text("Chave OpenRouter",14));
-        var key=new LineEdit { Text=settings.OpenRouterApiKey, Secret=true, PlaceholderText="sk-or-v1-...", CustomMinimumSize=new Vector2(0,42) };
-        form.AddChild(key); key.TextChanged+=t=>settings.OpenRouterApiKey=t.Trim();
-        form.AddChild(Ui.Text("Modelo OpenRouter",14));
-        var orModel=new LineEdit { Text=settings.OpenRouterModel, CustomMinimumSize=new Vector2(0,42) };
-        form.AddChild(orModel); orModel.TextChanged+=t=>settings.OpenRouterModel=t.Trim();
-        var groq=new CheckButton { Text="Usar Groq se OpenRouter falhar",ButtonPressed=settings.UseOnlineAi }; form.AddChild(groq); groq.Toggled+=v=>settings.UseOnlineAi=v;
-        foreach(var field in new[]{"Endpoint Groq","Modelo Groq"}) { form.AddChild(Ui.Text(field,14)); var edit=new LineEdit { Text=field.Contains("Modelo")?settings.Model:settings.Endpoint }; form.AddChild(edit); edit.TextChanged+=t=> { if(field.Contains("Modelo")) settings.Model=t; else settings.Endpoint=t; }; }
-        var volume=new HSlider { MinValue=0,MaxValue=1,Step=.05,Value=settings.Volume }; form.AddChild(Ui.Text("Volume",14)); form.AddChild(volume); volume.ValueChanged+=v=>{ settings.Volume=(float)v; AudioServer.SetBusVolumeDb(0,Mathf.LinearToDb(Math.Max(.001f,(float)v))); };
-        form.AddChild(Ui.Text("Velocidade inicial do relogio",14));
-        var timeSpeed=new HSlider { MinValue=.5,MaxValue=4,Step=.5,Value=settings.WorldTimeScale }; form.AddChild(timeSpeed); timeSpeed.ValueChanged+=v=>settings.WorldTimeScale=(float)v;
-        var pauseTime=new CheckButton { Text="Iniciar com relogio pausado",ButtonPressed=settings.WorldTimePaused }; form.AddChild(pauseTime); pauseTime.Toggled+=v=>settings.WorldTimePaused=v;
-        var fullscreen=new CheckButton { Text="Tela cheia",ButtonPressed=DisplayServer.WindowGetMode()==DisplayServer.WindowMode.Fullscreen }; form.AddChild(fullscreen); fullscreen.Toggled+=v=>DisplayServer.WindowSetMode(v?DisplayServer.WindowMode.Fullscreen:DisplayServer.WindowMode.Windowed);
-        var status=Ui.Body(OpenRouterClient.HasKey(settings) ? "Chave OpenRouter detectada. Testa a conexao." : "Sem chave: o jogo fica offline ate colares sk-or-v1-...",14);
-        form.AddChild(status);
-        var testing=false; form.AddChild(Ui.Button("Testar OpenRouter",async ()=> { if(testing)return; testing=true; status.Text="Testando..."; var r=await new OpenRouterDialogueProvider().ReplyAsync(new CharacterData { Name="Silas",Age=32 },new CharacterState(),"Ola",settings); if(GodotObject.IsInstanceValid(status))status.Text=r.ProviderStatus; testing=false; })); return screen;
+
+        form.AddChild(Toggle("IA padrao: OpenRouter Dolphin (gratis, pouca censura)", settings.UseOpenRouter, v=>settings.UseOpenRouter=v));
+        form.AddChild(Ui.Body("Cria uma chave em openrouter.ai/keys e cola abaixo. Sem cartao.", 13));
+        form.AddChild(Field("Chave OpenRouter", settings.OpenRouterApiKey, t=>settings.OpenRouterApiKey=t.Trim(), secret:true, "sk-or-v1-..."));
+        if (string.IsNullOrWhiteSpace(settings.OpenRouterModel) || settings.OpenRouterModel.Contains("mistral-7b-instruct"))
+            settings.OpenRouterModel = OpenRouterClient.DefaultModel;
+        form.AddChild(Field("Modelo OpenRouter", settings.OpenRouterModel, t=>settings.OpenRouterModel=t.Trim()));
+        form.AddChild(Toggle("Usar Groq se o OpenRouter falhar", settings.UseOnlineAi, v=>settings.UseOnlineAi=v));
+        form.AddChild(Field("Endpoint Groq", settings.Endpoint, t=>settings.Endpoint=t));
+        form.AddChild(Field("Modelo Groq", settings.Model, t=>settings.Model=t));
+        form.AddChild(Ui.Text("Volume", 13));
+        var volume=new HSlider { MinValue=0, MaxValue=1, Step=.05, Value=settings.Volume, CustomMinimumSize=new Vector2(0, 22) };
+        form.AddChild(volume); volume.ValueChanged+=v=>{ settings.Volume=(float)v; AudioServer.SetBusVolumeDb(0, Mathf.LinearToDb(Math.Max(.001f,(float)v))); };
+        form.AddChild(Ui.Text("Velocidade do relogio", 13));
+        var timeSpeed=new HSlider { MinValue=.5, MaxValue=4, Step=.5, Value=settings.WorldTimeScale, CustomMinimumSize=new Vector2(0, 22) };
+        form.AddChild(timeSpeed); timeSpeed.ValueChanged+=v=>settings.WorldTimeScale=(float)v;
+        form.AddChild(Toggle("Iniciar com relogio pausado", settings.WorldTimePaused, v=>settings.WorldTimePaused=v));
+        form.AddChild(Toggle("Tela cheia", DisplayServer.WindowGetMode()==DisplayServer.WindowMode.Fullscreen, v=>DisplayServer.WindowSetMode(v?DisplayServer.WindowMode.Fullscreen:DisplayServer.WindowMode.Windowed)));
+
+        var status=Ui.Body(OpenRouterClient.HasKey(settings) ? "Chave detetada. Testa a conexao." : "Sem chave: o dialogo fica offline.", 13);
+        status.AddThemeColorOverride("font_color", new Color("a0c4e8"));
+        box.AddChild(status);
+        var testing=false;
+        box.AddChild(Ui.Button("Testar OpenRouter", async ()=>
+        {
+            if(testing)return; testing=true; status.Text="Testando...";
+            var r=await new OpenRouterDialogueProvider().ReplyAsync(new CharacterData { Name="Silas", Age=32 }, new CharacterState(), "Ola", settings);
+            if(GodotObject.IsInstanceValid(status)) status.Text=r.ProviderStatus;
+            testing=false;
+        }));
+        return screen;
     }
+
+    static CheckBox Toggle(string text, bool on, Action<bool> set)
+    {
+        var box=new CheckBox { Text=text, ButtonPressed=on };
+        box.AddThemeFontSizeOverride("font_size", 15);
+        box.Toggled+=v=>set(v);
+        return box;
+    }
+
+    static Control Field(string label, string value, Action<string> set, bool secret=false, string placeholder="")
+    {
+        var col=new VBoxContainer(); col.AddThemeConstantOverride("separation", 3);
+        col.AddChild(Ui.Text(label, 13));
+        var edit=new LineEdit { Text=value, Secret=secret, PlaceholderText=placeholder, CustomMinimumSize=new Vector2(0, 38) };
+        edit.AddThemeFontSizeOverride("font_size", 15);
+        edit.TextChanged+=t=>set(t);
+        col.AddChild(edit);
+        return col;
+    }
+
     public static Control Gallery(Control parent, GameSave game, Action close)
     {
         var screen=new Control(); parent.AddChild(screen); screen.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect); Ui.Panel(screen,"MOMENTOS",out var body,close);
