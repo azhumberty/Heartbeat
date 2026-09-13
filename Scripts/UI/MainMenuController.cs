@@ -31,11 +31,11 @@ public partial class MainMenuController : Control
 
 	static StyleBoxFlat PanelStyle()=>new(){BgColor=new Color("101a21ee"),BorderColor=new Color("c9af7288"),BorderWidthTop=1,BorderWidthBottom=1,BorderWidthLeft=1,BorderWidthRight=1,CornerRadiusTopLeft=18,CornerRadiusTopRight=18,CornerRadiusBottomLeft=18,CornerRadiusBottomRight=18,ContentMarginLeft=42,ContentMarginRight=42,ContentMarginTop=34,ContentMarginBottom=26,ShadowColor=new Color(0,0,0,.65f),ShadowSize=16};
 	static Button MenuButton(string text,Action action){var button=Ui.Button(text,action);button.CustomMinimumSize=new Vector2(0,54);button.AddThemeFontSizeOverride("font_size",20);return button;}
-	void OpenNewGame(){if(_screen!=null)return;var flow=new NewGameController();flow.Completed=StartCampaign;flow.Cancelled=Close;_screen=flow;AddChild(flow);}
+	void OpenNewGame(){if(_screen!=null)return;var flow=new NewGameController{Settings=_saves.LoadSettings()};flow.Completed=StartCampaign;flow.Cancelled=Close;_screen=flow;AddChild(flow);}
 	void StartCampaign(GameSave save){_saves.Save(save);WorldController.InitialSave=save;GetTree().ChangeSceneToFile("res://Scenes/World/World.tscn");}
 	void LoadGame(){var save=_saves.Load();if(save==null){ShowNotice("Ainda não existe uma campanha para carregar.");return;}WorldController.InitialSave=save;GetTree().ChangeSceneToFile("res://Scenes/World/World.tscn");}
 	void OpenCreative(){if(_screen!=null)return;var creative=new CreativeModeController {Closed=Close};_screen=creative;AddChild(creative);}
-	void OpenOptions(){if(_screen!=null)return;var settings=_saves.Load()?.Settings??new GameSettings();_screen=AuxiliaryScreens.Settings(this,settings,()=>{if(_saves.Load() is { } save){save.Settings=settings;_saves.Save(save);}Close();});}
+	void OpenOptions(){if(_screen!=null)return;var settings=_saves.LoadSettings();_screen=AuxiliaryScreens.Settings(this,settings,()=>{_saves.SaveSettings(settings);if(_saves.Load() is { } save){save.Settings=settings;_saves.Save(save);}Close();});}
 	void ShowNotice(string text){if(_screen!=null)return;var notice=new Control();_screen=notice;AddChild(notice);Ui.Panel(notice,"HEARTBEAT",out var body,Close);body.AddChild(Ui.Text(text,18));}
 	void Close(){if(IsInstanceValid(_screen))_screen.QueueFree();_screen=null;}
 	public override void _UnhandledInput(InputEvent e){if(e is InputEventKey {Pressed:true,Keycode:Key.Escape})Close();}

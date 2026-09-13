@@ -21,6 +21,14 @@ public partial class CampaignChecks : Node
             return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK){Content=new StringContent(JsonSerializer.Serialize(new{choices=new[]{new{message=new{content}}}}))});
         }
     }
+    sealed class LoreHandler : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,CancellationToken cancellationToken)
+        {
+            var lore=new WorldLore{RegionName=new string('V',100),Premise="Uma chama desapareceu.",Threat="A noite avança.",Atmosphere="sombria",Factions=new(){"Vigília"},Rumors=new(){"Um cavaleiro espera."}};
+            var content=JsonSerializer.Serialize(lore);return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK){Content=new StringContent(JsonSerializer.Serialize(new{choices=new[]{new{message=new{content}}}}))});
+        }
+    }
 
     public override async void _Ready()
     {
@@ -44,8 +52,10 @@ public partial class CampaignChecks : Node
             Require(save.RecentEvents.Count==1,"Escolha de evento não foi persistida.");
             Require(save.Deck.Owned.Count==ownedBefore,"Evento concedeu carta indevidamente.");
             await CheckGroqEvent(save,atlas[0],assets);
+            await CheckGroqLore();
             Require(ChromaArt.LoadArt("UI/Frames/menu_background.png")!=null,"Arte do menu indisponível.");
             var creative=new CreativeModeController();AddChild(creative);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(creative.IsInsideTree(),"Criativo não abriu.");creative.QueueFree();
+            var newGame=new NewGameController{Settings=new GameSettings{UseOnlineAi=false}};AddChild(newGame);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(newGame.IsInsideTree(),"Novo Jogo não abriu.");newGame.QueueFree();
             GD.Print($"CAMPAIGN_CHECKS_PASS assets={assets.Count} nodes={atlas.Count}");
             GetTree().Quit();
         }
@@ -54,6 +64,16 @@ public partial class CampaignChecks : Node
             GD.PushError("CAMPAIGN_CHECKS_FAIL "+e.Message);
             GetTree().Quit(1);
         }
+    }
+    static async Task CheckGroqLore()
+    {
+        var previous=System.Environment.GetEnvironmentVariable("GROQ_API_KEY");
+        try
+        {
+            System.Environment.SetEnvironmentVariable("GROQ_API_KEY","local-test-placeholder");using var handler=new LoreHandler();var result=await new GroqWorldLoreProvider(handler).CreateAsync(42,new GameSettings());
+            Require(result.ProviderStatus.StartsWith("Online")&&result.Lore.RegionName.Length==70&&result.Lore.Rumors.Count==1,"Validação da introdução Groq falhou.");
+        }
+        finally{System.Environment.SetEnvironmentVariable("GROQ_API_KEY",previous);}
     }
     static async Task CheckGroqEvent(GameSave save,AtlasNodeData node,IReadOnlyList<ContentAssetRecord> assets)
     {

@@ -11,6 +11,8 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 
 - Menu principal reduzido às quatro entradas: **Novo Jogo**, **Carregar Jogo**, **Criativo** e **Opções**.
 - Novo Jogo cria `WorldLore`, pede um nome textual e salva um Atlas inicial em `GameSave`.
+- Novo Jogo usa `GroqWorldLoreProvider` quando a IA está ativa e uma chave está disponível; o lore local continua sendo o fallback imediato. O painel informa claramente qual origem foi usada.
+- Configurações agora persistem em `user://settings.json` mesmo antes do primeiro save, permitindo ativar Groq antes de iniciar uma campanha.
 - Atlas é uma rede 2D persistente de nós: estrada, mercador, floresta, taverna, acampamento, cavaleiro e ruínas. Nós têm estado bloqueado, disponível ou concluído.
 - Personagens com `CanBuildRelationship=true` podem evoluir relacionamento e liberar cartas especiais. NPCs genéricos, mercadores e inimigos não acumulam vínculo romântico.
 - Combates dão XP e moeda; não dão mais cartas. Cartas são compradas no mercador ou vêm de personagens de vínculo.
@@ -32,6 +34,7 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 
 - `Scripts/UI/MainMenuController.cs` — quatro ações principais.
 - `Scripts/UI/NewGameController.cs` — introdução, lore e nome.
+- `Scripts/WorldLoreProviders.cs` — introdução Groq/offline com JSON estrito e sanitização.
 - `Scripts/UI/CreativeModeController.cs` — biblioteca criativa.
 - `Scripts/CampaignServices.cs` — lore offline, geração do Atlas e economia centralizada.
 - `Scripts/ProceduralEvents.cs` — modelos, geração local determinística, validação e aplicação de escolhas.
@@ -51,13 +54,14 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - A verificação de campanha também confirma duas a quatro escolhas, persistência do resultado e ausência de recompensa indevida de carta.
 - O teste HTTP simulado confirmou retry após 429, clamp de consequências, JSON válido e fallback diante de resposta inválida.
 - O controlador do modo Criativo foi instanciado em árvore pelo teste sem erro de interface.
+- O teste HTTP simulado da introdução confirmou JSON válido, limites de texto e carregamento do fluxo de Novo Jogo offline.
 
 ## Próximas tarefas recomendadas
 
 1. Ligar estoques e preços próprios aos mercadores personalizados.
 2. Adicionar edição de carta de companheiro e quatro golpes ao cadastro de Personagem.
-3. Gerar a introdução opcionalmente via Groq, mantendo o lore local como fallback.
-4. Polir a tela de combate 2D mantendo a arte principal visível.
+3. Polir a tela de combate 2D mantendo a arte principal visível.
+4. Testar visualmente o fluxo completo em 1280×720 no editor.
 
 ## Regras essenciais
 

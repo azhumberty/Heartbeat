@@ -18,7 +18,9 @@ public sealed class CharacterRepository
         var roots = new[] { ProjectSettings.GlobalizePath("res://Characters"), ProjectSettings.GlobalizePath("user://Characters") };
         foreach (var absolute in roots.Where(Directory.Exists))
         {
-            foreach (var file in Directory.EnumerateFiles(absolute, "character.json", SearchOption.AllDirectories))
+            string[] files;
+            try{files=Directory.GetFiles(absolute,"character.json",SearchOption.AllDirectories);}catch(Exception e){GD.Print($"[CharacterRepository] Pasta opcional indisponível: {e.GetType().Name}");continue;}
+            foreach (var file in files)
             {
                 try { var item = JsonSerializer.Deserialize<CharacterData>(File.ReadAllText(file), _json); if (item != null) { Wardrobe.Migrate(item); SocialModelMigrator.Migrate(item); result.RemoveAll(x => x.Id == item.Id); result.Add(item); } }
                 catch (Exception e) { GD.PushWarning($"[CharacterRepository] Ignored invalid character: {e.Message}"); }
@@ -54,6 +56,16 @@ public sealed class SaveManager
 {
     readonly JsonSerializerOptions _json = new() { WriteIndented = true };
     string PathFor(int slot) => $"user://saves/slot_{slot}.json";
+    const string SettingsPath="user://settings.json";
+    public GameSettings LoadSettings()
+    {
+        var full=ProjectSettings.GlobalizePath(SettingsPath);if(!File.Exists(full))return Load()?.Settings??new GameSettings();
+        try{return JsonSerializer.Deserialize<GameSettings>(File.ReadAllText(full),_json)??new GameSettings();}catch{return new GameSettings();}
+    }
+    public void SaveSettings(GameSettings settings)
+    {
+        var full=ProjectSettings.GlobalizePath(SettingsPath);Directory.CreateDirectory(Path.GetDirectoryName(full)!);File.WriteAllText(full+".tmp",JsonSerializer.Serialize(settings,_json));File.Move(full+".tmp",full,true);
+    }
     public void Save(GameSave game, int slot = 1)
     {
         Migrate(game); game.SaveVersion = 6;
