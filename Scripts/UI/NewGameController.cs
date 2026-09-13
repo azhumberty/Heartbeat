@@ -14,7 +14,7 @@ public partial class NewGameController : Control
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         _save=new GameSave {WorldSeed=Random.Shared.NextInt64(),ActionsLeft=6,FirstPerson=false};
         _save.WorldLore=WorldLoreManager.CreateOffline(_save.WorldSeed);_save.AtlasNodes=AtlasGenerator.Create(_save.WorldSeed);
-        var characters=new CharacterRepository().List().Where(c=>c.CanBuildRelationship).ToList();
+        var characters=new CharacterRepository().List().Where(c=>c.CanBuildRelationship&&!c.Tags.Contains("creative-disabled")).ToList();
         if(characters.Count==0)characters.Add(new CharacterRepository().LoadDemo());
         _save.CharacterIds=characters.Select(c=>c.Id).Distinct().ToList();
         _save.CharacterStates=characters.ToDictionary(c=>c.Id,_=>new CharacterState {CurrentLocation="road"});

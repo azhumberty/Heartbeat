@@ -41,7 +41,7 @@ public partial class DialogueController : Control
         controls.AddChild(Ui.Button("Enviar", () => _=Send()));
         
         var actions = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.End }; text.AddChild(actions);
-        if (Actor.Data.Id == "merchant")
+        if (Actor.Data.Id == "merchant" || Actor.Data.Tags.Contains("merchant"))
         {
             actions.AddChild(Ui.Button("💰 Comprar Cartas", () => {
                 var shop = new CardShopController { Game = Game };

@@ -24,7 +24,9 @@ public static class AtlasGenerator
     public static List<AtlasNodeData> Create(long seed)
     {
         var rng=new Random(unchecked((int)seed));
-        var library=new ContentLibrary();var backgrounds=library.Enabled("Cenários");var enemies=library.Enabled("Inimigos");
+        var library=new ContentLibrary();var backgrounds=library.Enabled("Cenários");var enemies=library.Enabled("Inimigos");var characters=library.Enabled("Personagens");var merchants=library.Enabled("Mercadores");
+        if(characters.Any(a=>!a.BuiltIn))characters=characters.Where(a=>!a.BuiltIn).ToList();
+        if(merchants.Any(a=>!a.BuiltIn))merchants=merchants.Where(a=>!a.BuiltIn).ToList();
         ContentAssetRecord? Pick(List<ContentAssetRecord> source,string hint)
         {
             var matching=source.Where(a=>(a.Tags+","+a.Biome+","+a.DisplayName).Contains(hint,StringComparison.OrdinalIgnoreCase)).ToList();
@@ -34,7 +36,7 @@ public static class AtlasGenerator
         }
         AtlasNodeData N(string id,string title,AtlasNodeKind kind,float x,float y,string fallbackArt,string hint,string text,AtlasNodeStatus status,params string[] links)
         {
-            var art=Pick(backgrounds,hint);return new(){Id=id,Title=title,Kind=kind,X=Math.Clamp(x+(float)(rng.NextDouble()-.5)*.025f,.08f,.92f),Y=Math.Clamp(y+(float)(rng.NextDouble()-.5)*.04f,.14f,.82f),BackgroundId=art?.Path??fallbackArt,ContentId=kind is AtlasNodeKind.Combat or AtlasNodeKind.Boss?Pick(enemies,hint)?.Id??"":art?.Id??"",Description=text,Status=status,Connections=links.ToList()};
+            var art=Pick(backgrounds,hint);var content=kind switch{AtlasNodeKind.Combat or AtlasNodeKind.Boss=>Pick(enemies,hint)?.Id??"",AtlasNodeKind.Character=>Pick(characters,hint)?.Id??"knight",AtlasNodeKind.Merchant=>Pick(merchants,hint)?.Id??"merchant",_=>art?.Id??""};return new(){Id=id,Title=title,Kind=kind,X=Math.Clamp(x+(float)(rng.NextDouble()-.5)*.025f,.08f,.92f),Y=Math.Clamp(y+(float)(rng.NextDouble()-.5)*.04f,.14f,.82f),BackgroundId=art?.Path??fallbackArt,ContentId=content,Description=text,Status=status,Connections=links.ToList()};
         }
         return new()
         {

@@ -45,6 +45,7 @@ public partial class CampaignChecks : Node
             Require(save.Deck.Owned.Count==ownedBefore,"Evento concedeu carta indevidamente.");
             await CheckGroqEvent(save,atlas[0],assets);
             Require(ChromaArt.LoadArt("UI/Frames/menu_background.png")!=null,"Arte do menu indisponível.");
+            var creative=new CreativeModeController();AddChild(creative);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(creative.IsInsideTree(),"Criativo não abriu.");creative.QueueFree();
             GD.Print($"CAMPAIGN_CHECKS_PASS assets={assets.Count} nodes={atlas.Count}");
             GetTree().Quit();
         }

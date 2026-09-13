@@ -144,9 +144,15 @@ public partial class WorldController : Node
 
         if (node.Kind == AtlasNodeKind.Merchant)
         {
-            var merchant = _npcs.GetNpc("merchant");
+            var merchant = _npcs.GetNpc(string.IsNullOrWhiteSpace(node.ContentId)?"merchant":node.ContentId)??_npcs.GetNpc("merchant");
             if (merchant != null) OnNpcInteracted(merchant);
             else ShowVnMeet(ChromaArt.MerchantSprite, "Mercador");
+            return;
+        }
+
+        if (node.Kind==AtlasNodeKind.Character&&_npcs.GetNpc(node.ContentId) is { } character)
+        {
+            OnNpcInteracted(character);
             return;
         }
 
@@ -214,7 +220,7 @@ public partial class WorldController : Node
     }
     void OnNpcInteracted(NpcActor actor)
     {
-        if (actor.Data.Id == "merchant")
+        if (actor.Data.Id == "merchant" || actor.Data.Tags.Contains("merchant"))
         {
             _vnCharacter.Texture = ChromaArt.LoadArt(ChromaArt.MerchantSprite);
             ChromaArt.ApplyChroma(_vnCharacter);

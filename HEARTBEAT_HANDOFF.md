@@ -20,6 +20,9 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - `CreativeModeController` mantém uma biblioteca simples de cenários, personagens, NPCs, inimigos e mercadores, com metadados e importação de PNG em `user://Content`.
 - O Criativo aceita PNG/JPG/WebP, permite editar ID, descrição, bioma, período, peso procedural e atributos de inimigo, além de duplicar e ativar/desativar conteúdo.
 - Novas campanhas escolhem cenários e inimigos ativos da biblioteca por peso e seed. Inimigos personalizados levam imagem, nome, Vida, dano, XP e recompensa em Reais para o combate.
+- Cadastros personalizados de Personagem, NPC e Mercador agora geram/atualizam pacotes no `CharacterRepository`; sua imagem, descrição, idade, personalidade, fala, função e permissão de relacionamento chegam ao jogo.
+- Personagens desativados no Criativo deixam de entrar em novas campanhas sem que seus arquivos sejam apagados. Quando existem personagens ou mercadores personalizados ativos, o Atlas os prioriza.
+- A categoria Cartas abre o editor completo existente, que já salva cartas personalizadas na coleção.
 - O diálogo limita cada encontro a oito mensagens do jogador e encerra corretamente quando o painel é fechado.
 - Estrada, taverna, descanso e mistério usam `ProceduralEventService`: cada cena oferece duas escolhas, aplica consequências limitadas pelo C# e salva um resumo curto.
 - Quando a IA online está ativa, `GroqEventProvider` sugere o texto e as escolhas em JSON estrito; timeout, cancelamento, retry de 429/5xx e fallback local mantêm a campanha jogável.
@@ -47,11 +50,12 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - `Scenes/CampaignChecks.tscn`: `CAMPAIGN_CHECKS_PASS assets=40 nodes=7`.
 - A verificação de campanha também confirma duas a quatro escolhas, persistência do resultado e ausência de recompensa indevida de carta.
 - O teste HTTP simulado confirmou retry após 429, clamp de consequências, JSON válido e fallback diante de resposta inválida.
+- O controlador do modo Criativo foi instanciado em árvore pelo teste sem erro de interface.
 
 ## Próximas tarefas recomendadas
 
-1. Ligar personagens, NPCs, mercadores e cartas personalizados aos eventos procedurais.
-2. Ligar mercadores personalizados a estoques e preços.
+1. Ligar estoques e preços próprios aos mercadores personalizados.
+2. Adicionar edição de carta de companheiro e quatro golpes ao cadastro de Personagem.
 3. Gerar a introdução opcionalmente via Groq, mantendo o lore local como fallback.
 4. Polir a tela de combate 2D mantendo a arte principal visível.
 

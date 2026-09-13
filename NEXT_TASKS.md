@@ -2,10 +2,9 @@
 
 ## P0 — Conteúdo Criativo restante
 
-1. Transformar personagens e NPCs cadastrados em pacotes compatíveis com `CharacterRepository`.
-2. Ligar mercadores personalizados a estoques e preços.
-3. Ligar cartas personalizadas cadastradas à coleção do jogador.
-4. Adicionar campos específicos por categoria sem sobrecarregar a tela.
+1. Ligar mercadores personalizados a estoques e preços próprios.
+2. Adicionar, ao cadastro de Personagem, atalhos para carta de companheiro e até quatro golpes especiais.
+3. Adicionar campos específicos restantes por categoria sem sobrecarregar a tela.
 
 ## P1 — Introdução e interface
 
