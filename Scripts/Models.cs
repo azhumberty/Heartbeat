@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Heartbeat;
 
@@ -311,4 +311,9 @@ public sealed class AtlasNodeData
     public int Risk { get; set; } = 1;
     public int Layer { get; set; } = 1;
 }
-public sealed class GameSettings { public float Volume { get; set; } = 0.8f; public float TextSpeed { get; set; } = 1f; public bool AutoAdvance { get; set; } = false; public bool UseOnlineAi { get; set; } = false; public string Provider { get; set; } = "Groq"; public string Endpoint { get; set; } = "https://api.groq.com/openai/v1"; public string Model { get; set; } = "openai/gpt-oss-20b"; public float Temperature { get; set; } = 0.75f; public int MaxResponseTokens { get; set; } = 180; public int ContextMemorySize { get; set; } = 5; public float WorldTimeScale { get; set; } = 1f; public bool WorldTimePaused { get; set; } }
+public sealed class GameSettings { public float Volume { get; set; } = 0.8f; public float TextSpeed { get; set; } = 1f; public bool AutoAdvance { get; set; } = false; public bool UseOnlineAi { get; set; } = false; public string Provider { get; set; } = "Groq"; public string Endpoint { get; set; } = "https://api.groq.com/openai/v1"; public string Model { get; set; } = "openai/gpt-oss-20b"; public float Temperature { get; set; } = 0.75f; public int MaxResponseTokens { get; set; } = 180; public int ContextMemorySize { get; set; } = 5; public float WorldTimeScale { get; set; } = 1f; public bool WorldTimePaused { get; set; }
+    /// <summary>When true, uses OpenRouter instead of Groq (allows uncensored models).</summary>
+    public bool UseOpenRouter { get; set; } = false;
+    /// <summary>OpenRouter model slug, e.g. "mistralai/mistral-7b-instruct:free" or "cognitivecomputations/dolphin-mixtral-8x7b".</summary>
+    public string OpenRouterModel { get; set; } = "mistralai/mistral-7b-instruct:free";
+}

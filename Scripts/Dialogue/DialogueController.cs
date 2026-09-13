@@ -76,7 +76,9 @@ public partial class DialogueController : Control
             var s=Actor.State; s.TimeContext=$"Dia {Game.Day}, {Game.Period}";
             var memory=new SocialMemoryService();
             memory.PrepareTurn(Actor.Data,s,$"Floresta medieval; local {s.CurrentLocation}; {s.TimeContext}; atividade {s.CurrentActivity}; desejo {s.CurrentDesire}",Game.Day,Game.WorldMinutes);
-            IDialogueProvider provider=Game.Settings.UseOnlineAi?new GroqDialogueProvider():new ProceduralDialogueProvider();
+            IDialogueProvider provider = Game.Settings.UseOpenRouter
+                ? new OpenRouterDialogueProvider()
+                : (Game.Settings.UseOnlineAi ? new GroqDialogueProvider() : new ProceduralDialogueProvider());
             var r=DialogueValidator.Sanitize(await provider.ReplyAsync(Actor.Data,s,input,Game.Settings,_cancel.Token));
             if(_cancel.IsCancellationRequested || !IsInsideTree())return;
             _turns++;

@@ -211,7 +211,17 @@ public partial class WorldController : Node
         try
         {
             IEventProvider provider=_game.Settings.UseOnlineAi?new GroqEventProvider():new OfflineEventProvider();
-            story=await provider.CreateAsync(context,_game.Settings,cts.Token);
+            // Run event generation and image generation concurrently
+            var eventTask = provider.CreateAsync(context,_game.Settings,cts.Token);
+            var fallbackPrompt = ImageGenerationService.BuildPromptForNode(node, _game.WorldLore?.RegionName ?? "medieval kingdom");
+            story = await eventTask;
+            
+            // Apply dynamic Pollinations background (fire-and-forget race with existing bg)
+            if (_game.Settings.UseOnlineAi)
+            {
+                var imgPrompt = !string.IsNullOrWhiteSpace(story.ImagePrompt) ? story.ImagePrompt : fallbackPrompt;
+                _ = ApplyPollinationsBackground(imgPrompt, cts.Token);
+            }
         }
         catch(OperationCanceledException){return;}
         finally{if(ReferenceEquals(_eventCancel,cts))_eventCancel=null;cts.Dispose();}
@@ -227,6 +237,22 @@ public partial class WorldController : Node
             }
         };
         _screen=view;_uiLayer.AddChild(view);
+    }
+
+    async Task ApplyPollinationsBackground(string prompt, CancellationToken ct)
+    {
+        try
+        {
+            var tex = await ImageGenerationService.FetchBackgroundAsync(prompt, ct);
+            if (tex != null && IsInsideTree() && GodotObject.IsInstanceValid(_vnBackground))
+            {
+                _vnBackground.Texture = tex;
+                _vnBackground.Modulate = new Color(0.85f, 0.85f, 0.88f);
+                GD.Print("[Pollinations] Background applied to scene.");
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex) { GD.PushWarning($"[Pollinations] Background apply failed: {ex.Message}"); }
     }
     void OnNpcInteracted(NpcActor actor)
     {

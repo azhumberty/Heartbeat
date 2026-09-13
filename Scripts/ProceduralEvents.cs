@@ -24,6 +24,8 @@ public sealed class EventResult
     public string Title { get; set; } = "Um encontro na estrada";
     public string Text { get; set; } = "O caminho guarda uma história.";
     public string BackgroundPath { get; set; } = "";
+    /// <summary>Short English description of the scene, used by Pollinations.ai to generate a dynamic background.</summary>
+    public string ImagePrompt { get; set; } = "";
     public List<EventChoice> Choices { get; set; } = new();
 }
 
@@ -66,22 +68,29 @@ public sealed class ProceduralEventService
     static EventResult Road(AtlasNodeData node,Random rng)=>new()
     {
         Id="road_"+node.Id+"_"+rng.Next(3),Title=node.Title,
+        ImagePrompt="dark forest road at night, fog, lantern glow, medieval fantasy, atmospheric",
         Text=rng.Next(3) switch {0=>"Uma lanterna apagada balança ao lado da estrada. Pegadas recentes somem na lama.",1=>"Um sino toca ao longe, embora nenhuma torre seja visível entre as árvores.",_=>"Você encontra uma bolsa abandonada e um símbolo riscado numa pedra."},
         Choices=new(){new(){Id="investigate",Text="Investigar com cuidado",ResultText="A atenção revela algumas moedas e uma pista sobre as ruínas.",CoinsDelta=8,EnergyDelta=-4},new(){Id="move_on",Text="Seguir pelo caminho",ResultText="Você preserva suas forças e deixa o mistério para trás.",EnergyDelta=3}}
     };
     static EventResult Rest(AtlasNodeData node,Random rng)=>new()
     {
-        Id="rest_"+node.Id+"_"+rng.Next(3),Title=node.Title,Text="As brasas ainda aquecem o acampamento. Por alguns minutos, o mundo parece silencioso.",
+        Id="rest_"+node.Id+"_"+rng.Next(3),Title=node.Title,
+        ImagePrompt="campfire in dark forest clearing, warm embers, night sky, medieval fantasy, peaceful",
+        Text="As brasas ainda aquecem o acampamento. Por alguns minutos, o mundo parece silencioso.",
         Choices=new(){new(){Id="sleep",Text="Descansar junto ao fogo",ResultText="O descanso devolve força ao corpo.",HealthDelta=18,EnergyDelta=20},new(){Id="search",Text="Examinar o acampamento",ResultText="Entre as cinzas você encontra moedas esquecidas.",CoinsDelta=12,EnergyDelta=-6}}
     };
     static EventResult Scene(AtlasNodeData node,Random rng)=>new()
     {
-        Id="scene_"+node.Id+"_"+rng.Next(3),Title=node.Title,Text="Conversas baixas, música distante e olhares discretos transformam o lugar em um abrigo temporário.",
+        Id="scene_"+node.Id+"_"+rng.Next(3),Title=node.Title,
+        ImagePrompt="medieval tavern interior, warm candlelight, people gathered, dark fantasy, cozy",
+        Text="Conversas baixas, música distante e olhares discretos transformam o lugar em um abrigo temporário.",
         Choices=new(){new(){Id="listen",Text="Ouvir os rumores",ResultText="Você descobre que alguém o espera perto das ruínas."},new(){Id="meal",Text="Pedir uma refeição",ResultText="Uma refeição quente melhora seu ânimo.",CoinsDelta=-5,HealthDelta=8,EnergyDelta=8}}
     };
     static EventResult Mystery(AtlasNodeData node,Random rng)=>new()
     {
-        Id="mystery_"+node.Id+"_"+rng.Next(3),Title=node.Title,Text="Uma presença invisível parece reconhecer o seu nome.",
+        Id="mystery_"+node.Id+"_"+rng.Next(3),Title=node.Title,
+        ImagePrompt="mysterious ancient ruins at night, glowing runes, dark magic, eerie fog, medieval fantasy",
+        Text="Uma presença invisível parece reconhecer o seu nome.",
         Choices=new(){new(){Id="answer",Text="Responder ao chamado",ResultText="A voz grava uma lembrança que ainda não faz sentido.",EnergyDelta=-5},new(){Id="resist",Text="Resistir e partir",ResultText="Você fecha a mente e retorna ao caminho.",EnergyDelta=2}}
     };
     public static EventResult Sanitize(EventResult result)
