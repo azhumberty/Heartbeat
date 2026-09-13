@@ -23,17 +23,28 @@ public static class AtlasGenerator
 {
     public static List<AtlasNodeData> Create(long seed)
     {
-        _=seed; // layout is intentionally readable; seed will vary future event payloads.
-        AtlasNodeData N(string id,string title,AtlasNodeKind kind,float x,float y,string art,string text,AtlasNodeStatus status,params string[] links)=>new(){Id=id,Title=title,Kind=kind,X=x,Y=y,BackgroundId=art,Description=text,Status=status,Connections=links.ToList()};
+        var rng=new Random(unchecked((int)seed));
+        var library=new ContentLibrary();var backgrounds=library.Enabled("Cenários");var enemies=library.Enabled("Inimigos");
+        ContentAssetRecord? Pick(List<ContentAssetRecord> source,string hint)
+        {
+            var matching=source.Where(a=>(a.Tags+","+a.Biome+","+a.DisplayName).Contains(hint,StringComparison.OrdinalIgnoreCase)).ToList();
+            var pool=matching.Count>0?matching:source;if(pool.Count==0)return null;
+            var total=pool.Sum(a=>Math.Max(.1f,a.Weight));var roll=rng.NextDouble()*total;
+            foreach(var item in pool){roll-=Math.Max(.1f,item.Weight);if(roll<=0)return item;}return pool[^1];
+        }
+        AtlasNodeData N(string id,string title,AtlasNodeKind kind,float x,float y,string fallbackArt,string hint,string text,AtlasNodeStatus status,params string[] links)
+        {
+            var art=Pick(backgrounds,hint);return new(){Id=id,Title=title,Kind=kind,X=Math.Clamp(x+(float)(rng.NextDouble()-.5)*.025f,.08f,.92f),Y=Math.Clamp(y+(float)(rng.NextDouble()-.5)*.04f,.14f,.82f),BackgroundId=art?.Path??fallbackArt,ContentId=kind is AtlasNodeKind.Combat or AtlasNodeKind.Boss?Pick(enemies,hint)?.Id??"":art?.Id??"",Description=text,Status=status,Connections=links.ToList()};
+        }
         return new()
         {
-            N("road","A estrada quebrada",AtlasNodeKind.Event,.12f,.55f,"street","O primeiro passo rumo a Eredan.",AtlasNodeStatus.Available,"merchant","forest"),
-            N("merchant","Tenda do mercador",AtlasNodeKind.Merchant,.34f,.31f,"merchant_tent","Cartas e rumores sob uma lona dourada.",AtlasNodeStatus.Locked,"tavern"),
-            N("forest","Floresta sombria",AtlasNodeKind.Combat,.36f,.70f,"forest_dark","Algo observa entre as raízes.",AtlasNodeStatus.Locked,"camp","knight"),
-            N("tavern","Taverna da última chama",AtlasNodeKind.Scene,.58f,.23f,"tavern","Um lugar seguro para ouvir segredos.",AtlasNodeStatus.Locked,"ruin"),
-            N("camp","Acampamento abandonado",AtlasNodeKind.Rest,.59f,.72f,"camp","Cinzas ainda guardam calor.",AtlasNodeStatus.Locked,"ruin"),
-            N("knight","O cavaleiro sem brasão",AtlasNodeKind.Character,.68f,.52f,"street","Um encontro que pode mudar seu caminho.",AtlasNodeStatus.Locked,"ruin"),
-            N("ruin","Salão das ruínas",AtlasNodeKind.Boss,.86f,.48f,"ruins_hall","A origem do rumor espera além do portão.",AtlasNodeStatus.Locked)
+            N("road","A estrada quebrada",AtlasNodeKind.Event,.12f,.55f,"street","street","O primeiro passo rumo ao desconhecido.",AtlasNodeStatus.Available,"merchant","forest"),
+            N("merchant","Tenda do mercador",AtlasNodeKind.Merchant,.34f,.31f,"merchant_tent","merchant","Cartas e rumores sob uma lona dourada.",AtlasNodeStatus.Locked,"tavern"),
+            N("forest","Floresta sombria",AtlasNodeKind.Combat,.36f,.70f,"forest_dark","forest","Algo observa entre as raízes.",AtlasNodeStatus.Locked,"camp","knight"),
+            N("tavern","Taverna da última chama",AtlasNodeKind.Scene,.58f,.23f,"tavern","tavern","Um lugar seguro para ouvir segredos.",AtlasNodeStatus.Locked,"ruin"),
+            N("camp","Acampamento abandonado",AtlasNodeKind.Rest,.59f,.72f,"camp","camp","Cinzas ainda guardam calor.",AtlasNodeStatus.Locked,"ruin"),
+            N("knight","O cavaleiro sem brasão",AtlasNodeKind.Character,.68f,.52f,"street","street","Um encontro que pode mudar seu caminho.",AtlasNodeStatus.Locked,"ruin"),
+            N("ruin","Salão das ruínas",AtlasNodeKind.Boss,.86f,.48f,"ruins_hall","ruin","A origem do rumor espera além do portão.",AtlasNodeStatus.Locked)
         };
     }
     public static void Complete(GameSave save,string id)

@@ -139,7 +139,7 @@ public partial class WorldController : Node
         ClearVnMeet();
 
         _vnBackground.Modulate = new Color(0.85f, 0.85f, 0.88f);
-        _vnBackground.Texture = ChromaArt.LoadArt(ChromaArt.BackgroundForDestination(node.BackgroundId));
+        _vnBackground.Texture = node.BackgroundId.Contains("://") || Path.IsPathRooted(node.BackgroundId) ? ContentLibrary.LoadTexture(node.BackgroundId) : ChromaArt.LoadArt(ChromaArt.BackgroundForDestination(node.BackgroundId));
 
         if (node.Kind == AtlasNodeKind.Merchant)
         {
@@ -161,7 +161,7 @@ public partial class WorldController : Node
             return;
         }
 
-        if (destinationId is "forest_dark" or "forest" or "camp")
+        if (node.Kind is AtlasNodeKind.Combat or AtlasNodeKind.Boss)
         {
             if (new Random().NextDouble() < 0.5)
             {
@@ -178,7 +178,7 @@ public partial class WorldController : Node
                 }
             }
 
-            var foeId = destinationId == "camp" ? "camp" : "forest";
+            var foeId = string.IsNullOrWhiteSpace(node.ContentId) ? (node.Kind==AtlasNodeKind.Boss?"ruin":"forest") : node.ContentId;
             _ = EnterCombat(EnemyDefinition.Get(foeId));
             return;
         }

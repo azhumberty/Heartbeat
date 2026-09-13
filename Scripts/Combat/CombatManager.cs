@@ -19,7 +19,12 @@ public sealed record EnemyDefinition(
         new("ruin", "Vigia esquecido", 135, 18, 52, "a58c65", 32, 52, 4)
     };
 
-    public static EnemyDefinition Get(string id) => All.FirstOrDefault(e => e.Id == id) ?? All[0];
+    public static EnemyDefinition Get(string id)
+    {
+        if(new ContentLibrary().Find(id) is {Category:"Inimigos"} custom)
+            return new(custom.Id,custom.DisplayName,Math.Clamp(custom.Health,1,999),Math.Clamp(custom.Damage,1,99),Math.Clamp(custom.RewardXp,0,999),"765478",Math.Clamp(custom.CoinMin,0,999),Math.Clamp(custom.CoinMax,Math.Clamp(custom.CoinMin,0,999),999),Math.Clamp((custom.Health+custom.Damage)/55,1,4));
+        return All.FirstOrDefault(e => e.Id == id) ?? All[0];
+    }
 }
 
 public enum IntentKind { Attack, Shield, Heal, Sleep, Potion }

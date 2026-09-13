@@ -10,6 +10,18 @@ public sealed class ContentAssetRecord
     public string Category {get;set;}="Cenários";
     public string Path {get;set;}="";
     public string Tags {get;set;}="";
+    public string Description {get;set;}="";
+    public string Biome {get;set;}="forest";
+    public string Period {get;set;}="Any";
+    public string CompatibleEvents {get;set;}="event,scene";
+    public float Weight {get;set;}=1f;
+    public bool Procedural {get;set;}=true;
+    public bool CanBuildRelationship {get;set;}
+    public int Health {get;set;}=80;
+    public int Damage {get;set;}=12;
+    public int RewardXp {get;set;}=24;
+    public int CoinMin {get;set;}=10;
+    public int CoinMax {get;set;}=22;
     public bool Enabled {get;set;}=true;
     public bool BuiltIn {get;set;}
 }
@@ -27,6 +39,13 @@ public sealed class ContentLibrary
         catch(Exception e){GD.PushWarning("[Creative] Registro ignorado: "+e.GetType().Name);}
         return all;
     }
+    public List<ContentAssetRecord> Enabled(string category)=>Load().Where(a=>a.Enabled&&a.Procedural&&a.Category==category).ToList();
+    public ContentAssetRecord? Find(string id)=>Load().FirstOrDefault(a=>a.Enabled&&a.Id==id);
+    public static Texture2D? LoadTexture(string path)
+    {
+        if(path.StartsWith("res://"))return ChromaArt.LoadArt(path);
+        var full=ProjectSettings.GlobalizePath(path);if(!File.Exists(full))return null;using var image=ImageManager.LoadImage(full);return image==null||image.IsEmpty()?null:ImageTexture.CreateFromImage(image);
+    }
     public void SaveUser(List<ContentAssetRecord> all)
     {
         var user=all.Where(a=>!a.BuiltIn).ToList();var path=ProjectSettings.GlobalizePath(Registry);Directory.CreateDirectory(Path.GetDirectoryName(path)!);
@@ -34,9 +53,10 @@ public sealed class ContentLibrary
     }
     public string Import(string category,string source,string displayName)
     {
-        if(!string.Equals(Path.GetExtension(source),".png",StringComparison.OrdinalIgnoreCase))throw new ArgumentException("Escolha um PNG.");
-        if(new FileInfo(source).Length>20*1024*1024)throw new ArgumentException("Use um PNG de até 20 MB.");
-        using var image=Image.LoadFromFile(source);if(image==null||image.IsEmpty())throw new ArgumentException("Não foi possível abrir a imagem.");
+        var extension=Path.GetExtension(source).ToLowerInvariant();
+        if(extension is not (".png" or ".jpg" or ".jpeg" or ".webp"))throw new ArgumentException("Escolha PNG, JPG ou WebP.");
+        if(new FileInfo(source).Length>20*1024*1024)throw new ArgumentException("Use uma imagem de até 20 MB.");
+        using var image=ImageManager.LoadImage(source);if(image==null||image.IsEmpty())throw new ArgumentException("Não foi possível abrir a imagem.");
         string id=Guid.NewGuid().ToString("N"),folder=ProjectSettings.GlobalizePath("user://Content/"+Slug(category));Directory.CreateDirectory(folder);
         string target=Path.Combine(folder,id+".png");if(image.SavePng(target)!=Error.Ok)throw new IOException("Não foi possível copiar o PNG.");
         return target;
@@ -47,9 +67,14 @@ public sealed class ContentLibrary
         void Read(string category,string subfolder)
         {
             string root=ProjectSettings.GlobalizePath("res://Assets/ArtKit/"+subfolder);if(!Directory.Exists(root))return;
-            foreach(var file in Directory.EnumerateFiles(root,"*.png",SearchOption.TopDirectoryOnly))output.Add(new(){Id="builtin_"+subfolder.Replace('/','_')+"_"+Path.GetFileNameWithoutExtension(file),DisplayName=Path.GetFileNameWithoutExtension(file).Replace('_',' '),Category=category,Path="res://Assets/ArtKit/"+subfolder+"/"+Path.GetFileName(file),BuiltIn=true});
+            foreach(var file in Directory.EnumerateFiles(root,"*.png",SearchOption.TopDirectoryOnly))
+            {
+                var name=Path.GetFileNameWithoutExtension(file);
+                var actualCategory=category=="Personagens"&&name.Contains("merchant",StringComparison.OrdinalIgnoreCase)?"Mercadores":category;
+                output.Add(new(){Id="builtin_"+subfolder.Replace('/','_')+"_"+name,DisplayName=name.Replace('_',' '),Category=actualCategory,Path="res://Assets/ArtKit/"+subfolder+"/"+Path.GetFileName(file),BuiltIn=true,CanBuildRelationship=actualCategory=="Personagens",Procedural=actualCategory!="Inimigos"||name.Contains("_chroma",StringComparison.OrdinalIgnoreCase)});
+            }
         }
-        Read("Cenários","Backgrounds");Read("Cenários","Interiors");Read("Personagens","Characters/NPCs");Read("Inimigos","Characters/Monsters");
+        Read("Cenários","Backgrounds");Read("Cenários","Interiors");Read("Personagens","Characters/NPCs");Read("Inimigos","Characters/Monsters");Read("Cartas","UI/Cards/Faces");
         return output;
     }
     static string Slug(string text)=>new string(text.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
@@ -60,9 +85,9 @@ public partial class CreativeModeController : Control
     public Action? Closed;
     readonly ContentLibrary _library=new();
     List<ContentAssetRecord> _assets=new();
-    OptionButton _category=null!;ItemList _list=null!;TextureRect _preview=null!;LineEdit _name=null!,_tags=null!;Label _info=null!;
+    OptionButton _category=null!;ItemList _list=null!;TextureRect _preview=null!;LineEdit _id=null!,_name=null!,_tags=null!,_biome=null!,_period=null!;TextEdit _description=null!;SpinBox _weight=null!,_health=null!,_damage=null!,_xp=null!,_coinMin=null!,_coinMax=null!;CheckButton _procedural=null!;Label _info=null!;
     ContentAssetRecord? _selected;string? _source;
-    readonly string[] _categories={"Cenários","Personagens","NPCs","Inimigos","Mercadores"};
+    readonly string[] _categories={"Cenários","Personagens","NPCs","Inimigos","Mercadores","Cartas"};
     public override void _Ready()
     {
         SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);var veil=new ColorRect {Color=new Color("03080bf0")};veil.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);AddChild(veil);
@@ -71,43 +96,57 @@ public partial class CreativeModeController : Control
         _category=new OptionButton();foreach(var category in _categories)_category.AddItem(category);body.AddChild(_category);_category.ItemSelected+=_=>Refresh();
         var row=new HBoxContainer {SizeFlagsVertical=SizeFlags.ExpandFill};row.AddThemeConstantOverride("separation",18);body.AddChild(row);
         _list=new ItemList {CustomMinimumSize=new Vector2(310,0),SizeFlagsVertical=SizeFlags.ExpandFill};row.AddChild(_list);_list.ItemSelected+=index=>Select((int)index);
-        var detail=new VBoxContainer {SizeFlagsHorizontal=SizeFlags.ExpandFill};row.AddChild(detail);
-        _preview=new TextureRect {CustomMinimumSize=new Vector2(0,220),SizeFlagsVertical=SizeFlags.ExpandFill,ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.KeepAspectCentered};detail.AddChild(_preview);
-        detail.AddChild(Ui.Text("Nome",14));_name=new LineEdit {MaxLength=48};detail.AddChild(_name);
-        detail.AddChild(Ui.Text("Tags",14));_tags=new LineEdit {PlaceholderText="ex.: forest, night, merchant"};detail.AddChild(_tags);
+        var editorScroll=new ScrollContainer {SizeFlagsHorizontal=SizeFlags.ExpandFill,SizeFlagsVertical=SizeFlags.ExpandFill};row.AddChild(editorScroll);
+        var detail=new VBoxContainer {SizeFlagsHorizontal=SizeFlags.ExpandFill};editorScroll.AddChild(detail);
+        _preview=new TextureRect {CustomMinimumSize=new Vector2(0,150),SizeFlagsVertical=SizeFlags.ExpandFill,ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.KeepAspectCentered};detail.AddChild(_preview);
+        var form=new GridContainer {Columns=2};form.AddThemeConstantOverride("h_separation",10);form.AddThemeConstantOverride("v_separation",6);detail.AddChild(form);
+        void Field(string label,Control input){form.AddChild(Ui.Text(label,13));input.SizeFlagsHorizontal=SizeFlags.ExpandFill;form.AddChild(input);}
+        _id=new LineEdit {MaxLength=64,PlaceholderText="id_unico"};Field("ID",_id);
+        _name=new LineEdit {MaxLength=48};Field("Nome",_name);
+        _tags=new LineEdit {PlaceholderText="forest, night, merchant"};Field("Tags",_tags);
+        _biome=new LineEdit {PlaceholderText="forest"};Field("Bioma",_biome);
+        _period=new LineEdit {PlaceholderText="Any, Night..."};Field("Período",_period);
+        _weight=new SpinBox {MinValue=.1,MaxValue=20,Step=.1,Value=1};Field("Peso procedural",_weight);
+        _procedural=new CheckButton {Text="Pode aparecer na campanha",ButtonPressed=true};form.AddChild(new Control());form.AddChild(_procedural);
+        _description=new TextEdit {CustomMinimumSize=new Vector2(0,60),PlaceholderText="Descrição usada em eventos"};Field("Descrição",_description);
+        _health=new SpinBox {MinValue=1,MaxValue=999,Value=80};Field("Vida (inimigo)",_health);
+        _damage=new SpinBox {MinValue=1,MaxValue=99,Value=12};Field("Dano",_damage);
+        _xp=new SpinBox {MinValue=0,MaxValue=999,Value=24};Field("XP",_xp);
+        _coinMin=new SpinBox {MinValue=0,MaxValue=999,Value=10};Field("Reais mín.",_coinMin);
+        _coinMax=new SpinBox {MinValue=0,MaxValue=999,Value=22};Field("Reais máx.",_coinMax);
         _info=Ui.Text("Escolha um asset.",14);detail.AddChild(_info);
-        var buttons=new HBoxContainer();detail.AddChild(buttons);buttons.AddChild(Ui.Button("Escolher PNG…",Choose));buttons.AddChild(Ui.Button("Salvar metadata",Save));buttons.AddChild(Ui.Button("Desativar",Disable));
+        var buttons=new HBoxContainer();detail.AddChild(buttons);buttons.AddChild(Ui.Button("Escolher imagem…",Choose));buttons.AddChild(Ui.Button("Salvar",Save));buttons.AddChild(Ui.Button("Duplicar",Duplicate));buttons.AddChild(Ui.Button("Ativar/Desativar",Toggle));
         _assets=_library.Load();Refresh();
     }
     string Category=>_category.GetItemText(_category.Selected);
     void Refresh()
     {
-        _list.Clear();foreach(var asset in _assets.Where(a=>a.Category==Category))_list.AddItem((asset.Enabled?"":"[inativo] ")+asset.DisplayName);_selected=null;_preview.Texture=null;_name.Text="";_tags.Text="";_info.Text="Escolha um asset ou importe um PNG.";
+        _list.Clear();foreach(var asset in _assets.Where(a=>a.Category==Category))_list.AddItem((asset.Enabled?"":"[inativo] ")+asset.DisplayName);_selected=null;_preview.Texture=null;_id.Editable=true;_id.Text="";_name.Text="";_tags.Text="";_description.Text="";_info.Text="Escolha um asset ou importe uma imagem.";
     }
     void Select(int index)
     {
-        _selected=_assets.Where(a=>a.Category==Category).ElementAt(index);_name.Text=_selected.DisplayName;_tags.Text=_selected.Tags;_source=null;_preview.Texture=LoadTexture(_selected.Path);_info.Text=$"ID: {_selected.Id}\nTipo: {_selected.Category}\nCaminho: {_selected.Path}";
+        _selected=_assets.Where(a=>a.Category==Category).ElementAt(index);_id.Text=_selected.Id;_id.Editable=!_selected.BuiltIn;_name.Text=_selected.DisplayName;_tags.Text=_selected.Tags;_description.Text=_selected.Description;_biome.Text=_selected.Biome;_period.Text=_selected.Period;_weight.Value=_selected.Weight;_procedural.ButtonPressed=_selected.Procedural;_health.Value=_selected.Health;_damage.Value=_selected.Damage;_xp.Value=_selected.RewardXp;_coinMin.Value=_selected.CoinMin;_coinMax.Value=_selected.CoinMax;_source=null;_preview.Texture=LoadTexture(_selected.Path);_info.Text=$"Tipo: {_selected.Category}\nCaminho: {_selected.Path}";
     }
     void Choose()
     {
-        var picker=new FileDialog {FileMode=FileDialog.FileModeEnum.OpenFile,Access=FileDialog.AccessEnum.Filesystem,Filters=new[]{"*.png ; Imagem PNG"},UseNativeDialog=true};AddChild(picker);
-        picker.FileSelected+=path=>{try{using var image=Image.LoadFromFile(path);if(image==null||image.IsEmpty())throw new ArgumentException("Imagem inválida.");_source=path;_preview.Texture=ImageTexture.CreateFromImage(image);_info.Text="Prévia pronta. Salve para registrar na biblioteca.";}catch(Exception e){_info.Text=e.Message;}finally{picker.QueueFree();}};picker.Canceled+=picker.QueueFree;picker.PopupCenteredRatio(.7f);
+        var picker=new FileDialog {FileMode=FileDialog.FileModeEnum.OpenFile,Access=FileDialog.AccessEnum.Filesystem,Filters=new[]{"*.png,*.jpg,*.jpeg,*.webp ; Imagens"},UseNativeDialog=true};AddChild(picker);
+        picker.FileSelected+=path=>{try{using var image=ImageManager.LoadImage(path);if(image==null||image.IsEmpty())throw new ArgumentException("Imagem inválida.");_source=path;_preview.Texture=ImageTexture.CreateFromImage(image);_info.Text="Prévia pronta. Salve para registrar na biblioteca.";}catch(Exception e){_info.Text=e.Message;}finally{picker.QueueFree();}};picker.Canceled+=picker.QueueFree;picker.PopupCenteredRatio(.7f);
     }
     void Save()
     {
         try
         {
-            var record=_selected??new ContentAssetRecord {Category=Category};record.Category=Category;record.DisplayName=string.IsNullOrWhiteSpace(_name.Text)?"Sem nome":_name.Text.Trim();record.Tags=_tags.Text.Trim();record.Enabled=true;
+            var record=_selected??new ContentAssetRecord {Category=Category};var wantedId=_id.Text.Trim();if(!record.BuiltIn){if(wantedId.Length<2||wantedId.Any(c=>!char.IsLetterOrDigit(c)&&c!='_'&&c!='-'))throw new ArgumentException("Use um ID com letras, números, _ ou -.");if(_assets.Any(a=>a!=record&&a.Id.Equals(wantedId,StringComparison.OrdinalIgnoreCase)))throw new ArgumentException("Este ID já existe.");record.Id=wantedId;}record.Category=Category;record.DisplayName=string.IsNullOrWhiteSpace(_name.Text)?"Sem nome":_name.Text.Trim();record.Tags=_tags.Text.Trim();record.Description=_description.Text.Trim();record.Biome=_biome.Text.Trim();record.Period=_period.Text.Trim();record.Weight=(float)_weight.Value;record.Procedural=_procedural.ButtonPressed;record.Health=(int)_health.Value;record.Damage=(int)_damage.Value;record.RewardXp=(int)_xp.Value;record.CoinMin=(int)_coinMin.Value;record.CoinMax=Math.Max(record.CoinMin,(int)_coinMax.Value);record.CanBuildRelationship=Category=="Personagens";record.Enabled=true;
             if(_source!=null)record.Path=_library.Import(Category,_source,record.DisplayName);
-            if(string.IsNullOrWhiteSpace(record.Path))throw new ArgumentException("Escolha um PNG antes de salvar.");
+            if(string.IsNullOrWhiteSpace(record.Path))throw new ArgumentException("Escolha uma imagem antes de salvar.");
             if(_selected==null)_assets.Add(record);_library.SaveUser(_assets);_info.Text="Salvo na biblioteca.";Refresh();
         }
         catch(Exception e){_info.Text=e.Message;}
     }
-    void Disable(){if(_selected==null||_selected.BuiltIn){_info.Text="Assets incluídos no jogo não são removidos; importe e use sua própria cópia para desativá-la.";return;}_selected.Enabled=false;_library.SaveUser(_assets);Refresh();}
+    void Duplicate(){if(_selected==null)return;var copy=JsonSerializer.Deserialize<ContentAssetRecord>(JsonSerializer.Serialize(_selected))!;copy.Id="custom_"+Guid.NewGuid().ToString("N")[..10];copy.DisplayName+=" (cópia)";copy.BuiltIn=false;_assets.Add(copy);_library.SaveUser(_assets);Refresh();}
+    void Toggle(){if(_selected==null||_selected.BuiltIn){_info.Text="Assets incluídos no jogo permanecem ativos.";return;}_selected.Enabled=!_selected.Enabled;_library.SaveUser(_assets);Refresh();}
     static Texture2D? LoadTexture(string path)
     {
-        if(path.StartsWith("res://"))return ChromaArt.LoadArt(path);
-        if(!File.Exists(path))return null;using var image=Image.LoadFromFile(path);return image==null||image.IsEmpty()?null:ImageTexture.CreateFromImage(image);
+        return ContentLibrary.LoadTexture(path);
     }
 }

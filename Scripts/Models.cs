@@ -297,6 +297,7 @@ public sealed class AtlasNodeData
     public float X { get; set; }
     public float Y { get; set; }
     public string BackgroundId { get; set; } = "forest_dark";
+    public string ContentId { get; set; } = "";
     public string Description { get; set; } = "";
     public List<string> Connections { get; set; } = new();
 }

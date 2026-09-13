@@ -1,30 +1,27 @@
-﻿# PIVOT ARQUITETURAL: 3D PARA 2D VISUAL NOVEL & CARD GAME
+# HEARTBEAT — PRÓXIMAS TAREFAS
 
-## DECISÃO DO USUÁRIO
-O usuário decidiu abandonar a exploração 3D em primeira pessoa devido aos gargalos técnicos de importação de assets (fundos falsos, bugs de cache do Godot) e complexidade de colisões. 
-O novo foco é **100% 2D UI-Driven**, misturando **Visual Novel, Dating Sim, RPG Textual e Card Game**, com navegação por **Atlas (Node Map)** semelhante a Slay the Spire / Path of Exile.
+## P0 — Eventos procedurais jogáveis
 
-## DIRETRIZES PARA OS PRÓXIMOS AGENTES (GROK, CLAUDE, ETC):
+1. Criar `EventContext`, `EventResult`, `EventChoice` e `ProceduralEventService`.
+2. Implementar eventos locais com duas a quatro escolhas para evento, descanso, cena, mistério e chefe.
+3. Aplicar consequências com limites definidos pelo C# e registrar somente um resumo curto no save.
+4. Concluir o nó do Atlas apenas depois da escolha ou da vitória.
 
-### 1. LIMPEZA E DESACOPLAMENTO (Fase 1)
-- **Remover** as mecânicas de FPS: PlayerController.cs, ChunkGenerator.cs, ChunkManager.cs, SkyController.cs, BillboardSprites.cs.
-- Limpar a cena principal para ser estritamente Control (CanvasLayer). O 3D só será usado se for estritamente para efeitos de partículas por cima do 2D (opcional).
+## P1 — Groq opcional para eventos
 
-### 2. NAVEGAÇÃO POR MAPA (ATLAS) (Fase 2)
-- Criar um MapController.cs (Interface 2D).
-- Renderizar pontos de interesse (Nodes) clicáveis (Cabana, Floresta Escura, Mercador).
-- Ao invés de andar, o jogador gerencia energia/tempo e clica para viajar para os eventos.
+1. Enviar contexto curto: lore, nó, nome do jogador, assets ativos e eventos recentes.
+2. Exigir JSON, validar todos os campos e limitar deltas.
+3. Implementar timeout, cancelamento e fallback local sem interromper a campanha.
 
-### 3. INTERAÇÕES E HISTÓRIA (VISUAL NOVEL) (Fase 3)
-- O DialogueController.cs se torna o centro do jogo.
-- **Visual:** Fundo de tela cheia (16:9 gerado por IA). Personagem (Sprite) centralizado. Caixa de diálogo preta com texto branco embaixo.
-- **Mecânica:** O jogador digita o que quer falar ou escolhe opções. O LLM (Groq) responde dinamicamente e altera o rumo da história.
+## P2 — Conteúdo Criativo restante
 
-### 4. COMBATE DE CARTAS (Fase 4)
-- Adaptar a CombatArenaController.cs para a visão 2D.
-- Inimigo desenhado no centro, fundo correspondente ao bioma.
-- Refinar a IA do inimigo e escalar status para ficar mais desafiador.
+1. Transformar personagens e NPCs cadastrados em pacotes compatíveis com `CharacterRepository`.
+2. Ligar mercadores personalizados a estoques e preços.
+3. Ligar cartas personalizadas cadastradas à coleção do jogador.
+4. Adicionar campos específicos por categoria sem sobrecarregar a tela.
 
-### 5. ASSETS DE ARTE
-- A partir de agora, **fundos** devem ser gerados em 16:9 (ex: paisagens de floresta, tavernas).
-- **Sprites de Inimigos/NPCs:** Podem ser gerados com Chroma Key (fundo verde puro) para o Godot recortar nativamente no import, já que IAs lutam para gerar .png real.
+## P3 — Interface
+
+1. Tornar o painel de detalhes do combate recolhível para preservar a arte central.
+2. Testar os layouts em 1280×720, 1600×900 e 1920×1080.
+3. Substituir os textos com codificação antiga restantes.

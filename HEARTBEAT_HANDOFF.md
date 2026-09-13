@@ -18,6 +18,8 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - O lote de arte do Grok no `Assets/ArtKit` está integrado ao carregador. Ele reconhece JPEGs mantidos com extensão histórica `.png`, evitando erros do Godot sem aumentar o tamanho de todos os arquivos.
 - O menu usa `UI/Frames/menu_background.png`, as cartas sem arte própria usam as ilustrações por categoria e oito cartas g41–g55 usam suas faces exclusivas do Grok.
 - `CreativeModeController` mantém uma biblioteca simples de cenários, personagens, NPCs, inimigos e mercadores, com metadados e importação de PNG em `user://Content`.
+- O Criativo aceita PNG/JPG/WebP, permite editar ID, descrição, bioma, período, peso procedural e atributos de inimigo, além de duplicar e ativar/desativar conteúdo.
+- Novas campanhas escolhem cenários e inimigos ativos da biblioteca por peso e seed. Inimigos personalizados levam imagem, nome, Vida, dano, XP e recompensa em Reais para o combate.
 - O diálogo limita cada encontro a oito mensagens do jogador e encerra corretamente quando o painel é fechado.
 
 ## Arquivos principais
@@ -36,13 +38,14 @@ Heartbeat é um **Visual Novel / Dating Sim / RPG narrativo 2D** com combate de 
 - `dotnet build --no-restore -v:q`: concluído com 0 erros e 3 avisos já existentes de nulidade em `ImageManager.cs` e `CombatArenaController.UI.cs`.
 - Godot aberto em modo sem interface com a cena `Scenes/World/World.tscn`: sem erro de inicialização.
 - Menu principal iniciado com o lote Grok: sem erros de carregamento no console.
+- `Scenes/CampaignChecks.tscn`: `CAMPAIGN_CHECKS_PASS assets=40 nodes=7`.
 
 ## Próximas tarefas recomendadas
 
-1. Refinar cada tipo de nó do Atlas em eventos narrativos próprios e concluir nós apenas após a escolha ou vitória correspondente.
-2. Ligar a biblioteca Criativo aos seletores de conteúdo dos eventos, inimigos e mercadores.
-3. Polir a tela de combate 2D e o editor de baralho mantendo a arte principal visível.
-4. Criar o gerador opcional de eventos por Groq com JSON validado e fallback local, usando contexto curto.
+1. Criar eventos/a sistema data-driven de eventos com escolhas e fallback local.
+2. Adicionar o provedor de eventos Groq com JSON validado, timeout, cancelamento e contexto curto.
+3. Ligar personagens, NPCs, mercadores e cartas personalizados aos eventos procedurais.
+4. Polir a tela de combate 2D mantendo a arte principal visível.
 
 ## Regras essenciais
 

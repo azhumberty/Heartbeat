@@ -48,6 +48,11 @@ public partial class CombatArenaController : Control
         {
             _enemy.Texture = new PortraitCache().Get(opponent, Game.CharacterStates.GetValueOrDefault(opponent.Id) ?? new CharacterState(), false);
         }
+        else if (new ContentLibrary().Find(Manager.State.EnemyId) is {Category:"Inimigos"} custom && ContentLibrary.LoadTexture(custom.Path) is { } customTexture)
+        {
+            _enemy.Texture = customTexture;
+            if(custom.Path.Contains("chroma",StringComparison.OrdinalIgnoreCase)||custom.Tags.Contains("chroma",StringComparison.OrdinalIgnoreCase))ChromaArt.ApplyChroma(_enemy);
+        }
         else
         {
             _enemy.Texture = ChromaArt.LoadArt(ChromaArt.EnemySpritePath(Manager.State.EnemyId));
