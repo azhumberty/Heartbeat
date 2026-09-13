@@ -19,6 +19,7 @@ public sealed class EventChoice
 
 public sealed class EventResult
 {
+    [System.Text.Json.Serialization.JsonIgnore] public string ProviderStatus { get; set; } = "Offline · evento procedural";
     public string Id { get; set; } = Guid.NewGuid().ToString("N");
     public string Title { get; set; } = "Um encontro na estrada";
     public string Text { get; set; } = "O caminho guarda uma história.";
@@ -41,7 +42,7 @@ public sealed class ProceduralEventService
             _=>Road(node,rng)
         };
         eventResult.BackgroundPath=node.BackgroundId;
-        Validate(eventResult);
+        Sanitize(eventResult);
         return eventResult;
     }
 
@@ -78,11 +79,17 @@ public sealed class ProceduralEventService
         Id="mystery_"+node.Id+"_"+rng.Next(3),Title=node.Title,Text="Uma presença invisível parece reconhecer o seu nome.",
         Choices=new(){new(){Id="answer",Text="Responder ao chamado",ResultText="A voz grava uma lembrança que ainda não faz sentido.",EnergyDelta=-5},new(){Id="resist",Text="Resistir e partir",ResultText="Você fecha a mente e retorna ao caminho.",EnergyDelta=2}}
     };
-    static void Validate(EventResult result)
+    public static EventResult Sanitize(EventResult result)
     {
         result.Id=Limit(result.Id,80);result.Title=Limit(string.IsNullOrWhiteSpace(result.Title)?"Evento":result.Title,80);result.Text=Limit(result.Text,900);
         result.Choices=(result.Choices??new()).Take(4).Where(c=>!string.IsNullOrWhiteSpace(c.Text)).ToList();
         if(result.Choices.Count<2)throw new InvalidOperationException("Evento precisa de pelo menos duas escolhas.");
+        foreach(var choice in result.Choices)
+        {
+            choice.Id=Limit(choice.Id,60);choice.Text=Limit(choice.Text,120);choice.ResultText=Limit(choice.ResultText,500);
+            choice.CoinsDelta=Math.Clamp(choice.CoinsDelta,-50,50);choice.HealthDelta=Math.Clamp(choice.HealthDelta,-25,25);choice.EnergyDelta=Math.Clamp(choice.EnergyDelta,-25,25);
+        }
+        return result;
     }
     static string Limit(string? value,int length){var text=value??"";return text[..Math.Min(text.Length,length)];}
     static int StableSeed(long worldSeed,string nodeId,int eventCount)

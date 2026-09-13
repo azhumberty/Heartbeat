@@ -24,6 +24,7 @@ public partial class WorldController : Node
     // Top-Level Screens
     Control? _screen;
     CombatArenaController? _combat;
+    CancellationTokenSource? _eventCancel;
     string _activeAtlasNodeId = "";
 
     // Fast Save Access
@@ -185,9 +186,21 @@ public partial class WorldController : Node
         OpenProceduralEvent(node);
     }
 
-    void OpenProceduralEvent(AtlasNodeData node)
+    async void OpenProceduralEvent(AtlasNodeData node)
     {
-        var story=new ProceduralEventService().Create(new EventContext {Game=_game,Node=node,Assets=new ContentLibrary().Load()});
+        var loading=new Control();loading.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);var label=Ui.Text("O destino está tomando forma…",22);label.Position=new Vector2(70,610);loading.AddChild(label);_screen=loading;_uiLayer.AddChild(loading);
+        var context=new EventContext {Game=_game,Node=node,Assets=new ContentLibrary().Load()};
+        var cts=new CancellationTokenSource();_eventCancel=cts;
+        EventResult story;
+        try
+        {
+            IEventProvider provider=_game.Settings.UseOnlineAi?new GroqEventProvider():new OfflineEventProvider();
+            story=await provider.CreateAsync(context,_game.Settings,cts.Token);
+        }
+        catch(OperationCanceledException){return;}
+        finally{if(ReferenceEquals(_eventCancel,cts))_eventCancel=null;cts.Dispose();}
+        if(!GodotObject.IsInstanceValid(loading)||!loading.IsInsideTree())return;
+        loading.QueueFree();
         EventController? view=null;
         view=new EventController
         {
@@ -247,6 +260,7 @@ public partial class WorldController : Node
 
     void Close()
     {
+        _eventCancel?.Cancel();
         _screen?.QueueFree();
         _screen = null;
         _activeAtlasNodeId="";
