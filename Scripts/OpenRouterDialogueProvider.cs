@@ -24,7 +24,7 @@ public sealed class OpenRouterDialogueProvider : IDialogueProvider
             var result = JsonSerializer.Deserialize<DialogueResult>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             if (result == null || string.IsNullOrWhiteSpace(result.Dialogue))
                 throw new JsonException("Empty OpenRouter response");
-            result.ProviderStatus = "Online · OpenRouter (" + model + ")";
+            result.ProviderStatus = "Online · OpenRouter (" + OpenRouterClient.LastModel + ")";
             GD.Print("[AI] OpenRouter responded (" + model + ")");
             return DialogueValidator.Sanitize(result);
         }

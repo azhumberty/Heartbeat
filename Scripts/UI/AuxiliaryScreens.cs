@@ -70,7 +70,7 @@ public static class AuxiliaryScreens
             var r=await new OpenRouterDialogueProvider().ReplyAsync(new CharacterData { Name="Silas", Age=32 }, new CharacterState(), "Ola", settings);
             var ok=r.ProviderStatus.StartsWith("Online", StringComparison.OrdinalIgnoreCase);
             var line=ok
-                ? "OK · IA online. Silas: "+(r.Dialogue??"").Replace('\n',' ')
+                ? "OK · "+OpenRouterClient.LastModel+" · Silas: "+(r.Dialogue??"").Replace('\n',' ')
                 : "FALHOU · "+r.ProviderStatus;
             if(line.Length>180)line=line[..180]+"...";
             if(GodotObject.IsInstanceValid(status)) { status.Text=line; status.AddThemeColorOverride("font_color", ok?new Color("8fd19e"):new Color("e5b18b")); }
