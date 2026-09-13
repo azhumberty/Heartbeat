@@ -22,8 +22,6 @@ public static class SurfaceMaterials
         void vertex() {
             world = (MODEL_MATRIX * vec4(VERTEX,1.0)).xyz;
             world_normal = normalize(MODEL_NORMAL_MATRIX * NORMAL);
-            // Tree canopies sway very slightly. Ground vegetation shares this
-            // material but remains still because it lies below one metre.
             if(surface == 3 && world.y > 1.0) {
                 VERTEX.x += sin(TIME*0.65 + world.y*1.7 + world.z*.15) * .045;
                 VERTEX.z += cos(TIME*0.52 + world.x*.12) * .025;
@@ -34,26 +32,27 @@ public static class SurfaceMaterials
             vec2 uv = n.y > max(n.x,n.z) ? world.xz : (n.x > n.z ? world.zy : world.xy);
             float fine = noise(world*48.0);
             float variation = 0.91 + fine*0.13 + noise(world*2.5)*0.08;
-            if(surface == 1) { // wood grain along the long axis
+            if(surface == 1) {
                 variation = 0.78 + noise(vec3(uv.x*1.5, uv.y*75.0,0))*0.3 + fine*0.1;
-            } else if(surface == 2) { // small masonry courses
+            } else if(surface == 2) {
                 vec2 cell = uv / vec2(0.48,0.22);
                 cell.x += mod(floor(cell.y),2.0)*0.5;
                 vec2 edge = min(fract(cell),1.0-fract(cell));
                 vec2 aa = max(fwidth(cell),vec2(0.001));
                 float brick = smoothstep(0.015,0.015+aa.x,edge.x)*smoothstep(0.025,0.025+aa.y,edge.y);
                 variation = mix(0.58, variation * (0.92+hash(vec3(floor(cell),0))*0.14),brick);
-            } else if(surface == 3) { // grass flecks, without extra geometry
+            } else if(surface == 3) {
                 variation = 0.72+noise(world*4.0)*0.2+fine*0.26;
-            } else if(surface == 4) { // asphalt aggregate
+            } else if(surface == 4) {
                 variation = 0.8+fine*0.27;
-            } else if(surface == 5) { // paving joints at a consistent metre scale
+            } else if(surface == 5) {
                 vec2 cell = uv/0.8;
                 vec2 edge = min(fract(cell),1.0-fract(cell));
                 vec2 aa = max(fwidth(cell),vec2(0.001));
                 variation *= 0.75+0.25*smoothstep(0.008,0.008+aa.x,edge.x)*smoothstep(0.008,0.008+aa.y,edge.y);
             }
             ALBEDO = tint.rgb * variation;
+            ALPHA = 1.0;
             ROUGHNESS = surface == 1 ? 0.72 : 0.94;
         }
         """ };
@@ -70,7 +69,7 @@ public static class SurfaceMaterials
             "3a3a48" or "776857" or "8a8170" or "4a4a58" => 5,
             _ => 0
         };
-        if (type == 0) return Cache[color] = new StandardMaterial3D { AlbedoColor = new Color(color), Roughness = .8f };
+        if (type == 0) return Cache[color] = new StandardMaterial3D { AlbedoColor = new Color(color), Roughness = .8f, Transparency = BaseMaterial3D.TransparencyEnum.Disabled };
         var shader = new ShaderMaterial { Shader = Surface };
         shader.SetShaderParameter("tint", new Color(color)); shader.SetShaderParameter("surface", type);
         return Cache[color] = shader;
@@ -95,6 +94,8 @@ public static class SurfaceMaterials
                 if(grass>0.5){
                     float blade=smoothstep(.48,.18,abs(UV.x-.5)) * smoothstep(1.0,.18,UV.y);
                     ALPHA_SCISSOR_THRESHOLD=.35; ALPHA=blade;
+                } else {
+                    ALPHA = 1.0;
                 }
                 float fleck=.86+hash(floor(UV*vec2(18.0,27.0)))*.2;
                 ALBEDO=tint.rgb*fleck; ROUGHNESS=.96;
@@ -108,7 +109,7 @@ public static class SurfaceMaterials
 
     public static Material ForestGround() => Pbr("forest_floor",new Color("87927d"),new Vector3(5.5f,5.5f,5.5f), true);
     public static Material MossyRock() => Pbr("mossy_rock",new Color("92978d"),new Vector3(1.8f,1.8f,1.8f), true);
-    public static Material Bark() => Pbr("bark_brown_01",new Color("88786a"),new Vector3(2.2f,2.2f,2.2f), false); // Bark shouldn't be triplanar
+    public static Material Bark() => Pbr("bark_brown_01",new Color("88786a"),new Vector3(2.2f,2.2f,2.2f), false);
 
     static Material Pbr(string id,Color tint,Vector3 scale, bool triplanar = false)
     {
@@ -116,13 +117,17 @@ public static class SurfaceMaterials
         string root=$"res://Assets/Materials/{id}/{id}";
         var material=new StandardMaterial3D
         {
-            AlbedoColor=tint, AlbedoTexture=GD.Load<Texture2D>(root+"_diff_1k.jpg"),
+            AlbedoColor=new Color(tint.R, tint.G, tint.B, 1f),
+            AlbedoTexture=GD.Load<Texture2D>(root+"_diff_1k.jpg"),
             NormalEnabled=true, NormalTexture=GD.Load<Texture2D>(root+"_nor_gl_1k.jpg"),
             Roughness=1, RoughnessTexture=GD.Load<Texture2D>(root+"_rough_1k.jpg"),
             Uv1Scale=scale, TextureFilter=BaseMaterial3D.TextureFilterEnum.LinearWithMipmapsAnisotropic,
             TextureRepeat=true,
             Uv1Triplanar = triplanar,
-            Uv1TriplanarSharpness = 1.0f // Blend well
+            Uv1TriplanarSharpness = 1.0f,
+            Transparency = BaseMaterial3D.TransparencyEnum.Disabled,
+            CullMode = BaseMaterial3D.CullModeEnum.Back,
+            DepthDrawMode = BaseMaterial3D.DepthDrawModeEnum.OpaqueOnly
         };
         return PbrCache[id]=material;
     }

@@ -1,0 +1,246 @@
+[
+  {
+    "Id": "g41",
+    "Name": "Toxina verde",
+    "Category": "Control",
+    "Rarity": "Comum",
+    "Cost": 14,
+    "Description": "Envenena o alvo ao longo dos turnos.",
+    "Effects": [{"Kind": "Poison", "Value": 3, "Duration": 2, "Target": "Enemy"}],
+    "Tags": ["Control", "veneno"],
+    "Animation": "Pulso",
+    "FrameColor": "5f9a56",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g42",
+    "Name": "Lâmina tóxica",
+    "Category": "Attack",
+    "Rarity": "Comum",
+    "Cost": 18,
+    "Description": "Corte que deixa veneno na ferida.",
+    "Effects": [
+      {"Kind": "Damage", "Value": 11, "Duration": 1, "Target": "Enemy"},
+      {"Kind": "Poison", "Value": 2, "Duration": 2, "Target": "Enemy"}
+    ],
+    "Tags": ["Attack", "veneno"],
+    "Animation": "Impacto",
+    "FrameColor": "5f9a56",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g43",
+    "Name": "Hemorragia",
+    "Category": "Control",
+    "Rarity": "Comum",
+    "Cost": 16,
+    "Description": "Abre um sangramento persistente.",
+    "Effects": [{"Kind": "Bleeding", "Value": 4, "Duration": 3, "Target": "Enemy"}],
+    "Tags": ["Control", "sangue"],
+    "Animation": "Pulso",
+    "FrameColor": "a64d4d",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g44",
+    "Name": "Corte vital",
+    "Category": "Attack",
+    "Rarity": "Rara",
+    "Cost": 20,
+    "Description": "Dano e sangramento profundo.",
+    "Effects": [
+      {"Kind": "Damage", "Value": 14, "Duration": 1, "Target": "Enemy"},
+      {"Kind": "Bleeding", "Value": 3, "Duration": 2, "Target": "Enemy"}
+    ],
+    "Tags": ["Attack", "sangue"],
+    "Animation": "Impacto",
+    "FrameColor": "a64d4d",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g45",
+    "Name": "Sifão de vida",
+    "Category": "Attack",
+    "Rarity": "Rara",
+    "Cost": 22,
+    "Description": "Rouba vitalidade do inimigo.",
+    "Effects": [
+      {"Kind": "Damage", "Value": 12, "Duration": 1, "Target": "Enemy"},
+      {"Kind": "Heal", "Value": 8, "Duration": 1, "Target": "Self"}
+    ],
+    "Tags": ["Attack", "lifesteal"],
+    "Animation": "Luz",
+    "FrameColor": "c45a8c",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g46",
+    "Name": "Mordida carmesim",
+    "Category": "Attack",
+    "Rarity": "Comum",
+    "Cost": 16,
+    "Description": "Golpe que devolve um pouco de Vida.",
+    "Effects": [
+      {"Kind": "Damage", "Value": 10, "Duration": 1, "Target": "Enemy"},
+      {"Kind": "Heal", "Value": 5, "Duration": 1, "Target": "Self"}
+    ],
+    "Tags": ["Attack", "lifesteal"],
+    "Animation": "Impacto",
+    "FrameColor": "c45a8c",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g47",
+    "Name": "Drenar essência",
+    "Category": "Attack",
+    "Rarity": "Épica",
+    "Cost": 26,
+    "Description": "Grande roubo de vida.",
+    "Effects": [
+      {"Kind": "Damage", "Value": 16, "Duration": 1, "Target": "Enemy"},
+      {"Kind": "Heal", "Value": 12, "Duration": 1, "Target": "Self"}
+    ],
+    "Tags": ["Attack", "lifesteal"],
+    "Animation": "Luz",
+    "FrameColor": "c45a8c",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g48",
+    "Name": "Expor nervo",
+    "Category": "Control",
+    "Rarity": "Comum",
+    "Cost": 12,
+    "Description": "Deixa o inimigo vulnerável.",
+    "Effects": [{"Kind": "Vulnerable", "Value": 1, "Duration": 2, "Target": "Enemy"}],
+    "Tags": ["Control", "debuff"],
+    "Animation": "Pulso",
+    "FrameColor": "a67fc2",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g49",
+    "Name": "Golpe atordoante",
+    "Category": "Attack",
+    "Rarity": "Rara",
+    "Cost": 24,
+    "Description": "Dano e chance de parar o inimigo.",
+    "Effects": [
+      {"Kind": "Damage", "Value": 10, "Duration": 1, "Target": "Enemy"},
+      {"Kind": "Stunned", "Value": 1, "Duration": 1, "Target": "Enemy"}
+    ],
+    "Tags": ["Attack", "debuff"],
+    "Animation": "Impacto",
+    "FrameColor": "a67fc2",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g50",
+    "Name": "Névoa debilitante",
+    "Category": "Control",
+    "Rarity": "Comum",
+    "Cost": 15,
+    "Description": "Veneno leve e vulnerabilidade.",
+    "Effects": [
+      {"Kind": "Poison", "Value": 2, "Duration": 2, "Target": "Enemy"},
+      {"Kind": "Vulnerable", "Value": 1, "Duration": 1, "Target": "Enemy"}
+    ],
+    "Tags": ["Control", "debuff"],
+    "Animation": "Pulso",
+    "FrameColor": "5f9a56",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g51",
+    "Name": "Fúria controlada",
+    "Category": "Control",
+    "Rarity": "Comum",
+    "Cost": 14,
+    "Description": "Fortalece seus próximos golpes.",
+    "Effects": [{"Kind": "Strengthened", "Value": 2, "Duration": 2, "Target": "Self"}],
+    "Tags": ["Control", "buff"],
+    "Animation": "Pulso",
+    "FrameColor": "d4a05a",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g52",
+    "Name": "Sacrifício sanguinário",
+    "Category": "Attack",
+    "Rarity": "Rara",
+    "Cost": 18,
+    "Description": "Alto dano com sangramento residual.",
+    "Effects": [
+      {"Kind": "Damage", "Value": 18, "Duration": 1, "Target": "Enemy"},
+      {"Kind": "Bleeding", "Value": 2, "Duration": 2, "Target": "Enemy"}
+    ],
+    "Tags": ["Attack", "sangue"],
+    "Animation": "Impacto",
+    "FrameColor": "a64d4d",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g53",
+    "Name": "Beijo da serpe",
+    "Category": "Attack",
+    "Rarity": "Comum",
+    "Cost": 15,
+    "Description": "Lifesteal com toxina.",
+    "Effects": [
+      {"Kind": "Damage", "Value": 8, "Duration": 1, "Target": "Enemy"},
+      {"Kind": "Heal", "Value": 4, "Duration": 1, "Target": "Self"},
+      {"Kind": "Poison", "Value": 2, "Duration": 2, "Target": "Enemy"}
+    ],
+    "Tags": ["Attack", "lifesteal", "veneno"],
+    "Animation": "Luz",
+    "FrameColor": "5f9a56",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g54",
+    "Name": "Paralisia rúnica",
+    "Category": "Control",
+    "Rarity": "Épica",
+    "Cost": 28,
+    "Description": "Atordoa e vulnerabiliza.",
+    "Effects": [
+      {"Kind": "Stunned", "Value": 1, "Duration": 1, "Target": "Enemy"},
+      {"Kind": "Vulnerable", "Value": 1, "Duration": 2, "Target": "Enemy"}
+    ],
+    "Tags": ["Control", "debuff"],
+    "Animation": "Pulso",
+    "FrameColor": "a67fc2",
+    "Condition": "Sempre",
+    "CanUpgrade": true
+  },
+  {
+    "Id": "g55",
+    "Name": "Ceifar",
+    "Category": "Attack",
+    "Rarity": "Rara",
+    "Cost": 22,
+    "Description": "Executa inimigos feridos com lifesteal.",
+    "Effects": [
+      {"Kind": "Damage", "Value": 20, "Duration": 1, "Target": "Enemy"},
+      {"Kind": "Heal", "Value": 6, "Duration": 1, "Target": "Self"}
+    ],
+    "Tags": ["Attack", "lifesteal"],
+    "Animation": "Impacto",
+    "FrameColor": "c45a8c",
+    "Condition": "Inimigo ferido",
+    "CanUpgrade": true
+  }
+]
