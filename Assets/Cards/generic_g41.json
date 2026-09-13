@@ -11,7 +11,8 @@
     "Animation": "Pulso",
     "FrameColor": "5f9a56",
     "Condition": "Sempre",
-    "CanUpgrade": true
+    "CanUpgrade": true,
+    "ImagePath": "res://Assets/ArtKit/UI/Cards/Faces/g41_toxina_verde.png"
   },
   {
     "Id": "g42",
@@ -28,7 +29,8 @@
     "Animation": "Impacto",
     "FrameColor": "5f9a56",
     "Condition": "Sempre",
-    "CanUpgrade": true
+    "CanUpgrade": true,
+    "ImagePath": "res://Assets/ArtKit/UI/Cards/Faces/g42_lamina_toxica.png"
   },
   {
     "Id": "g43",
@@ -76,7 +78,8 @@
     "Animation": "Luz",
     "FrameColor": "c45a8c",
     "Condition": "Sempre",
-    "CanUpgrade": true
+    "CanUpgrade": true,
+    "ImagePath": "res://Assets/ArtKit/UI/Cards/Faces/g45_sifao_de_vida.png"
   },
   {
     "Id": "g46",
@@ -124,7 +127,8 @@
     "Animation": "Pulso",
     "FrameColor": "a67fc2",
     "Condition": "Sempre",
-    "CanUpgrade": true
+    "CanUpgrade": true,
+    "ImagePath": "res://Assets/ArtKit/UI/Cards/Faces/g48_expor_nervo.png"
   },
   {
     "Id": "g49",
@@ -158,7 +162,8 @@
     "Animation": "Pulso",
     "FrameColor": "5f9a56",
     "Condition": "Sempre",
-    "CanUpgrade": true
+    "CanUpgrade": true,
+    "ImagePath": "res://Assets/ArtKit/UI/Cards/Faces/g50_nevoa_debilitante.png"
   },
   {
     "Id": "g51",
@@ -207,7 +212,8 @@
     "Animation": "Luz",
     "FrameColor": "5f9a56",
     "Condition": "Sempre",
-    "CanUpgrade": true
+    "CanUpgrade": true,
+    "ImagePath": "res://Assets/ArtKit/UI/Cards/Faces/g53_beijo_da_serpe.png"
   },
   {
     "Id": "g54",
@@ -224,7 +230,8 @@
     "Animation": "Pulso",
     "FrameColor": "a67fc2",
     "Condition": "Sempre",
-    "CanUpgrade": true
+    "CanUpgrade": true,
+    "ImagePath": "res://Assets/ArtKit/UI/Cards/Faces/g54_paralisia_runica.png"
   },
   {
     "Id": "g55",
@@ -241,6 +248,7 @@
     "Animation": "Impacto",
     "FrameColor": "c45a8c",
     "Condition": "Inimigo ferido",
-    "CanUpgrade": true
+    "CanUpgrade": true,
+    "ImagePath": "res://Assets/ArtKit/UI/Cards/Faces/g55_ceifar.png"
   }
 ]

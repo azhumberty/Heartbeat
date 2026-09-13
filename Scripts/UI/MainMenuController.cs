@@ -11,7 +11,7 @@ public partial class MainMenuController : Control
 	public override void _Ready()
 	{
 		SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);Input.MouseMode=Input.MouseModeEnum.Visible;
-		var backdrop=new ColorRect {Color=new Color("182735")};
+		var backdrop=new TextureRect {Texture=ChromaArt.LoadArt("UI/Frames/menu_background.png"),ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.KeepAspectCovered,Modulate=new Color(.62f,.68f,.74f)};
 		backdrop.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);AddChild(backdrop);
 		var veil=new ColorRect {Color=new Color("071015b8"),MouseFilter=MouseFilterEnum.Ignore};veil.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);AddChild(veil);
 		var center=new CenterContainer();center.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);AddChild(center);

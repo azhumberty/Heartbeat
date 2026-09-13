@@ -97,12 +97,9 @@ public partial class CardView : PanelContainer
         }
         else
         {
-            // Fallback generic art based on Category
-            var fallbackBg = new ColorRect { Color = new Color(0.1f, 0.12f, 0.15f) };
-            artFrame.AddChild(fallbackBg);
-            var glyph = new CardGlyph { Category = Card.Category, Tint = color, MouseFilter = MouseFilterEnum.Ignore };
-            artFrame.AddChild(glyph);
-            glyph.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+            var category = Card.Category switch { CardCategory.Attack => "attack", CardCategory.Defense => "defense", CardCategory.Mana => "mana", CardCategory.Heal => "heal", CardCategory.Control => "control", _ => "poison" };
+            var picture = new TextureRect { Texture = ChromaArt.LoadArt($"UI/Cards/cardart_{category}.png"), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered };
+            artFrame.AddChild(picture); picture.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         }
 
         // Category/Rarity Ribbon

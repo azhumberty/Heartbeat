@@ -44,6 +44,19 @@ public partial class ImageManager : Node
 
 		foreach (var candidate in BuildCandidates(key))
 		{
+			var globalPath = ProjectSettings.GlobalizePath(candidate);
+			// Grok assets are JPEG payloads kept under historical .png names.
+			// Load by signature before ResourceLoader so Godot does not emit a false corrupt-PNG error.
+			if (System.IO.File.Exists(globalPath) && IsJpeg(globalPath))
+			{
+				using var image = LoadImage(globalPath);
+				if (image != null)
+				{
+					var texture = ImageTexture.CreateFromImage(image);
+					_cache[key] = texture;
+					return texture;
+				}
+			}
 			if (ResourceLoader.Exists(candidate))
 			{
 				var tex = ResourceLoader.Load<Texture2D>(candidate);
@@ -55,10 +68,9 @@ public partial class ImageManager : Node
 			}
 			
 			// Fallback: Raw load for dynamically generated images by AI agents
-			var globalPath = ProjectSettings.GlobalizePath(candidate);
 			if (System.IO.File.Exists(globalPath))
 			{
-				var img = Image.LoadFromFile(globalPath);
+				using var img = LoadImage(globalPath);
 				if (img != null)
 				{
 					var tex = ImageTexture.CreateFromImage(img);
@@ -71,6 +83,22 @@ public partial class ImageManager : Node
 		GD.PushWarning($"[ImageManager] IMAGE MISSING: '{relativeOrLogicalPath}' (tried under {ArtKitRoot}). Using placeholder.");
 		_cache[key] = _missingPlaceholder;
 		return _missingPlaceholder!;
+	}
+
+	public static Image? LoadImage(string absolutePath)
+	{
+		if (!System.IO.File.Exists(absolutePath)) return null;
+		if (!IsJpeg(absolutePath)) return Image.LoadFromFile(absolutePath);
+		var image = new Image();
+		if (image.LoadJpgFromBuffer(System.IO.File.ReadAllBytes(absolutePath)) == Error.Ok) return image;
+		image.Dispose();
+		return null;
+	}
+
+	static bool IsJpeg(string absolutePath)
+	{
+		using var stream = System.IO.File.OpenRead(absolutePath);
+		return stream.Length >= 3 && stream.ReadByte() == 0xff && stream.ReadByte() == 0xd8 && stream.ReadByte() == 0xff;
 	}
 
 	/// <summary>Convenience: Interiors/Backgrounds lookup by bare filename (e.g. tavern.png).</summary>

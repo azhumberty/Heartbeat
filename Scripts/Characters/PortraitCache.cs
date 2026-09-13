@@ -27,7 +27,7 @@ public sealed class PortraitCache
             if (_cache.TryGetValue(path, out var cached)) return cached;
             var full = ProjectSettings.GlobalizePath(path);
             if (!File.Exists(full)) continue;
-            using var image = Image.LoadFromFile(full); if (image == null || image.IsEmpty()) continue;
+            using var image = ImageManager.LoadImage(full); if (image == null || image.IsEmpty()) continue;
             // Auto-crop is valid for portrait images (removes transparent margins)
             var rect = image.GetUsedRect(); if (rect.Size.X > 0 && rect.Size.Y > 0) { using var cropped = image.GetRegion(rect); return _cache[path] = ImageTexture.CreateFromImage(cropped); }
         }
@@ -47,7 +47,7 @@ public sealed class PortraitCache
         var full = ProjectSettings.GlobalizePath(path);
         if (!File.Exists(full)) return null;
 
-        using var image = Image.LoadFromFile(full);
+        using var image = ImageManager.LoadImage(full);
         if (image == null || image.IsEmpty()) return null;
 
         // NO crop — preserve entire sheet for consistent cell division
@@ -66,7 +66,7 @@ public sealed class PortraitCache
         var cacheKey = "raw:" + absolutePath;
         if (_cache.TryGetValue(cacheKey, out var cached)) return cached;
 
-        using var image = Image.LoadFromFile(absolutePath);
+        using var image = ImageManager.LoadImage(absolutePath);
         if (image == null || image.IsEmpty()) return null;
         var tex = ImageTexture.CreateFromImage(image);
         _cache[cacheKey] = tex;
