@@ -1,4 +1,5 @@
 ﻿using Godot;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -53,7 +54,7 @@ public static class WorldGenerationService
                 offline.ProviderStatus = "Endpoint inválido · mundo criado offline";
                 return offline;
             }
-            using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(20) };
+            using var client = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(20) };
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Environment.GetEnvironmentVariable("GROQ_API_KEY"));
             var selected = selectedIds.Take(12).ToArray();
             var payload = new

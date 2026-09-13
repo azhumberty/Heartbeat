@@ -28,6 +28,7 @@ public partial class MainMenuController : Control
 		var worlds=new WorldStore();worlds.ImportLegacy(_saves);
 		var count=worlds.Count;
 		var note=Ui.Text(count==0?"Nenhum mundo ainda.":count==1?"1 mundo a espera.":$"{count} mundos salvos.",14);note.HorizontalAlignment=HorizontalAlignment.Center;note.AddThemeColorOverride("font_color",new Color("9da8ae"));body.AddChild(note);
+		GD.Print("[HEARTBEAT] P1 mundos ligado");
 		Modulate=new Color(1,1,1,0);CreateTween().TweenProperty(this,"modulate:a",1f,.3);
 	}
 
