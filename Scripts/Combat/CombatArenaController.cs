@@ -38,6 +38,7 @@ public partial class CombatArenaController : Control
         bg.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         bg.Texture = ChromaArt.LoadArt(ChromaArt.BackgroundForArena(Manager.State.Arena));
         AddChild(bg);
+        if (Game.Settings.UseImageAi) _ = ApplyAiBackground(bg);
 
         // 2D Enemy Sprite with chroma-key (#00FF00) cutout
         _enemy = new TextureRect {
@@ -61,6 +62,22 @@ public partial class CombatArenaController : Control
             ChromaArt.ApplyChroma(_enemy);
         }
         AddChild(_enemy);
+    }
+
+    async Task ApplyAiBackground(TextureRect bg)
+    {
+        try
+        {
+            var id = Manager.State.EncounterId.StartsWith("atlas_") ? Manager.State.EncounterId["atlas_".Length..] : Manager.State.EncounterId;
+            var node = Game.AtlasNodes.FirstOrDefault(n => n.Id == id) ?? new AtlasNodeData { Id = id, Kind = AtlasNodeKind.Combat, Title = Manager.State.EnemyId };
+            var tex = await BackgroundGenerationService.FetchAsync(Game, node, null, CancellationToken.None);
+            if (tex != null && GodotObject.IsInstanceValid(bg))
+            {
+                bg.Texture = tex;
+                bg.Modulate = new Color(0.9f, 0.9f, 0.92f);
+            }
+        }
+        catch (Exception e) { GD.PushWarning("[ImageAI] arena: " + e.GetType().Name); }
     }
     PanelContainer StatPanel(string title, out Label nameLabel, out Label hpLabel, out ProgressBar hpBar, out Label manaLabel, out ProgressBar manaBar, bool withMana)
     {

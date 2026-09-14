@@ -123,6 +123,17 @@ public partial class CampaignChecks : Node
             var available=p5.AtlasNodes.First(n=>!n.Persistent&&n.Status==AtlasNodeStatus.Available);
             AtlasGenerator.Complete(p5,available.Id);
             Require(p5.StoryLog.Count>0&&p5.CurrentStoryBeat.Length>0,"P5: Atlas vivo nao registou o no.");
+            var look=CanonicalLook.Ensure(p5.GeneratedCast[0],p5.WorldLore);
+            Require(look.Length>24&&p5.GeneratedCast[0].CanonicalAppearance.Length>0,"P6: CanonicalAppearance vazia.");
+            var k1=ImageCache.Key(ImageKind.Background,"fog road",1280,720,1);
+            var k2=ImageCache.Key(ImageKind.Background,"fog road",1280,720,1);
+            var k3=ImageCache.Key(ImageKind.Portrait,"fog road",768,1024,1);
+            Require(k1==k2&&k1!=k3,"P6: cache key instavel.");
+            var bgPrompt=BackgroundGenerationService.PromptFor(p5,p5boss);
+            Require(bgPrompt.Contains(p5.WorldLore.RegionName,StringComparison.OrdinalIgnoreCase),"P6: fundo sem o lore do mundo.");
+            var offlineBytes=await new OfflineImageProvider().GenerateAsync("test",64,64,1,ImageKind.Background,CancellationToken.None);
+            Require(offlineBytes==null,"P6: provider offline nao deve baixar.");
+            Require(ImageAi.Lock("a hall",ImageKind.Portrait).Contains("portrait",StringComparison.OrdinalIgnoreCase),"P6: style lock ausente.");
             save.Player.Coins=100;var shopView=new CardShopController{Game=save,MerchantId="merchant"};AddChild(shopView);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(shopView.IsInsideTree(),"Mercador não abriu.");
             var buyButton=shopView.FindChildren("*","Button",true,false).OfType<Button>().FirstOrDefault(button=>button.Text.StartsWith("Comprar",StringComparison.Ordinal));Require(buyButton!=null,"Mercador não mostrou uma compra.");var coinsBefore=save.Player.Coins;buyButton!.EmitSignal(Button.SignalName.Pressed);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(save.Player.Coins<coinsBefore,"Compra no mercador não foi processada.");
             var closeButton=shopView.FindChildren("*","Button",true,false).OfType<Button>().FirstOrDefault(button=>button.Text.StartsWith("Fechar",StringComparison.Ordinal));Require(closeButton!=null,"Mercador não mostrou o botão Fechar.");closeButton!.EmitSignal(Button.SignalName.Pressed);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(!GodotObject.IsInstanceValid(shopView)||!shopView.IsInsideTree(),"Mercador permaneceu aberto após uma compra.");

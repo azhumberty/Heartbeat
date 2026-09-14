@@ -88,6 +88,10 @@ public sealed class CharacterData
     public PersonalityProfile PersonalityProfile { get; set; } = new();
     /// <summary>Topics and limits discovered naturally through conversation.</summary>
     public CharacterPreferences Preferences { get; set; } = new();
+    /// <summary>Stable English visual lock used by image AI. Never rewrite after first set.</summary>
+    public string CanonicalAppearance { get; set; } = "";
+    /// <summary>Absolute or user:// path to a generated portrait PNG.</summary>
+    public string GeneratedPortraitPath { get; set; } = "";
 }
 
 public sealed class CharacterImage
@@ -296,6 +300,7 @@ public sealed class GameSave
     public List<GeneratedEnemy> GeneratedEnemies { get; set; } = new();
     public List<string> StoryLog { get; set; } = new();
     public string CurrentStoryBeat { get; set; } = "";
+    public Dictionary<string, string> ImagePaths { get; set; } = new();
 }
 
 public sealed class WorldLore
@@ -335,4 +340,6 @@ public sealed class GameSettings { public float Volume { get; set; } = 0.8f; pub
     public string OpenRouterModel { get; set; } = "z-ai/glm-5.2:free";
     /// <summary>Pasted in Opções. Stored only in user://settings, never committed.</summary>
     public string OpenRouterApiKey { get; set; } = "";
+    /// <summary>Pollinations Flux backgrounds and portraits. Free, no key.</summary>
+    public bool UseImageAi { get; set; } = true;
 }

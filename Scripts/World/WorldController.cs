@@ -84,6 +84,7 @@ public partial class WorldController : Node
             ResumeCombat();
         }
         else _atlas.Visible = true;
+        _ = PrefetchWorldImages();
     }
     
     void OnPeriodChanged(string period)
@@ -225,14 +226,13 @@ public partial class WorldController : Node
                 : (_game.Settings.UseOnlineAi ? new GroqEventProvider() : new OfflineEventProvider());
             // Run event generation and image generation concurrently
             var eventTask = provider.CreateAsync(context,_game.Settings,cts.Token);
-            var fallbackPrompt = ImageGenerationService.BuildPromptForNode(node, _game.WorldLore?.RegionName ?? "medieval kingdom");
+            var fallbackPrompt = BackgroundGenerationService.PromptFor(_game, node);
             story = await eventTask;
             
-            // Apply dynamic Pollinations background (fire-and-forget race with existing bg)
-            if (_game.Settings.UseOnlineAi)
+            if (_game.Settings.UseImageAi)
             {
                 var imgPrompt = !string.IsNullOrWhiteSpace(story.ImagePrompt) ? story.ImagePrompt : fallbackPrompt;
-                _ = ApplyPollinationsBackground(imgPrompt, cts.Token);
+                _ = ApplyGeneratedBackground(node, imgPrompt, cts.Token);
             }
         }
         catch(OperationCanceledException){return;}
@@ -251,20 +251,56 @@ public partial class WorldController : Node
         _screen=view;_uiLayer.AddChild(view);
     }
 
-    async Task ApplyPollinationsBackground(string prompt, CancellationToken ct)
+    async Task ApplyGeneratedBackground(AtlasNodeData node, string? eventPrompt, CancellationToken ct)
     {
         try
         {
-            var tex = await ImageGenerationService.FetchBackgroundAsync(prompt, ct);
+            var tex = await BackgroundGenerationService.FetchAsync(_game, node, eventPrompt, ct);
             if (tex != null && IsInsideTree() && GodotObject.IsInstanceValid(_vnBackground))
             {
                 _vnBackground.Texture = tex;
-                _vnBackground.Modulate = new Color(0.85f, 0.85f, 0.88f);
-                GD.Print("[Pollinations] Background applied to scene.");
+                _vnBackground.Modulate = new Color(0.92f, 0.92f, 0.94f);
             }
         }
         catch (OperationCanceledException) { }
-        catch (Exception ex) { GD.PushWarning($"[Pollinations] Background apply failed: {ex.Message}"); }
+        catch (Exception ex) { GD.PushWarning("[ImageAI] fundo: " + ex.Message); }
+    }
+
+    async Task PrefetchWorldImages()
+    {
+        if (!_game.Settings.UseImageAi) return;
+        try
+        {
+            foreach (var person in _game.GeneratedCast.Take(3))
+                await PortraitGenerationService.EnsureAsync(person, _game, CancellationToken.None);
+        }
+        catch (Exception ex) { GD.PushWarning("[ImageAI] prefetch: " + ex.Message); }
+    }
+
+    async Task ApplyPortrait(NpcActor actor)
+    {
+        if (!_game.Settings.UseImageAi || !actor.Data.Tags.Contains("generated")) return;
+        try
+        {
+            var tex = await PortraitGenerationService.EnsureAsync(actor.Data, _game, CancellationToken.None);
+            if (tex != null && IsInsideTree() && GodotObject.IsInstanceValid(_vnCharacter))
+            {
+                _vnCharacter.Material = null;
+                _vnCharacter.Texture = tex;
+            }
+        }
+        catch (Exception ex) { GD.PushWarning("[ImageAI] retrato: " + ex.Message); }
+    }
+
+    async Task PrefetchSpecials(CharacterData person)
+    {
+        if (!_game.Settings.UseImageAi) return;
+        foreach (var beat in SocialBeatService.BeatsFor(person))
+        {
+            if (!_game.UnlockedCinematics.Contains(SocialBeatService.Key(person.Id, beat.Id))) continue;
+            try { await PortraitGenerationService.SpecialAsync(person, _game, beat.Id, beat.Text, CancellationToken.None); }
+            catch { }
+        }
     }
     void OnNpcInteracted(NpcActor actor)
     {
@@ -280,6 +316,8 @@ public partial class WorldController : Node
             if(actor.Data.MainImagePath.Contains("chroma",StringComparison.OrdinalIgnoreCase))ChromaArt.ApplyChroma(_vnCharacter);
         }
         PortraitMotion.Breath(_vnCharacter);
+        _ = ApplyPortrait(actor);
+        _ = PrefetchSpecials(actor.Data);
 
         DialogueController? dialog = null;
         dialog = new DialogueController

@@ -184,6 +184,7 @@ public sealed class SaveManager
         save.GeneratedCast ??= new();
         save.GeneratedEnemies ??= new();
         save.StoryLog ??= new();
+        save.ImagePaths ??= new();
         save.SaveVersion = 12;
     }
 }

@@ -1,17 +1,20 @@
 # HEARTBEAT — PRÓXIMAS TAREFAS
 
-## P0–P4 feitos.
+## P0–P5 feitos.
 
-## P5 — Generative world (feito neste passe)
+## P6 — Image AI (feito neste passe)
 
-1. [x] StoryDirector monta o mundo a partir do pedido.
-2. [x] Atlas vivo: títulos/descrições/locais seguem lore; nós futuros mudam depois de cada caminho.
-3. [x] Eventos procedurais citam região e ameaça.
-4. [x] Minijogo da lanterna (risco 50%).
-5. [x] NPC gerado + mercador gerado neste mundo.
-6. [x] Inimigo de expedição + boss gerados; combate usa esses IDs.
-7. [x] Save v12 (saves antigos apagados).
+1. [x] IImageAiProvider (Pollinations Flux grátis / offline).
+2. [x] BackgroundGenerationService contextual ao lore.
+3. [x] Cache SHA em user://ImageCache.
+4. [x] CanonicalAppearance estável por personagem.
+5. [x] Retratos gerados para o elenco do mundo.
+6. [x] Imagens especiais dos momentos.
+7. [x] Fundos de evento e de combate.
+8. [x] Style lock fotorrealista (sem texto/logo).
 
-## P6 — Image AI (seguinte)
+Opções: “Imagens IA (Pollinations, gratis, sem chave)” ligado por defeito.
 
-IImageAiProvider, retratos e fundos contextuais com cache.
+## P7 — Áudio opcional (seguinte)
+
+ITtsProvider, voz por NPC, async.

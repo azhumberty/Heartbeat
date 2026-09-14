@@ -156,6 +156,7 @@ public static class StoryDirector
             Tags = new() { "generated", "relationship", "adulto-ficticio" },
             HomeLocation = "Camp"
         };
+        wanderer.CanonicalAppearance = $"adult man, 24, lean inhabitant of {lore.RegionName}, dark hair, weather-worn cloak, lantern light on the face, distinct nose, tired eyes, medieval traveler";
         wanderer.Images.Add(new CharacterImage { OriginalPath = wanderer.MainImagePath, ProcessedPath = wanderer.MainImagePath, Tags = new() { "neutral", "chroma" } });
         wanderer.PersonalityProfile = new() { Extraversion = 30, Empathy = 70, Courage = 45, Pride = 35, Romanticism = 55, InitializedFromLegacy = true };
         var merchant = new CharacterData
@@ -173,6 +174,7 @@ public static class StoryDirector
             Tags = new() { "generated", "merchant", "adulto-ficticio" },
             HomeLocation = "Camp"
         };
+        merchant.CanonicalAppearance = $"adult man, 38, travelling merchant of {lore.RegionName}, bronze skin, gold earrings, patterned sash, knowing smile, market dust, photoreal face";
         merchant.Images.Add(new CharacterImage { OriginalPath = merchant.MainImagePath, ProcessedPath = merchant.MainImagePath, Tags = new() { "neutral", "chroma" } });
         SocialModelMigrator.Migrate(wanderer);
         SocialModelMigrator.Migrate(merchant);

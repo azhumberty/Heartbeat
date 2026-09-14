@@ -41,6 +41,7 @@ public static class AuxiliaryScreens
             settings.OpenRouterModel = OpenRouterClient.DefaultModel;
 
         box.AddChild(Toggle("Usar OpenRouter (gratis)", settings.UseOpenRouter, v=>{ settings.UseOpenRouter=v; Persist(); }));
+        box.AddChild(Toggle("Imagens IA (Pollinations, gratis, sem chave)", settings.UseImageAi, v=>{ settings.UseImageAi=v; Persist(); }));
         box.AddChild(Ui.Body("Chave: openrouter.ai/keys  —  cola e grava. O modelo gratuito muda sozinho se um sair do ar.", 13));
         box.AddChild(Field("Chave OpenRouter", settings.OpenRouterApiKey, t=>{ settings.OpenRouterApiKey=t.Trim(); Persist(); }, secret:true, "sk-or-v1-..."));
         box.AddChild(Field("Modelo", settings.OpenRouterModel, t=>{ settings.OpenRouterModel=t.Trim(); Persist(); }));
@@ -138,6 +139,12 @@ public static class AuxiliaryScreens
                 var label=Ui.Text(line, 14);
                 label.AddThemeColorOverride("font_color", open ? new Color("e6c27a") : new Color("8a96a0"));
                 list.AddChild(label);
+                if (open && game.ImagePaths.TryGetValue("special:"+c.Id+":"+beat.Id, out var specialPath))
+                {
+                    var specialTex = new PortraitCache().LoadRaw(specialPath) ?? new PortraitCache().LoadRaw(ProjectSettings.GlobalizePath(specialPath));
+                    if (specialTex != null)
+                        list.AddChild(new TextureRect { Texture=specialTex, CustomMinimumSize=new Vector2(0, 200), ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize, StretchMode=TextureRect.StretchModeEnum.KeepAspectCentered });
+                }
             }
         }
         foreach(var legacy in game.UnlockedCinematics.Where(k=>!k.Contains(':')))

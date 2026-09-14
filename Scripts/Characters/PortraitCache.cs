@@ -11,6 +11,11 @@ public sealed class PortraitCache
     /// </summary>
     public Texture2D Get(CharacterData c, CharacterState? state = null, bool cinematic = false)
     {
+        if (!string.IsNullOrWhiteSpace(c.GeneratedPortraitPath))
+        {
+            var generated = LoadRaw(c.GeneratedPortraitPath) ?? LoadRaw(ProjectSettings.GlobalizePath(c.GeneratedPortraitPath));
+            if (generated != null) return generated;
+        }
         var outfit = Wardrobe.Resolve(c, state?.CurrentOutfitId);
         if (!cinematic && outfit != null && !outfit.UseLegacy && !string.IsNullOrEmpty(outfit.Idle.Cutout))
         {
