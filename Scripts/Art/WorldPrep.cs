@@ -35,7 +35,7 @@ public static class WorldPrep
                 768, 1024, true));
         }
 
-        foreach (var foe in game.GeneratedEnemies.Take(1))
+        foreach (var foe in game.GeneratedEnemies.Take(3))
         {
             jobs.Add(("enemy:" + foe.Id, ImageKind.Portrait,
                 $"photoreal dark-fantasy creature named {foe.Name}, {lore.Threat}, isolated cutout, solid chroma-key green background #00FF00, no scenery",

@@ -69,7 +69,7 @@ public sealed partial class CombatManager
             ReturnYaw = game.PlayerRotationY,
             ClockWasPaused = game.Settings.WorldTimePaused
         };
-        state.EnemyMana = state.EnemyMaxMana / 2;
+        state.EnemyMana = state.EnemyMaxMana;
         foreach (var id in game.Deck.Cards.Append(game.Deck.CompanionId).Where(x => x.Length > 0).Distinct())
             state.Cards[id] = DeckManager.Upgraded(catalog[id], game.Deck.Upgrades.GetValueOrDefault(id));
         state.DrawPile = game.Deck.Cards.ToList();

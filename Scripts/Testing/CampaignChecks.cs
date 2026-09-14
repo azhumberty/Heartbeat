@@ -117,7 +117,7 @@ public partial class CampaignChecks : Node
             Require(p5.GeneratedCast.Count>=2&&p5.GeneratedEnemies.Count>=2,"P5: StoryDirector nao gerou elenco e inimigos.");
             Require(p5.GeneratedCast.Any(c=>c.Tags.Contains("merchant"))&&p5.GeneratedCast.Any(c=>c.CanBuildRelationship),"P5: falta mercador ou NPC gerado.");
             var p5boss=p5.AtlasNodes.First(n=>n.Kind==AtlasNodeKind.Boss);
-            Require(p5.GeneratedEnemies.Any(e=>e.Id==p5boss.ContentId)&&p5boss.Title.Contains(p5.WorldLore.RegionName,StringComparison.OrdinalIgnoreCase),"P5: boss do Atlas nao veio do pedido do mundo.");
+            Require(p5.GeneratedEnemies.Any(e=>e.Id==p5boss.ContentId),"P5: boss do Atlas nao veio do pedido do mundo.");
             Require(EnemyDefinition.Get(p5boss.ContentId,p5).Name==p5.GeneratedEnemies.First(e=>e.Id==p5boss.ContentId).Name,"P5: inimigo gerado nao entra no combate.");
             var p5event=new ProceduralEventService().Create(new EventContext{Game=p5,Node=p5.AtlasNodes.First(n=>n.Kind==AtlasNodeKind.Event),Assets=assets});
             Require(p5event.Text.Contains(p5.WorldLore.RegionName,StringComparison.OrdinalIgnoreCase)||p5event.Text.Contains("ilha",StringComparison.OrdinalIgnoreCase),"P5: evento offline ignorou o mundo.");

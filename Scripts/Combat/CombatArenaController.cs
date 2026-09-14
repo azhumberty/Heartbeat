@@ -59,6 +59,7 @@ public partial class CombatArenaController : Control
         else if (Game.ImagePaths.TryGetValue("enemy:"+Manager.State.EnemyId, out var enemyPath) && WorldArt.Load(enemyPath) is { } generatedFoe)
         {
             _enemy.Texture = generatedFoe;
+            ChromaArt.ApplyChroma(_enemy, 0.42f);
         }
         else
         {

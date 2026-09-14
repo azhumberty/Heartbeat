@@ -57,8 +57,30 @@ public static class StoryDirector
 
     public static void OnNewExpedition(GameSave save)
     {
+        var last = save.StoryLog.TakeLast(6).ToList();
+        var lore = save.WorldLore ?? new WorldLore();
+        if (last.Count > 0)
+            lore.Threat = Limit("Depois do que aconteceu, " + lore.Threat, 140);
+        if (lore.Rumors.Count < 6)
+            lore.Rumors.Add(Limit("A expedicao " + (save.ExpeditionIndex + 1) + " abre um caminho novo.", 120));
+        var extra = new GeneratedEnemy
+        {
+            Id = "gen" + Short(save.WorldId) + "_e" + save.ExpeditionIndex,
+            Name = "Sombra de " + Token(lore.Threat),
+            Health = 90 + save.ExpeditionIndex * 18,
+            Damage = 16 + save.ExpeditionIndex * 2,
+            RewardXp = 32 + save.ExpeditionIndex * 6,
+            LootTier = Math.Clamp(2 + save.ExpeditionIndex, 1, 4),
+            CoinMin = 16, CoinMax = 30, Color = "4a3f6d"
+        };
+        save.GeneratedEnemies.RemoveAll(e => e.Id == extra.Id);
+        save.GeneratedEnemies.Add(extra);
+        save.ImagePaths.Remove("prep:done");
+        save.ImagePaths.Remove("atlas");
+        foreach (var key in save.ImagePaths.Keys.Where(k => k.StartsWith("bgkind:") || k.StartsWith("enemy:")).ToList())
+            save.ImagePaths.Remove(key);
         BindAtlas(save);
-        save.StoryLog.Add("expedicao:" + save.ExpeditionIndex + ":" + Limit(save.WorldLore.Threat, 60));
+        save.StoryLog.Add("expedicao:" + save.ExpeditionIndex + ":" + Limit(lore.Threat, 60));
         while (save.StoryLog.Count > 24) save.StoryLog.RemoveAt(0);
     }
 
@@ -82,60 +104,48 @@ public static class StoryDirector
     public static void BindAtlas(GameSave save)
     {
         var lore = save.WorldLore ?? new WorldLore();
-        var ward = save.GeneratedEnemies.FirstOrDefault(e => e.Id.Contains("_ward")) ?? save.GeneratedEnemies.FirstOrDefault();
+        var foes = save.GeneratedEnemies.Where(e => !e.Id.Contains("_boss")).ToList();
         var boss = save.GeneratedEnemies.FirstOrDefault(e => e.Id.Contains("_boss")) ?? save.GeneratedEnemies.LastOrDefault();
         var merchant = save.GeneratedCast.FirstOrDefault(c => c.Tags.Contains("merchant"));
         var people = save.GeneratedCast.Where(c => c.CanBuildRelationship).Select(c => c.Id).ToList();
-        int pi = 0;
-        var biome = lore.Atmosphere.Length > 0 ? lore.Atmosphere : "nevoa";
+        int pi = 0, fi = 0;
         foreach (var node in save.AtlasNodes)
         {
             if (node.Persistent)
             {
-                node.Title = "Acampamento de " + lore.RegionName;
-                node.Description = Limit("Refúgio em " + lore.RegionName + ". " + lore.Premise, 200);
+                node.Title = "Campo";
+                node.Description = Limit(lore.RegionName, 80);
                 continue;
             }
-            if (node.Kind == AtlasNodeKind.Combat && ward != null)
+            if (node.Kind == AtlasNodeKind.Combat && foes.Count > 0)
             {
-                node.ContentId = ward.Id;
-                if (!node.Title.StartsWith("Elite", StringComparison.OrdinalIgnoreCase))
-                    node.Title = Limit(ward.Name + " · " + node.Title, 48);
-                node.Description = Limit(lore.Threat + " ronda este caminho.", 200);
+                var elite = node.Risk >= 4 || node.Title.StartsWith("Elite", StringComparison.OrdinalIgnoreCase);
+                var foe = elite && foes.Count > 1 ? foes[Math.Min(1, foes.Count - 1)] : foes[fi % foes.Count];
+                fi++;
+                node.ContentId = foe.Id;
+                node.Title = Limit((elite ? "Elite " : "") + foe.Name, 22);
             }
             else if (node.Kind == AtlasNodeKind.Boss && boss != null)
             {
                 node.ContentId = boss.Id;
-                node.Title = Limit(boss.Name, 48);
-                node.Description = Limit("O fim desta expedição: " + lore.Threat, 200);
+                node.Title = Limit(boss.Name, 22);
             }
             else if (node.Kind == AtlasNodeKind.Merchant && merchant != null)
             {
                 node.ContentId = merchant.Id;
-                node.Title = Limit("Tenda de " + merchant.Name, 48);
-                node.Description = Limit(merchant.Description, 200);
+                node.Title = "Mercado";
             }
             else if (node.Kind == AtlasNodeKind.Character && people.Count > 0)
             {
                 node.ContentId = people[pi % people.Count];
                 pi++;
                 var person = save.GeneratedCast.First(c => c.Id == node.ContentId);
-                node.Title = Limit(person.Name + " em " + lore.RegionName, 48);
-                node.Description = Limit(person.Description, 200);
+                node.Title = Limit(person.Name, 18);
             }
-            else
-            {
-                node.Description = Limit(lore.Premise + " " + lore.Threat, 200);
-                if (node.Kind is AtlasNodeKind.Mystery or AtlasNodeKind.Event or AtlasNodeKind.Scene)
-                    node.Title = Limit(PickHook(lore, node.Kind) + " · " + lore.RegionName, 48);
-            }
+            else if (node.Kind is AtlasNodeKind.Mystery or AtlasNodeKind.Event or AtlasNodeKind.Scene)
+                node.Title = Limit(PickHook(lore, node.Kind), 18);
+            node.Description = "";
             node.BackgroundId = BackgroundFor(lore, node);
-        }
-        string prev = "o acampamento";
-        foreach (var node in save.AtlasNodes.Where(n => !n.Persistent).OrderBy(n => n.X).ThenBy(n => n.Y))
-        {
-            node.Description = Limit("A partir de " + prev + " — " + node.Description, 220);
-            prev = node.Title;
         }
     }
 
@@ -194,10 +204,12 @@ public static class StoryDirector
         var lore = save.WorldLore;
         var prefix = "gen" + Short(save.WorldId);
         var threatWord = Token(lore.Threat);
+        var place = Token(lore.RegionName);
         return new()
         {
-            new() { Id = prefix + "_ward", Name = "Sentinela de " + threatWord, Health = 88, Damage = 15, RewardXp = 30, LootTier = 2, CoinMin = 14, CoinMax = 26, Color = "5a6b48" },
-            new() { Id = prefix + "_boss", Name = "Guardião de " + lore.RegionName, Health = 168, Damage = 22, RewardXp = 56, LootTier = 4, CoinMin = 32, CoinMax = 54, Color = "6b4a32" }
+            new() { Id = prefix + "_ward", Name = "Sentinela " + threatWord, Health = 88, Damage = 15, RewardXp = 30, LootTier = 2, CoinMin = 14, CoinMax = 26, Color = "5a6b48" },
+            new() { Id = prefix + "_elite", Name = "Elite " + place, Health = 120, Damage = 18, RewardXp = 40, LootTier = 3, CoinMin = 20, CoinMax = 36, Color = "6b4a32" },
+            new() { Id = prefix + "_boss", Name = "Guardiao " + place, Health = 168, Damage = 22, RewardXp = 56, LootTier = 4, CoinMin = 32, CoinMax = 54, Color = "6b4a32" }
         };
     }
 

@@ -155,7 +155,8 @@ public partial class WorldController : Node
         ClearVnMeet();
 
         _vnBackground.Modulate = new Color(0.92f, 0.92f, 0.94f);
-        _vnBackground.Texture = WorldArt.Background(_game, node);
+        _vnBackground.Texture = WorldArt.Background(_game, node)
+            ?? ChromaArt.LoadArt(ChromaArt.BackgroundForDestination(string.IsNullOrWhiteSpace(node.BackgroundId) ? node.Kind.ToString() : node.BackgroundId));
 
         if (node.Kind == AtlasNodeKind.Merchant)
         {
@@ -327,17 +328,11 @@ public partial class WorldController : Node
     }
     void OnNpcInteracted(NpcActor actor)
     {
-        if (actor.Data.Id == "merchant" || actor.Data.Tags.Contains("merchant"))
-        {
-            _vnCharacter.Texture = ChromaArt.LoadArt(ChromaArt.MerchantSprite);
-            ChromaArt.ApplyChroma(_vnCharacter);
-        }
-        else
-        {
-            _vnCharacter.Material = null;
-            _vnCharacter.Texture = new PortraitCache().Get(actor.Data, actor.State, false);
-            if(actor.Data.MainImagePath.Contains("chroma",StringComparison.OrdinalIgnoreCase))ChromaArt.ApplyChroma(_vnCharacter);
-        }
+        _vnCharacter.Material = null;
+        _vnCharacter.Texture = new PortraitCache().Get(actor.Data, actor.State, false);
+        if (actor.Data.Id == "merchant" || actor.Data.Tags.Contains("merchant") || actor.Data.Tags.Contains("generated")
+            || actor.Data.MainImagePath.Contains("chroma", StringComparison.OrdinalIgnoreCase) || !string.IsNullOrWhiteSpace(actor.Data.GeneratedPortraitPath))
+            ChromaArt.ApplyChroma(_vnCharacter, actor.Data.Tags.Contains("generated") ? 0.42f : 0.55f);
         PortraitMotion.Breath(_vnCharacter);
         _ = ApplyPortrait(actor);
         _ = PrefetchSpecials(actor.Data);
@@ -424,6 +419,7 @@ public partial class WorldController : Node
     void RebuildAtlas()
     {
         var previous=_atlas;_atlas=new AtlasController{Game=_game,NodeSelected=OnTravel,CampRequested=OpenCamp};_uiLayer.AddChild(_atlas);previous.QueueFree();
+        _ = PrefetchWorldImages();
     }
 
     void Save()

@@ -72,14 +72,20 @@ public static class ChromaArt
 		};
 
 	/// <summary>Enemy id â†’ chroma sprite under Characters/Monsters.</summary>
-	public static string EnemySpritePath(string enemyId) =>
-		enemyId.ToLowerInvariant() switch
+	public static string EnemySpritePath(string enemyId)
+	{
+		var id = (enemyId ?? "").ToLowerInvariant();
+		if (id.Contains("forest") || id.Contains("night") || id.Contains("ward")) return "Characters/Monsters/monster_horned_chroma.png";
+		if (id.Contains("camp") || id.Contains("ruin") || id.Contains("elite")) return "Characters/Monsters/monster_stone_chroma.png";
+		if (id.Contains("minotaur") || id.Contains("boss")) return "Characters/Monsters/minotaur_chroma.png";
+		int h = 0; foreach (var c in id) h = h * 33 + c;
+		return (Math.Abs(h) % 3) switch
 		{
-			"forest" or "night" => "Characters/Monsters/monster_horned_chroma.png",
-			"camp" or "ruin" => "Characters/Monsters/monster_stone_chroma.png",
-			"minotaur" => "Characters/Monsters/minotaur_chroma.png",
-			_ => "Characters/Monsters/monster_horned_chroma.png"
+			0 => "Characters/Monsters/monster_horned_chroma.png",
+			1 => "Characters/Monsters/monster_stone_chroma.png",
+			_ => "Characters/Monsters/minotaur_chroma.png"
 		};
+	}
 
 	public const string MerchantSprite = "Characters/NPCs/merchant_traveler_chroma.png";
 	public const string BarbarianSprite = "Characters/NPCs/barbarian_chroma.png";

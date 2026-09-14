@@ -59,27 +59,14 @@ public partial class CampController : Control
     {
         foreach (var child in _list.GetChildren()) child.QueueFree();
         var people = WorldCast.For(Game)
-            .Where(c => c.CanBuildRelationship || c.Tags.Contains("merchant"))
+            .Where(c => Game.CampResidents.Contains(c.Id))
             .GroupBy(c => c.Id).Select(g => g.First()).ToList();
-        var residents = people.Where(c => Game.CampResidents.Contains(c.Id)).ToList();
-        var road = people.Where(c => !Game.CampResidents.Contains(c.Id)).ToList();
-        if (residents.Count == 0)
-            _list.AddChild(Ui.Text("Ninguem mora aqui ainda. Convida pela estrada.", 15));
-        else
-            _list.AddChild(Ui.Text("Moradores", 16));
-        foreach (var data in residents)
+        if (people.Count == 0)
+            _list.AddChild(Ui.Text("Ninguem mora aqui. Convida pela conversa.", 15));
+        foreach (var data in people)
         {
             if (!Game.CharacterStates.TryGetValue(data.Id, out var state)) { state = new CharacterState(); Game.CharacterStates[data.Id] = state; }
             _list.AddChild(PersonRow(data, state));
-        }
-        if (road.Count > 0)
-        {
-            _list.AddChild(Ui.Text("Na estrada — podes chamar", 16));
-            foreach (var data in road)
-            {
-                if (!Game.CharacterStates.TryGetValue(data.Id, out var state)) { state = new CharacterState(); Game.CharacterStates[data.Id] = state; }
-                _list.AddChild(PersonRow(data, state));
-            }
         }
         _status.Text = Inventory.Label(Game);
     }
@@ -96,6 +83,8 @@ public partial class CampController : Control
             StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered
         };
         row.AddChild(portrait);
+        if (!string.IsNullOrWhiteSpace(data.GeneratedPortraitPath) || data.Tags.Contains("generated"))
+            ChromaArt.ApplyChroma(portrait, 0.42f);
         PortraitMotion.Breath(portrait);
         var col = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
         col.AddThemeConstantOverride("separation", 2);

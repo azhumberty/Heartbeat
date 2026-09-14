@@ -53,7 +53,7 @@ public partial class AtlasController : Control
         _nodeLayer.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         AddChild(_nodeLayer);
 
-        var title = Ui.Text("ATLAS DE EXPEDIÇÃO", 30);
+        var title = Ui.Text("ATLAS", 22);
         title.Position = new Vector2(36, 22);
         title.AddThemeColorOverride("font_color", new Color("e6c27a"));
         AddChild(title);
@@ -109,9 +109,11 @@ public partial class AtlasController : Control
             _nodeLayer.AddChild(button);
             _buttons[node.Id] = button;
 
-            var label = Ui.Text(node.Persistent ? node.Title : node.Title, 12);
+            var label = Ui.Text(ShortLabel(node.Title), 11);
+            label.ClipText = false;
+            label.AutowrapMode = TextServer.AutowrapMode.Off;
             label.HorizontalAlignment = HorizontalAlignment.Center;
-            label.CustomMinimumSize = new Vector2(140, 0);
+            label.CustomMinimumSize = new Vector2(108, 0);
             label.AddThemeColorOverride("font_color", node.Status == AtlasNodeStatus.Locked && !node.Persistent ? new Color("6a7684") : new Color("efe6d2"));
             _nodeLayer.AddChild(label);
             _labels[node.Id] = label;
@@ -157,8 +159,11 @@ public partial class AtlasController : Control
     void RefreshHud()
     {
         if (_hud == null) return;
-        var difficulty=Game.ExpeditionIndex switch {0=>"Calma",1=>"Tensa",2=>"Severa",_=>"Implacável"};
-        _hud.Text = $"{Game.WorldLore.RegionName}  ·  Expedição {Game.ExpeditionIndex+1}  ·  Dificuldade {difficulty}  ·  {Game.Player.Coins} Reais  ·  Nv.{Game.Player.Level}";
+        int done = Game.AtlasNodes.Count(n => !n.Persistent && n.Status == AtlasNodeStatus.Completed);
+        int total = Math.Max(1, Game.AtlasNodes.Count(n => !n.Persistent));
+        _hud.ClipText = false;
+        _hud.AutowrapMode = TextServer.AutowrapMode.Off;
+        _hud.Text = $"Dia {Game.Day}  ·  {Game.PlayerName}  ·  Nv.{Game.Player.Level}  ·  Expedicao {Game.ExpeditionIndex+1}  ·  {done}/{total}  ·  {Game.Player.Coins} R";
     }
 
     static StyleBoxFlat NodeStyle(AtlasNodeData node, bool selected)
@@ -215,10 +220,10 @@ public partial class AtlasController : Control
     {
         var detail = new PanelContainer();
         detail.SetAnchorsPreset(LayoutPreset.BottomRight);
-        detail.OffsetLeft = -390;
-        detail.OffsetTop = -228;
-        detail.OffsetRight = -28;
-        detail.OffsetBottom = -24;
+        detail.OffsetLeft = -260;
+        detail.OffsetTop = -132;
+        detail.OffsetRight = -20;
+        detail.OffsetBottom = -16;
         detail.AddThemeStyleboxOverride("panel", new StyleBoxFlat
         {
             BgColor = new Color("101925ee"),
@@ -239,10 +244,9 @@ public partial class AtlasController : Control
         var box = new VBoxContainer();
         box.AddThemeConstantOverride("separation", 8);
         detail.AddChild(box);
-        _detailTitle = Ui.Text("Escolha um lugar", 20);
+        _detailTitle = Ui.Text("Caminho", 18);
         box.AddChild(_detailTitle);
-        _detailText = Ui.Text("Os caminhos dourados mostram o que está disponível. O acampamento permanece aberto.", 15);
-        _detailText.SizeFlagsVertical = SizeFlags.ExpandFill;
+        _detailText = Ui.Text("", 13);
         box.AddChild(_detailText);
         _travel = Ui.Button("Viajar", TravelSelected);
         _travel.Disabled = true;
@@ -253,8 +257,8 @@ public partial class AtlasController : Control
     void Select(AtlasNodeData node)
     {
         if (node.Status == AtlasNodeStatus.Locked && !node.Persistent) return;
-        _detailTitle.Text = node.Title;
-        _detailText.Text = $"{KindName(node.Kind)}\nRisco {RiskLabel(node.Risk)}\n{node.Description}";
+        _detailTitle.Text = ShortLabel(node.Title);
+        _detailText.Text = KindName(node.Kind);
         _travel.Disabled = false;
         _travel.Text = node.Persistent ? "Entrar no acampamento" : "Viajar";
         if (_selectedId == node.Id) NodeSelected?.Invoke(node.Id);
@@ -266,6 +270,12 @@ public partial class AtlasController : Control
     {
         if (string.IsNullOrEmpty(_selectedId)) return;
         NodeSelected?.Invoke(_selectedId);
+    }
+
+    static string ShortLabel(string title)
+    {
+        var t = (title ?? "").Trim();
+        return t.Length <= 18 ? t : t[..16].Trim() + "...";
     }
 
     static string KindName(AtlasNodeKind kind) => kind switch

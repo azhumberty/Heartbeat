@@ -233,12 +233,20 @@ public partial class WorldCreateController : Control
         _status = Ui.Body("", 15);
         _status.AddThemeColorOverride("font_color", new Color("e5b18b"));
         _body.AddChild(_status);
-        void Confirm()
+        async void Confirm()
         {
             var value = name.Text.Trim();
             if (value.Length < 2) { _status.Text = "Escolhe um nome com pelo menos 2 letras."; return; }
             var save = WorldGenerationService.BuildSave(_definition, Settings);
             save.PlayerName = value;
+            _status.Text = "A gerar o visual do mundo. Espera um pouco…";
+            try
+            {
+                using var cts = CancellationTokenSource.CreateLinkedTokenSource(_cancel.Token);
+                cts.CancelAfter(TimeSpan.FromSeconds(50));
+                await WorldPrep.Run(save, (id, i, n) => { if (GodotObject.IsInstanceValid(_status)) _status.Text = $"A gerar {i}/{n}…"; }, cts.Token);
+            }
+            catch { save.ImagePaths["prep:done"] = "1"; }
             new WorldStore().Save(save);
             Completed?.Invoke(save);
         }

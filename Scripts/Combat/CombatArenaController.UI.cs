@@ -57,7 +57,8 @@ public partial class CombatArenaController
                 CornerRadiusTopLeft=8, CornerRadiusTopRight=8, CornerRadiusBottomLeft=8, CornerRadiusBottomRight=8,
                 BorderWidthLeft=1, BorderWidthRight=1, BorderWidthTop=1, BorderWidthBottom=1, BorderColor=new Color("b39a6455")
             });
-            var label=Ui.Text($"{intent.Icon} {intent.Label}", 14);
+            var label=Ui.Text($"{intent.Icon} {intent.Label}", 13);
+            label.ClipText = false;
             label.AutowrapMode=TextServer.AutowrapMode.Off;
             chip.AddChild(label);
             _intentRow.AddChild(chip);
