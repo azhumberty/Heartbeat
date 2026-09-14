@@ -73,10 +73,8 @@ public sealed class SystemTtsProvider : ITtsProvider
             var lang = string.IsNullOrWhiteSpace(voice.Language) ? "pt" : voice.Language;
             var match = new List<string>();
             var any = new List<string>();
-            foreach (var item in all)
+            foreach (Godot.Collections.Dictionary d in all)
             {
-                if (item.VariantType != Variant.Type.Dictionary) continue;
-                var d = item.AsGodotDictionary();
                 var id = Read(d, "id");
                 if (id.Length == 0) continue;
                 any.Add(id);

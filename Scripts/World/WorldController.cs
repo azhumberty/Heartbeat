@@ -272,29 +272,32 @@ public partial class WorldController : Node
     async Task PrefetchWorldImages()
     {
         if (!WorldPrep.Needed(_game)) return;
-        var overlay = new ColorRect { Color = new Color("03070af2"), MouseFilter = Control.MouseFilterEnum.Stop };
-        overlay.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-        var label = Ui.Body("A gerar o visual deste mundo…\nA primeira vez demora. Depois fica em cache.", 20);
-        label.Position = new Vector2(80, 300);
-        overlay.AddChild(label);
-        _uiLayer.AddChild(overlay);
-        if (GodotObject.IsInstanceValid(_atlas)) _atlas.Visible = false;
+        var banner = new PanelContainer();
+        banner.SetAnchorsPreset(Control.LayoutPreset.BottomWide);
+        banner.OffsetTop = -70; banner.OffsetBottom = -12; banner.OffsetLeft = 40; banner.OffsetRight = -40;
+        banner.MouseFilter = Control.MouseFilterEnum.Ignore;
+        banner.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("081019cc"), CornerRadiusTopLeft = 10, CornerRadiusTopRight = 10, CornerRadiusBottomLeft = 10, CornerRadiusBottomRight = 10, ContentMarginLeft = 16, ContentMarginRight = 16, ContentMarginTop = 8, ContentMarginBottom = 8 });
+        var label = Ui.Body("A gerar o visual em fundo. Podes jogar.", 15);
+        banner.AddChild(label);
+        _uiLayer.AddChild(banner);
+        if (GodotObject.IsInstanceValid(_atlas)) _atlas.Visible = true;
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(40));
         try
         {
             await WorldPrep.Run(_game, (id, i, n) =>
             {
                 if (GodotObject.IsInstanceValid(label))
-                    label.Text = $"A gerar imagens {i}/{n}…\n{id}";
-            }, CancellationToken.None);
+                    label.Text = $"Visual {i}/{n} · podes jogar";
+            }, cts.Token);
             Save();
-            if (GodotObject.IsInstanceValid(_atlas))
-            {
-                _atlas.ApplyGeneratedMap();
-                _atlas.Visible = true;
-            }
+            if (GodotObject.IsInstanceValid(_atlas)) _atlas.ApplyGeneratedMap();
         }
-        catch (Exception ex) { GD.PushWarning("[ImageAI] prep: " + ex.Message); if (GodotObject.IsInstanceValid(_atlas)) _atlas.Visible = true; }
-        finally { if (GodotObject.IsInstanceValid(overlay)) overlay.QueueFree(); }
+        catch (OperationCanceledException)
+        {
+            _game.ImagePaths["prep:done"] = "1";
+        }
+        catch (Exception ex) { GD.PushWarning("[ImageAI] prep: " + ex.Message); _game.ImagePaths["prep:done"] = "1"; }
+        finally { if (GodotObject.IsInstanceValid(banner)) banner.QueueFree(); if (GodotObject.IsInstanceValid(_atlas)) _atlas.Visible = true; }
     }
 
     async Task ApplyPortrait(NpcActor actor)

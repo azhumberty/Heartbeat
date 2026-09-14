@@ -9,7 +9,7 @@ public static class WorldPrep
         game.Settings.UseImageAi
         && game.WorldDefinition != null
         && !string.Equals(game.WorldDefinition.Origin, "BuiltIn", StringComparison.OrdinalIgnoreCase)
-        && !game.ImagePaths.ContainsKey("atlas");
+        && !game.ImagePaths.ContainsKey("prep:done");
 
     public static async Task Run(GameSave game, Action<string, int, int>? progress, CancellationToken ct)
     {
@@ -21,13 +21,13 @@ public static class WorldPrep
             $"dark fantasy expedition map of {lore.RegionName}, {lore.Atmosphere}, roads toward {lore.Threat}, painted parchment, no readable text",
             1280, 720, false));
 
-        foreach (var kind in game.AtlasNodes.Select(n => n.Kind).Distinct())
+        foreach (var kind in game.AtlasNodes.Select(n => n.Kind).Distinct().Take(4))
         {
             var dummy = new AtlasNodeData { Id = kind.ToString(), Kind = kind, Title = kind.ToString() };
             jobs.Add(("bgkind:" + kind, ImageKind.Background, BackgroundGenerationService.PromptFor(game, dummy), 1280, 720, false));
         }
 
-        foreach (var person in game.GeneratedCast)
+        foreach (var person in game.GeneratedCast.Take(2))
         {
             var look = CanonicalLook.Ensure(person, lore);
             jobs.Add(("portrait:" + person.Id, ImageKind.Portrait,
@@ -35,7 +35,7 @@ public static class WorldPrep
                 768, 1024, true));
         }
 
-        foreach (var foe in game.GeneratedEnemies)
+        foreach (var foe in game.GeneratedEnemies.Take(1))
         {
             jobs.Add(("enemy:" + foe.Id, ImageKind.Portrait,
                 $"photoreal dark-fantasy creature named {foe.Name}, {lore.Threat}, isolated cutout, solid chroma-key green background #00FF00, no scenery",
@@ -70,6 +70,7 @@ public static class WorldPrep
             }
             if (job.id == "atlas") game.AtlasBackgroundPath = path;
         }
+        game.ImagePaths["prep:done"] = "1";
     }
 }
 
@@ -122,7 +123,7 @@ public static class WorldArt
         return null;
     }
 
-    public static Texture2D? Load(string path)
+    public static Texture2D? Load(string? path)
     {
         if (string.IsNullOrWhiteSpace(path)) return null;
         try

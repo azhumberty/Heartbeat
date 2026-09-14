@@ -24,7 +24,7 @@ public sealed class OfflineImageProvider : IImageAiProvider
 /// <summary>Free Pollinations Flux endpoint. No key. Style lock keeps the campaign photoreal and consistent.</summary>
 public sealed class PollinationsImageProvider : IImageAiProvider
 {
-    static readonly System.Net.Http.HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(45) };
+    static readonly System.Net.Http.HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(12) };
 
     public async Task<byte[]?> GenerateAsync(string prompt, int width, int height, int seed, ImageKind kind, CancellationToken ct)
     {
