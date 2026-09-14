@@ -8,6 +8,7 @@ public partial class DialogueController : Control
     Label _line=null!,_status=null!; TextEdit _input=null!;Button? _invite; bool _busy; int _turns; readonly CancellationTokenSource _cancel=new();
     CardShopController? _shop;
     bool _parkAsk;
+    bool _exiting;
     
     public override void _Ready()
     {

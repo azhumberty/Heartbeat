@@ -147,7 +147,7 @@ public static class StoryDirector
             Description = Limit("Nasceu em " + lore.RegionName + ". Vive à sombra de: " + lore.Threat, 220),
             Personality = "reservado, leal ao sítio onde cresceu, desconfiado de forasteiros",
             Traits = new() { "observador", "teimoso" },
-            Likes = new() { lore.StartingRegion.Length > 0 ? lore.StartingRegion : lore.RegionName },
+            Likes = new() { lore.RegionName },
             Dislikes = new() { "promessas vazias" },
             Interests = lore.Factions.Take(2).ToList(),
             SpeechStyle = "baixo, fala do lugar como se fosse um corpo",
