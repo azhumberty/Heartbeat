@@ -42,6 +42,8 @@ public partial class WorldController : Node
         _game.Settings.UseOpenRouter=opts.UseOpenRouter;
         _game.Settings.UseOnlineAi=opts.UseOnlineAi;
         _game.Settings.UseImageAi=opts.UseImageAi;
+        _game.Settings.UseTts=opts.UseTts;
+        _game.Settings.UseOnlineTts=opts.UseOnlineTts;
         
         // Ensure UI layer is top-level
         _uiLayer = new CanvasLayer { Layer = 1 };

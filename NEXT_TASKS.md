@@ -1,16 +1,12 @@
 # HEARTBEAT — PRÓXIMAS TAREFAS
 
-## P0–P6 feitos. Ajuste de mesa (este passe)
+## P0–P7 feitos.
 
-- Momentos compactos (já não rebentam).
-- Retratos/inimigos gerados em chroma verde + recorte.
-- Tela de loading enquanto a IA gera mapa, fundos e caras.
-- Atlas em coluna (estrada → encontro → combate → mistério → boss) com texto encadeado.
-- Acampamento só com convidados; convite sem afeto para testar.
-- Vitória sempre oferece upgrade + carta + poção.
-- Baralho inicial de 20 comuns; editor no acampamento.
-- Inventário: poções de vida/mana.
+## P7 — Áudio opcional (feito neste passe)
 
-## P7 — Áudio opcional (seguinte)
+1. [x] ITtsProvider (sistema Windows / HTTP pt-BR / offline).
+2. [x] NpcVoiceProfile estável por personagem (Kael mais grave, mercador mais agudo).
+3. [x] Fala async nas falas do diálogo; para ao fechar.
+4. [x] Opções: “Voz dos NPCs” e “Voz online em portugues”.
 
-ITtsProvider, voz por NPC, async.
+P8 ainda não está no plano curto. Próximo: polir o que o playtest mostrar.

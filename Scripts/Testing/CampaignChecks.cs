@@ -138,6 +138,11 @@ public partial class CampaignChecks : Node
             Require(ImageAi.Lock("a hall",ImageKind.Portrait).Contains("portrait",StringComparison.OrdinalIgnoreCase)||ImageAi.Lock("a hall",ImageKind.Portrait).Contains("chroma",StringComparison.OrdinalIgnoreCase),"P6: style lock ausente.");
             Require(p5.Items.GetValueOrDefault("potion_hp")>=1,"Inventario inicial sem pocoes.");
             Require(p5.Deck.Cards.Count==20,"Baralho inicial nao tem 20 cartas.");
+            var vKael=NpcVoice.Ensure(new CharacterData{Id="kael",Name="Kael",PersonalityProfile=new(){Pride=80}});
+            var vMer=NpcVoice.Ensure(new CharacterData{Id="silas",Name="Silas",Tags=new(){"merchant"},PersonalityProfile=new(){Extraversion=80}});
+            Require(vKael.Pitch>0.2f&&Math.Abs(vKael.Pitch-vMer.Pitch)>0.05f,"P7: vozes iguais.");
+            await new OfflineTtsProvider().SpeakAsync("teste",vKael,0.5f,null,CancellationToken.None);
+            Require(NpcVoice.From(new GameSettings{UseTts=false}) is OfflineTtsProvider,"P7: TTS nao desliga.");
             save.Player.Coins=100;var shopView=new CardShopController{Game=save,MerchantId="merchant"};AddChild(shopView);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(shopView.IsInsideTree(),"Mercador não abriu.");
             var buyButton=shopView.FindChildren("*","Button",true,false).OfType<Button>().FirstOrDefault(button=>button.Text.StartsWith("Comprar",StringComparison.Ordinal));Require(buyButton!=null,"Mercador não mostrou uma compra.");var coinsBefore=save.Player.Coins;buyButton!.EmitSignal(Button.SignalName.Pressed);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(save.Player.Coins<coinsBefore,"Compra no mercador não foi processada.");
             var closeButton=shopView.FindChildren("*","Button",true,false).OfType<Button>().FirstOrDefault(button=>button.Text.StartsWith("Fechar",StringComparison.Ordinal));Require(closeButton!=null,"Mercador não mostrou o botão Fechar.");closeButton!.EmitSignal(Button.SignalName.Pressed);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(!GodotObject.IsInstanceValid(shopView)||!shopView.IsInsideTree(),"Mercador permaneceu aberto após uma compra.");

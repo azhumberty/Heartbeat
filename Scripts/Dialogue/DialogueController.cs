@@ -138,9 +138,10 @@ public partial class DialogueController : Control
             _line.Text=r.Dialogue;
             _status.Text=beats.Count>0 ? StatusLine(r.ProviderStatus)+" · Momento: "+beats[0] : StatusLine(r.ProviderStatus);
             Changed?.Invoke();
+            _ = NpcVoice.Speak(this, Actor.Data, r.Dialogue, Game.Settings, _cancel.Token);
         }
         catch(OperationCanceledException) { }
-        catch(Exception e) { if(Alive()) { var alternative = new ProceduralDialogueProvider().Reply(Actor.Data, Actor.State, input); _line.Text = alternative.Dialogue; Actor.State.CurrentEmotion = alternative.Emotion; _status.Text=$"Falha técnica ({e.GetType().Name})"; } }
+        catch(Exception e) { if(Alive()) { var alternative = new ProceduralDialogueProvider().Reply(Actor.Data, Actor.State, input); _line.Text = alternative.Dialogue; Actor.State.CurrentEmotion = alternative.Emotion; _status.Text=$"Falha técnica ({e.GetType().Name})"; _ = NpcVoice.Speak(this, Actor.Data, alternative.Dialogue, Game.Settings, _cancel.Token); } }
         finally { if(Alive()) _busy=false; }
     }
     string StatusLine(string provider)
@@ -167,6 +168,7 @@ public partial class DialogueController : Control
     public override void _ExitTree()
     {
         _exiting = true;
+        NpcVoice.Stop(Game.Settings);
         if (GodotObject.IsInstanceValid(_shop) && !_shop!.IsQueuedForDeletion())
             _shop.QueueFree();
         _shop = null;

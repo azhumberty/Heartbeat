@@ -92,6 +92,7 @@ public sealed class CharacterData
     public string CanonicalAppearance { get; set; } = "";
     /// <summary>Absolute or user:// path to a generated portrait PNG.</summary>
     public string GeneratedPortraitPath { get; set; } = "";
+    public NpcVoiceProfile Voice { get; set; } = new();
 }
 
 public sealed class CharacterImage
@@ -343,4 +344,8 @@ public sealed class GameSettings { public float Volume { get; set; } = 0.8f; pub
     public string OpenRouterApiKey { get; set; } = "";
     /// <summary>Pollinations Flux backgrounds and portraits. Free, no key.</summary>
     public bool UseImageAi { get; set; } = true;
+    /// <summary>Speak NPC lines. Uses Windows voices, or Google TTS if UseOnlineTts.</summary>
+    public bool UseTts { get; set; } = true;
+    /// <summary>When true, prefer online Portuguese clips over system voices.</summary>
+    public bool UseOnlineTts { get; set; } = false;
 }

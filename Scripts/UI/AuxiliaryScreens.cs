@@ -42,6 +42,8 @@ public static class AuxiliaryScreens
 
         box.AddChild(Toggle("Usar OpenRouter (gratis)", settings.UseOpenRouter, v=>{ settings.UseOpenRouter=v; Persist(); }));
         box.AddChild(Toggle("Imagens IA (Pollinations, gratis, sem chave)", settings.UseImageAi, v=>{ settings.UseImageAi=v; Persist(); }));
+        box.AddChild(Toggle("Voz dos NPCs (TTS, opcional)", settings.UseTts, v=>{ settings.UseTts=v; Persist(); }));
+        box.AddChild(Toggle("Voz online em portugues (se o Windows nao tiver)", settings.UseOnlineTts, v=>{ settings.UseOnlineTts=v; Persist(); }));
         box.AddChild(Ui.Body("Chave: openrouter.ai/keys  —  cola e grava. O modelo gratuito muda sozinho se um sair do ar.", 13));
         box.AddChild(Field("Chave OpenRouter", settings.OpenRouterApiKey, t=>{ settings.OpenRouterApiKey=t.Trim(); Persist(); }, secret:true, "sk-or-v1-..."));
         box.AddChild(Field("Modelo", settings.OpenRouterModel, t=>{ settings.OpenRouterModel=t.Trim(); Persist(); }));

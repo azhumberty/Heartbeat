@@ -184,6 +184,8 @@ public static class StoryDirector
         merchant.Images.Add(new CharacterImage { OriginalPath = merchant.MainImagePath, ProcessedPath = merchant.MainImagePath, Tags = new() { "neutral", "chroma" } });
         SocialModelMigrator.Migrate(wanderer);
         SocialModelMigrator.Migrate(merchant);
+        NpcVoice.Ensure(wanderer);
+        NpcVoice.Ensure(merchant);
         return new() { wanderer, merchant };
     }
 
