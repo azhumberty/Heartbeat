@@ -58,7 +58,7 @@ public static class ImageAi
     {
         var role = kind switch
         {
-            ImageKind.Portrait => "upper-body character portrait, looking toward camera, shallow depth of field, ",
+            ImageKind.Portrait => "isolated cutout, solid chroma-key green background #00FF00, no scenery, no floor, upper-body or creature, looking toward camera, ",
             ImageKind.Special => "narrative cinematic moment, two-shot or lone figure in place, ",
             _ => "wide establishing environment, no readable signs, "
         };
@@ -92,21 +92,45 @@ public static class ImageCache
         return Decode(File.ReadAllBytes(path));
     }
 
-    public static void Save(ImageKind kind, string key, byte[] bytes)
+    public static void Save(ImageKind kind, string key, byte[] bytes, bool cutGreen = false)
     {
-        var tex = Decode(bytes);
-        if (tex == null) return;
-        var img = tex.GetImage();
+        var img = DecodeImage(bytes);
         if (img == null) return;
+        if (cutGreen) PunchGreen(img);
         img.SavePng(PathFor(kind, key));
     }
 
     public static ImageTexture? Decode(byte[] bytes)
     {
+        var img = DecodeImage(bytes);
+        return img == null ? null : ImageTexture.CreateFromImage(img);
+    }
+
+    static Image? DecodeImage(byte[] bytes)
+    {
         var img = new Image();
         if (img.LoadPngFromBuffer(bytes) != Error.Ok && img.LoadJpgFromBuffer(bytes) != Error.Ok)
             return null;
-        return ImageTexture.CreateFromImage(img);
+        return img;
+    }
+
+    public static void PunchGreen(Image img)
+    {
+        img.Convert(Image.Format.Rgba8);
+        var w = img.GetWidth();
+        var h = img.GetHeight();
+        for (int y = 0; y < h; y++)
+        for (int x = 0; x < w; x++)
+        {
+            var c = img.GetPixel(x, y);
+            float key = c.G - Math.Max(c.R, c.B);
+            if (c.G > 0.42f && key > 0.12f)
+            {
+                c.A *= Math.Clamp(1f - key * 3.2f, 0f, 1f);
+                if (c.A < 0.08f) c.A = 0;
+                img.SetPixel(x, y, c);
+            }
+        }
     }
 }
 
@@ -157,7 +181,7 @@ public static class BackgroundGenerationService
         }
         var bytes = await ImageAi.From(game.Settings).GenerateAsync(prompt, 1280, 720, seed, ImageKind.Background, ct);
         if (bytes == null || bytes.Length < 32) return null;
-        ImageCache.Save(ImageKind.Background, key, bytes);
+        ImageCache.Save(ImageKind.Background, key, bytes, false);
         Remember(game, "bg:" + node.Id, ImageCache.PathFor(ImageKind.Background, key));
         return ImageCache.Load(ImageKind.Background, key);
     }
@@ -184,7 +208,7 @@ public static class PortraitGenerationService
     public static async Task<ImageTexture?> EnsureAsync(CharacterData person, GameSave game, CancellationToken ct)
     {
         var look = CanonicalLook.Ensure(person, game.WorldLore ?? new());
-        var prompt = $"{look}, upper body, calm expression, {game.WorldLore?.Atmosphere}";
+        var prompt = $"{look}, isolated cutout, solid chroma-key green background #00FF00, no scenery";
         var seed = BackgroundGenerationService.Seed(game.WorldSeed, "portrait:" + person.Id);
         var key = ImageCache.Key(ImageKind.Portrait, prompt, 768, 1024, seed);
         var cached = ImageCache.Load(ImageKind.Portrait, key);
@@ -198,7 +222,7 @@ public static class PortraitGenerationService
         if (!game.Settings.UseImageAi) return null;
         var bytes = await ImageAi.From(game.Settings).GenerateAsync(prompt, 768, 1024, seed, ImageKind.Portrait, ct);
         if (bytes == null || bytes.Length < 32) return null;
-        ImageCache.Save(ImageKind.Portrait, key, bytes);
+        ImageCache.Save(ImageKind.Portrait, key, bytes, true);
         person.GeneratedPortraitPath = ImageCache.PathFor(ImageKind.Portrait, key);
         game.ImagePaths ??= new();
         game.ImagePaths["portrait:" + person.Id] = person.GeneratedPortraitPath;
@@ -222,7 +246,7 @@ public static class PortraitGenerationService
         if (!game.Settings.UseImageAi) return null;
         var bytes = await ImageAi.From(game.Settings).GenerateAsync(prompt, 1280, 720, seed, ImageKind.Special, ct);
         if (bytes == null || bytes.Length < 32) return null;
-        ImageCache.Save(ImageKind.Special, key, bytes);
+        ImageCache.Save(ImageKind.Special, key, bytes, false);
         game.ImagePaths ??= new();
         game.ImagePaths[cacheId] = ImageCache.PathFor(ImageKind.Special, key);
         return ImageCache.Load(ImageKind.Special, key);

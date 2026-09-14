@@ -82,7 +82,7 @@ public partial class CampaignChecks : Node
             Require(ChromaArt.LoadArt("Backgrounds/atlas_map.png").GetWidth()>0&&ChromaArt.LoadArt(ChromaArt.MinotaurSprite).GetWidth()>0,"Arte do Atlas ou do Minotauro indisponível.");
             var repairedMinotaur=ChromaArt.LoadArt(ChromaArt.MinotaurSprite).GetImage();Require(repairedMinotaur.GetPixel(0,0).A<.05f&&repairedMinotaur.GetPixel(repairedMinotaur.GetWidth()/2,repairedMinotaur.GetHeight()/2).A>.9f,"Recorte transparente do Minotauro não foi importado.");
             var save=new GameSave {WorldSeed=20260912,AtlasNodes=atlas,AtlasBackgroundPath=AtlasGenerator.Backdrop(20260912,0)};
-            var resident=new CharacterData{Id="qa_resident",Name="Aren",Age=25,CanBuildRelationship=true};var residentState=new CharacterState{Affection=39};Require(!CampService.Invite(save,resident,residentState),"Convite ignorou afeição mínima.");residentState.Affection=40;Require(CampService.Invite(save,resident,residentState)&&save.CampResidents.Contains(resident.Id),"Morador não persistiu.");
+            var resident=new CharacterData{Id="qa_resident",Name="Aren",Age=25,CanBuildRelationship=true};var residentState=new CharacterState{Affection=0};Require(CampService.Invite(save,resident,residentState)&&save.CampResidents.Contains(resident.Id),"Morador não persistiu.");Require(!CampService.Invite(save,resident,residentState),"Convite duplicou morador.");
             var previousBackdrop=save.AtlasBackgroundPath;AtlasGenerator.BeginNextExpedition(save);Require(save.ExpeditionIndex==1&&save.AtlasNodes.Where(n=>!n.Persistent).All(n=>n.Id.StartsWith("e1_"))&&save.AtlasNodes.Count(n=>n.Persistent)==1&&save.CampResidents.Contains(resident.Id),"Próxima expedição não preservou o acampamento.");
             Require(!string.IsNullOrWhiteSpace(save.AtlasBackgroundPath)&&!save.AtlasBackgroundPath.Equals(previousBackdrop,StringComparison.OrdinalIgnoreCase),"Nova expedição não trocou o fundo do Atlas.");
             atlas=save.AtlasNodes;
@@ -110,6 +110,8 @@ public partial class CampaignChecks : Node
             var hpBefore=save.Player.MaxHealth;PlayerUpgrades.Apply(save,"vital");
             Require(save.Player.MaxHealth==hpBefore+12&&save.UnlockedUpgrades.Contains("vital"),"P4: upgrade do jogador nao aplicou.");
             var offer=PlayerUpgrades.Offer(save,7,3);Require(offer.Count==3&&offer.Select(u=>u.Id).Distinct().Count()==3,"P4: tela de progressao sem 3 escolhas.");
+            Require(PlayerUpgrades.PicksFor("Normal",false,new Random(1))>=1,"P4: vitoria normal sem upgrade.");
+            var freshDeck=new GameSave();DeckManager.Migrate(freshDeck);Require(freshDeck.Deck.Cards.Count==20&&freshDeck.Deck.Owned.Count<=20,"P4: baralho inicial nao e o starter de 20.");
             var p5def=WorldGenerationService.CreateOffline("Uma ilha amaldiçoada onde o minotauro guarda um farol",20260913);
             var p5=WorldGenerationService.BuildSave(p5def,new GameSettings{UseOnlineAi=false});
             Require(p5.GeneratedCast.Count>=2&&p5.GeneratedEnemies.Count>=2,"P5: StoryDirector nao gerou elenco e inimigos.");
@@ -133,7 +135,9 @@ public partial class CampaignChecks : Node
             Require(bgPrompt.Contains(p5.WorldLore.RegionName,StringComparison.OrdinalIgnoreCase),"P6: fundo sem o lore do mundo.");
             var offlineBytes=await new OfflineImageProvider().GenerateAsync("test",64,64,1,ImageKind.Background,CancellationToken.None);
             Require(offlineBytes==null,"P6: provider offline nao deve baixar.");
-            Require(ImageAi.Lock("a hall",ImageKind.Portrait).Contains("portrait",StringComparison.OrdinalIgnoreCase),"P6: style lock ausente.");
+            Require(ImageAi.Lock("a hall",ImageKind.Portrait).Contains("portrait",StringComparison.OrdinalIgnoreCase)||ImageAi.Lock("a hall",ImageKind.Portrait).Contains("chroma",StringComparison.OrdinalIgnoreCase),"P6: style lock ausente.");
+            Require(p5.Items.GetValueOrDefault("potion_hp")>=1,"Inventario inicial sem pocoes.");
+            Require(p5.Deck.Cards.Count==20,"Baralho inicial nao tem 20 cartas.");
             save.Player.Coins=100;var shopView=new CardShopController{Game=save,MerchantId="merchant"};AddChild(shopView);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(shopView.IsInsideTree(),"Mercador não abriu.");
             var buyButton=shopView.FindChildren("*","Button",true,false).OfType<Button>().FirstOrDefault(button=>button.Text.StartsWith("Comprar",StringComparison.Ordinal));Require(buyButton!=null,"Mercador não mostrou uma compra.");var coinsBefore=save.Player.Coins;buyButton!.EmitSignal(Button.SignalName.Pressed);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(save.Player.Coins<coinsBefore,"Compra no mercador não foi processada.");
             var closeButton=shopView.FindChildren("*","Button",true,false).OfType<Button>().FirstOrDefault(button=>button.Text.StartsWith("Fechar",StringComparison.Ordinal));Require(closeButton!=null,"Mercador não mostrou o botão Fechar.");closeButton!.EmitSignal(Button.SignalName.Pressed);await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);Require(!GodotObject.IsInstanceValid(shopView)||!shopView.IsInsideTree(),"Mercador permaneceu aberto após uma compra.");

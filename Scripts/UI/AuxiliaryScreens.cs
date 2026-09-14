@@ -105,46 +105,44 @@ public static class AuxiliaryScreens
     {
         var screen=new Control(); parent.AddChild(screen); screen.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         Ui.Panel(screen,"MOMENTOS",out var body,close);
-        var scroll=new ScrollContainer { SizeFlagsVertical=Control.SizeFlags.ExpandFill, HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled };
+        var scroll=new ScrollContainer { SizeFlagsVertical=Control.SizeFlags.ExpandFill, HorizontalScrollMode=ScrollContainer.ScrollMode.Disabled, CustomMinimumSize=new Vector2(0, 360) };
         body.AddChild(scroll);
         var list=new VBoxContainer { SizeFlagsHorizontal=Control.SizeFlags.ExpandFill };
-        list.AddThemeConstantOverride("separation", 10);
+        list.AddThemeConstantOverride("separation", 6);
         scroll.AddChild(list);
         Ui.FitScrollChild(scroll, list);
         var people=WorldCast.For(game)
             .Where(c=>c.CanBuildRelationship)
-            .GroupBy(c=>c.Id).Select(g=>g.First()).ToList();
+            .GroupBy(c=>c.Id).Select(g=>g.First()).Take(8).ToList();
         if(people.Count==0) list.AddChild(Ui.Text("Nenhum vinculo neste mundo.",16));
         foreach(var c in people)
         {
             game.CharacterStates.TryGetValue(c.Id, out var state);
             state ??= new CharacterState();
-            list.AddChild(Ui.Text(c.Name+" · "+state.Relationship, 22));
-            var portrait=new TextureRect
+            list.AddChild(Ui.Text(c.Name+" · "+state.Relationship, 18));
+            Texture2D? tex=null;
+            try { tex=new PortraitCache().Get(c, state, cinematic:false); } catch { }
+            if (tex!=null)
             {
-                Texture=new PortraitCache().Get(c, state, cinematic: game.UnlockedCinematics.Any(k=>k.StartsWith(c.Id+":"))),
-                CustomMinimumSize=new Vector2(0, 180),
-                ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,
-                StretchMode=TextureRect.StretchModeEnum.KeepAspectCentered
-            };
-            list.AddChild(portrait);
-            PortraitMotion.Breath(portrait);
-            foreach(var beat in SocialBeatService.BeatsFor(c))
+                var portrait=new TextureRect
+                {
+                    Texture=tex,
+                    CustomMinimumSize=new Vector2(0, 88),
+                    ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,
+                    StretchMode=TextureRect.StretchModeEnum.KeepAspectCentered
+                };
+                list.AddChild(portrait);
+            }
+            foreach(var beat in SocialBeatService.BeatsFor(c).Take(4))
             {
                 var key=SocialBeatService.Key(c.Id, beat.Id);
                 var open=game.UnlockedCinematics.Contains(key);
                 var line=open
                     ? "✦  "+beat.Title+" — "+game.MomentDetails.GetValueOrDefault(key, beat.Text)
                     : "▣  "+beat.Title+" — "+beat.Hint;
-                var label=Ui.Text(line, 14);
+                var label=Ui.Body(line, 13);
                 label.AddThemeColorOverride("font_color", open ? new Color("e6c27a") : new Color("8a96a0"));
                 list.AddChild(label);
-                if (open && game.ImagePaths.TryGetValue("special:"+c.Id+":"+beat.Id, out var specialPath))
-                {
-                    var specialTex = new PortraitCache().LoadRaw(specialPath) ?? new PortraitCache().LoadRaw(ProjectSettings.GlobalizePath(specialPath));
-                    if (specialTex != null)
-                        list.AddChild(new TextureRect { Texture=specialTex, CustomMinimumSize=new Vector2(0, 200), ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize, StretchMode=TextureRect.StretchModeEnum.KeepAspectCentered });
-                }
             }
         }
         foreach(var legacy in game.UnlockedCinematics.Where(k=>!k.Contains(':')))

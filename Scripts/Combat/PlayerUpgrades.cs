@@ -59,6 +59,6 @@ public static class PlayerUpgrades
         if (duel) return 0;
         if (string.Equals(role, "Boss", StringComparison.OrdinalIgnoreCase)) return 2;
         if (string.Equals(role, "Elite", StringComparison.OrdinalIgnoreCase)) return 1;
-        return rng.NextDouble() < 0.35 ? 1 : 0;
+        return 1;
     }
 }

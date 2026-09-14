@@ -137,8 +137,10 @@ public static class AtlasGenerator
     static AtlasNodeKind KindFor(int col,int columns,int expedition,Random rng)
     {
         if(col==0)return AtlasNodeKind.Event;if(col==columns-1)return AtlasNodeKind.Boss;
-        var table=col==1?new[]{AtlasNodeKind.Merchant,AtlasNodeKind.Combat,AtlasNodeKind.Scene}:col==columns-2?new[]{AtlasNodeKind.Combat,AtlasNodeKind.Mystery,AtlasNodeKind.Rest,AtlasNodeKind.Character}:new[]{AtlasNodeKind.Combat,AtlasNodeKind.Character,AtlasNodeKind.Event,AtlasNodeKind.Mystery,AtlasNodeKind.Scene};
-        if(expedition>=2&&rng.NextDouble()<.18+Math.Min(.28,expedition*.04))return AtlasNodeKind.Combat;return table[rng.Next(table.Length)];
+        if(col==1)return rng.Next(2)==0?AtlasNodeKind.Character:AtlasNodeKind.Merchant;
+        if(col==2)return AtlasNodeKind.Combat;
+        if(col==columns-2)return rng.NextDouble()<.55?AtlasNodeKind.Combat:AtlasNodeKind.Mystery;
+        return rng.Next(4) switch {0=>AtlasNodeKind.Scene,1=>AtlasNodeKind.Rest,2=>AtlasNodeKind.Character,_=>AtlasNodeKind.Event};
     }
     static (string Title,string Text,string Hint,string Fallback) Spec(AtlasNodeKind kind,Random rng)
     {
@@ -158,7 +160,7 @@ public static class AtlasGenerator
 
 public static class CampService
 {
-    public static bool CanInvite(GameSave game,CharacterData character,CharacterState state)=>character.CanBuildRelationship&&state.Affection>=40&&!game.CampResidents.Contains(character.Id);
+    public static bool CanInvite(GameSave game,CharacterData character,CharacterState state)=>character.CanBuildRelationship&&!game.CampResidents.Contains(character.Id);
     public static bool Invite(GameSave game,CharacterData character,CharacterState state)
     {
         if(!CanInvite(game,character,state))return false;game.CampResidents.Add(character.Id);if(!state.Flags.Contains("camp_resident"))state.Flags.Add("camp_resident");

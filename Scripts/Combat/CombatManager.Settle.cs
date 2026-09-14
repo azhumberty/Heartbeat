@@ -26,6 +26,18 @@ public sealed partial class CombatManager
             if (State.IsDuel) EconomyService.Grant(_game, coins);
 
             State.RewardText = $"+{xp} XP · +{coins} Reais";
+            try
+            {
+                var loot = PickLootCard(new CardRepository().Generic.Where(c => c.CharacterId.Length == 0).ToList(), foe.LootTier, rng);
+                _game.Deck.Owned[loot.Id] = _game.Deck.Owned.GetValueOrDefault(loot.Id) + 1;
+                State.RewardText += " · carta " + loot.Name;
+            }
+            catch { }
+            if (rng.NextDouble() < 0.55)
+            {
+                Inventory.Grant(_game, "potion_hp");
+                State.RewardText += " · poção";
+            }
             _game.Player.Health = State.Player.Health;
             var rngUp = new Random(State.Seed ^ 9176);
             State.PendingUpgradePicks = PlayerUpgrades.PicksFor(State.EnemyRole, State.IsDuel, rngUp);

@@ -34,7 +34,7 @@ public partial class CampController : Control
         body.AddThemeConstantOverride("separation", 8);
         panel.AddChild(body);
         body.AddChild(Ui.Text("ACAMPAMENTO", 24));
-        body.AddChild(Ui.Text("Roan, Kael e Silas. Convide quem tem afeto 40. Cartas sobem com a relacao.", 14));
+        body.AddChild(Ui.Text("Só mora aqui quem convidares. Baralho começa fraco. Poções no inventário.", 14));
         _status = Ui.Text("", 14);
         _status.AddThemeColorOverride("font_color", new Color("c9b27a"));
         body.AddChild(_status);
@@ -48,6 +48,8 @@ public partial class CampController : Control
         row.AddThemeConstantOverride("separation", 10);
         body.AddChild(row);
         row.AddChild(Ui.Button("Descansar", Rest));
+        row.AddChild(Ui.Button("Baralho", OpenDeck));
+        row.AddChild(Ui.Button("Poção", Drink));
         row.AddChild(Ui.Button("Momentos", ShowMoments));
         row.AddChild(Ui.Button("Voltar ao atlas", () => Closed?.Invoke()));
         Refresh();
@@ -59,17 +61,27 @@ public partial class CampController : Control
         var people = WorldCast.For(Game)
             .Where(c => c.CanBuildRelationship || c.Tags.Contains("merchant"))
             .GroupBy(c => c.Id).Select(g => g.First()).ToList();
-        foreach (var data in people)
+        var residents = people.Where(c => Game.CampResidents.Contains(c.Id)).ToList();
+        var road = people.Where(c => !Game.CampResidents.Contains(c.Id)).ToList();
+        if (residents.Count == 0)
+            _list.AddChild(Ui.Text("Ninguem mora aqui ainda. Convida pela estrada.", 15));
+        else
+            _list.AddChild(Ui.Text("Moradores", 16));
+        foreach (var data in residents)
         {
-            if (!Game.CharacterStates.TryGetValue(data.Id, out var state))
-            {
-                state = new CharacterState();
-                Game.CharacterStates[data.Id] = state;
-            }
+            if (!Game.CharacterStates.TryGetValue(data.Id, out var state)) { state = new CharacterState(); Game.CharacterStates[data.Id] = state; }
             _list.AddChild(PersonRow(data, state));
         }
-        if (_list.GetChildCount() == 0)
-            _list.AddChild(Ui.Text("Ninguem neste mundo ainda.", 15));
+        if (road.Count > 0)
+        {
+            _list.AddChild(Ui.Text("Na estrada — podes chamar", 16));
+            foreach (var data in road)
+            {
+                if (!Game.CharacterStates.TryGetValue(data.Id, out var state)) { state = new CharacterState(); Game.CharacterStates[data.Id] = state; }
+                _list.AddChild(PersonRow(data, state));
+            }
+        }
+        _status.Text = Inventory.Label(Game);
     }
 
     Control PersonRow(CharacterData data, CharacterState state)
@@ -128,8 +140,29 @@ public partial class CampController : Control
         Game.Player.Health = Game.Player.MaxHealth;
         Game.Player.Mana = Game.Player.MaxMana;
         Game.Player.Energy = 100;
-        _status.Text = "O fogo devolveu Vida, Mana e energia.";
+        _status.Text = "Descanso completo. "+Inventory.Label(Game);
         Rested?.Invoke();
+        Refresh();
+    }
+
+    void Drink()
+    {
+        if (!Inventory.UseHp(Game, 25)) { _status.Text = "Sem poções de vida."; return; }
+        _status.Text = "Bebeste uma poção. "+Inventory.Label(Game);
+        Rested?.Invoke();
+        Refresh();
+    }
+
+    void OpenDeck()
+    {
+        DeckEditor? ed = null;
+        ed = new DeckEditor
+        {
+            Game = Game,
+            Closed = () => { if (GodotObject.IsInstanceValid(ed)) ed!.QueueFree(); },
+            Saved = () => Rested?.Invoke()
+        };
+        AddChild(ed);
     }
 
     void ShowMoments()

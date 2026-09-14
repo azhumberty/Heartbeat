@@ -23,6 +23,8 @@ public partial class CombatArenaController
         _turn=Ui.Text("",16); _turn.AutowrapMode=TextServer.AutowrapMode.Off; actions.AddChild(_turn);
         _end=Ui.Button("Encerrar turno",()=>_ = EndTurnAnimated());actions.AddChild(_end);
         _flee=Ui.Button("Recuar",()=>_ = Retreat());actions.AddChild(_flee);
+        _potion=Ui.Button("Poção ("+Inventory.Count(Game,"potion_hp")+")", UsePotion);actions.AddChild(_potion);
+        _potion.Disabled=Inventory.Count(Game,"potion_hp")<=0;
         var reduced=new CheckButton {Text="Reduzir movimento",ButtonPressed=ReduceMotion};actions.AddChild(reduced);reduced.Toggled+=v=>ReduceMotion=v;
 
         _detailPanel=new PanelContainer {Position=new(28,175),CustomMinimumSize=new(300,0),Visible=false};AddChild(_detailPanel);

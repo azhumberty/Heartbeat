@@ -37,7 +37,9 @@ public partial class AtlasController : Control
         _map.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         _map.MouseFilter = MouseFilterEnum.Ignore;
         AddChild(_map);
-        _map.Texture = ContentLibrary.LoadTexture(Game.AtlasBackgroundPath)??ChromaArt.LoadArt("Backgrounds/atlas_map.png");
+        _map.Texture = WorldArt.Load(Game.AtlasBackgroundPath)
+            ?? WorldArt.Load(Game.ImagePaths.GetValueOrDefault("atlas"))
+            ?? ContentLibrary.LoadTexture(Game.AtlasBackgroundPath);
 
         var veil = new ColorRect { Color = new Color("07101855"), MouseFilter = MouseFilterEnum.Ignore };
         veil.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
@@ -75,6 +77,12 @@ public partial class AtlasController : Control
         BuildDetail();
         RefreshHud();
         CallDeferred(nameof(LayoutNodes));
+    }
+
+    public void ApplyGeneratedMap()
+    {
+        var tex = WorldArt.Load(Game.AtlasBackgroundPath) ?? WorldArt.Load(Game.ImagePaths.GetValueOrDefault("atlas"));
+        if (tex != null) _map.Texture = tex;
     }
 
     public override void _Notification(int what)

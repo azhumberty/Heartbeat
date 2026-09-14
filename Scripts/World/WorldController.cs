@@ -41,6 +41,7 @@ public partial class WorldController : Node
         _game.Settings.OpenRouterModel=opts.OpenRouterModel;
         _game.Settings.UseOpenRouter=opts.UseOpenRouter;
         _game.Settings.UseOnlineAi=opts.UseOnlineAi;
+        _game.Settings.UseImageAi=opts.UseImageAi;
         
         // Ensure UI layer is top-level
         _uiLayer = new CanvasLayer { Layer = 1 };
@@ -151,8 +152,8 @@ public partial class WorldController : Node
         _atlas.Visible = false;
         ClearVnMeet();
 
-        _vnBackground.Modulate = new Color(0.85f, 0.85f, 0.88f);
-        _vnBackground.Texture = node.BackgroundId.Contains("://") || Path.IsPathRooted(node.BackgroundId) ? ContentLibrary.LoadTexture(node.BackgroundId) : ChromaArt.LoadArt(ChromaArt.BackgroundForDestination(node.BackgroundId));
+        _vnBackground.Modulate = new Color(0.92f, 0.92f, 0.94f);
+        _vnBackground.Texture = WorldArt.Background(_game, node);
 
         if (node.Kind == AtlasNodeKind.Merchant)
         {
@@ -268,13 +269,30 @@ public partial class WorldController : Node
 
     async Task PrefetchWorldImages()
     {
-        if (!_game.Settings.UseImageAi) return;
+        if (!WorldPrep.Needed(_game)) return;
+        var overlay = new ColorRect { Color = new Color("03070af2"), MouseFilter = Control.MouseFilterEnum.Stop };
+        overlay.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+        var label = Ui.Body("A gerar o visual deste mundo…\nA primeira vez demora. Depois fica em cache.", 20);
+        label.Position = new Vector2(80, 300);
+        overlay.AddChild(label);
+        _uiLayer.AddChild(overlay);
+        if (GodotObject.IsInstanceValid(_atlas)) _atlas.Visible = false;
         try
         {
-            foreach (var person in _game.GeneratedCast.Take(3))
-                await PortraitGenerationService.EnsureAsync(person, _game, CancellationToken.None);
+            await WorldPrep.Run(_game, (id, i, n) =>
+            {
+                if (GodotObject.IsInstanceValid(label))
+                    label.Text = $"A gerar imagens {i}/{n}…\n{id}";
+            }, CancellationToken.None);
+            Save();
+            if (GodotObject.IsInstanceValid(_atlas))
+            {
+                _atlas.ApplyGeneratedMap();
+                _atlas.Visible = true;
+            }
         }
-        catch (Exception ex) { GD.PushWarning("[ImageAI] prefetch: " + ex.Message); }
+        catch (Exception ex) { GD.PushWarning("[ImageAI] prep: " + ex.Message); if (GodotObject.IsInstanceValid(_atlas)) _atlas.Visible = true; }
+        finally { if (GodotObject.IsInstanceValid(overlay)) overlay.QueueFree(); }
     }
 
     async Task ApplyPortrait(NpcActor actor)

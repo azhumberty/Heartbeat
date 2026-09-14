@@ -39,7 +39,7 @@ public sealed class WorldStore
             var path = Path.Combine(DirFor(id), "save.json");
             if (!File.Exists(path)) return null;
             var save = JsonSerializer.Deserialize<GameSave>(File.ReadAllText(path), _json);
-            if (save == null || save.SaveVersion < 12) return null;
+            if (save == null || save.SaveVersion < 13) return null;
             new SaveManager().Migrate(save);
             return save;
         }
@@ -106,7 +106,7 @@ public sealed class WorldStore
         return true;
     }
 
-    public int DiscardIncompatible(int minVersion = 12)
+    public int DiscardIncompatible(int minVersion = 13)
     {
         int n = 0;
         foreach (var man in List().ToList())
@@ -129,7 +129,7 @@ public sealed class WorldStore
     {
         if (List().Count > 0) return;
         var legacy = saves.LoadSlot(1);
-        if (legacy == null || legacy.SaveVersion < 12) return;
+        if (legacy == null || legacy.SaveVersion < 13) return;
         if (string.IsNullOrWhiteSpace(legacy.WorldId))
             legacy.WorldId = "legacy_" + Math.Abs(legacy.WorldSeed).ToString("x8").PadLeft(8, '0');
         if (string.IsNullOrWhiteSpace(legacy.WorldPrompt))

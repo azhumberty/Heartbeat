@@ -11,12 +11,14 @@ public sealed class PortraitCache
     /// </summary>
     public Texture2D Get(CharacterData c, CharacterState? state = null, bool cinematic = false)
     {
-        if (!string.IsNullOrWhiteSpace(c.GeneratedPortraitPath))
+        try
         {
-            var generated = LoadRaw(c.GeneratedPortraitPath) ?? LoadRaw(ProjectSettings.GlobalizePath(c.GeneratedPortraitPath));
-            if (generated != null) return generated;
-        }
-        var outfit = Wardrobe.Resolve(c, state?.CurrentOutfitId);
+            if (!string.IsNullOrWhiteSpace(c.GeneratedPortraitPath))
+            {
+                var generated = LoadRaw(c.GeneratedPortraitPath) ?? LoadRaw(ProjectSettings.GlobalizePath(c.GeneratedPortraitPath));
+                if (generated != null) return generated;
+            }
+            var outfit = Wardrobe.Resolve(c, state?.CurrentOutfitId);
         if (!cinematic && outfit != null && !outfit.UseLegacy && !string.IsNullOrEmpty(outfit.Idle.Cutout))
         {
             var texture = LoadRaw(Wardrobe.PathFor(c, outfit.Idle.Cutout));
@@ -37,6 +39,8 @@ public sealed class PortraitCache
             var rect = image.GetUsedRect(); if (rect.Size.X > 0 && rect.Size.Y > 0) { using var cropped = image.GetRegion(rect); return _cache[path] = ImageTexture.CreateFromImage(cropped); }
         }
         return GetPlaceholder(c);
+        }
+        catch { return GetPlaceholder(c); }
     }
 
     /// <summary>

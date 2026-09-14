@@ -131,6 +131,12 @@ public static class StoryDirector
             }
             node.BackgroundId = BackgroundFor(lore, node);
         }
+        string prev = "o acampamento";
+        foreach (var node in save.AtlasNodes.Where(n => !n.Persistent).OrderBy(n => n.X).ThenBy(n => n.Y))
+        {
+            node.Description = Limit("A partir de " + prev + " — " + node.Description, 220);
+            prev = node.Title;
+        }
     }
 
     static List<CharacterData> BuildCast(GameSave save)

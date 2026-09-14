@@ -63,7 +63,12 @@ public static class DeckManager
     {
         game.Deck??=new();game.Encounters??=new();game.CombatHistory??=new();
         var d=game.Deck;d.Owned??=new();d.Cards??=new();d.Upgrades??=new();d.MaxCopies=Math.Clamp(d.MaxCopies,1,5);
-        if(!d.Initialized){foreach(var c in new CardRepository().Generic)d.Owned[c.Id]=3;d.Cards=Starter.ToList();d.Initialized=true;}
+        if(!d.Initialized)
+        {
+            foreach(var id in Starter) d.Owned[id]=d.Owned.GetValueOrDefault(id)+1;
+            d.Cards=Starter.ToList();
+            d.Initialized=true;
+        }
     }
     public static void SyncUnlocks(GameSave game,Dictionary<string,CardDefinition> catalog)
     {

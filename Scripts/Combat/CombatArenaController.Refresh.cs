@@ -30,6 +30,7 @@ public partial class CombatArenaController
         }
         _selected=-1;CardUi.Clear(_detail);_play.Disabled=true;_detailPanel.Visible=false;
         _end.Disabled=Busy||s.Result.Length>0;_flee.Disabled=Busy||s.Result.Length>0;
+        if(_potion!=null){_potion.Text="Poção ("+Inventory.Count(Game,"potion_hp")+")";_potion.Disabled=Busy||s.Result.Length>0||Inventory.Count(Game,"potion_hp")<=0;}
         if(s.Result.Length>0)
         {
             Manager.Settle();Changed?.Invoke();
@@ -89,5 +90,16 @@ public partial class CombatArenaController
             });
             box.AddChild(btn);
         }
+    }
+
+    void UsePotion()
+    {
+        if(Busy||Manager.State.Result.Length>0)return;
+        if(!Inventory.UseHp(Game,25))return;
+        Manager.State.Player.Health=Math.Min(Manager.State.Player.MaxHealth, Manager.State.Player.Health+25);
+        Game.Player.Health=Manager.State.Player.Health;
+        Changed?.Invoke();
+        Refresh();
+        _message.Text="Bebeste uma poção. +25 vida.";
     }
 }

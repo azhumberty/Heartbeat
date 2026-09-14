@@ -15,7 +15,7 @@ public partial class CombatArenaController : Control
     HBoxContainer _intentRow=null!;
     VBoxContainer _detail=null!;
     PanelContainer _detailPanel=null!;
-    Button _play=null!,_end=null!,_return=null!,_flee=null!;
+    Button _play=null!,_end=null!,_return=null!,_flee=null!,_potion=null!;
     TextureRect _enemy=null!;
     int _selected=-1;
     Control _effects=null!;
@@ -56,6 +56,10 @@ public partial class CombatArenaController : Control
             _enemy.Texture = customTexture;
             if(custom.Path.Contains("chroma",StringComparison.OrdinalIgnoreCase)||custom.Tags.Contains("chroma",StringComparison.OrdinalIgnoreCase))ChromaArt.ApplyChroma(_enemy);
         }
+        else if (Game.ImagePaths.TryGetValue("enemy:"+Manager.State.EnemyId, out var enemyPath) && WorldArt.Load(enemyPath) is { } generatedFoe)
+        {
+            _enemy.Texture = generatedFoe;
+        }
         else
         {
             _enemy.Texture = ChromaArt.LoadArt(ChromaArt.EnemySpritePath(Manager.State.EnemyId));
@@ -70,6 +74,8 @@ public partial class CombatArenaController : Control
         {
             var id = Manager.State.EncounterId.StartsWith("atlas_") ? Manager.State.EncounterId["atlas_".Length..] : Manager.State.EncounterId;
             var node = Game.AtlasNodes.FirstOrDefault(n => n.Id == id) ?? new AtlasNodeData { Id = id, Kind = AtlasNodeKind.Combat, Title = Manager.State.EnemyId };
+            var ready = WorldArt.Background(Game, node);
+            if (ready != null) { bg.Texture = ready; return; }
             var tex = await BackgroundGenerationService.FetchAsync(Game, node, null, CancellationToken.None);
             if (tex != null && GodotObject.IsInstanceValid(bg))
             {

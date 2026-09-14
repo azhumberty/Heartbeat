@@ -162,7 +162,7 @@ public partial class DialogueController : Control
 
     void RefreshInvite()
     {
-        if(_invite==null||!Alive())return;var resident=Game.CampResidents.Contains(Actor.Data.Id);_invite.Text=resident?"Mora no acampamento":"Convidar para o acampamento";_invite.Disabled=resident||!CampService.CanInvite(Game,Actor.Data,Actor.State);_invite.TooltipText=resident?"Morador permanente do acampamento.":_invite.Disabled?"Requer 40 de afeição.":"Convidar para morar no acampamento.";
+        if(_invite==null||!Alive())return;var resident=Game.CampResidents.Contains(Actor.Data.Id);_invite.Text=resident?"Mora no acampamento":"Convidar para o acampamento";_invite.Disabled=resident||!CampService.CanInvite(Game,Actor.Data,Actor.State);_invite.TooltipText=resident?"Morador permanente do acampamento.":"Podes chamar agora. Não precisa de afeto.";
     }
     public override void _ExitTree()
     {
