@@ -99,6 +99,7 @@ public partial class WorldController : Node
     {
         _vnCharacter.Texture = null;
         _vnCharacter.Material = null;
+        _vnCharacter.Scale = Vector2.One;
         if (_vnBack != null)
         {
             _vnBack.QueueFree();
@@ -275,6 +276,7 @@ public partial class WorldController : Node
             _vnCharacter.Texture = new PortraitCache().Get(actor.Data, actor.State, false);
             if(actor.Data.MainImagePath.Contains("chroma",StringComparison.OrdinalIgnoreCase))ChromaArt.ApplyChroma(_vnCharacter);
         }
+        PortraitMotion.Breath(_vnCharacter);
 
         DialogueController? dialog = null;
         dialog = new DialogueController
@@ -298,6 +300,7 @@ public partial class WorldController : Node
         if (ReferenceEquals(_screen, dialog)) _screen = null;
         _vnCharacter.Texture = null;
         _vnCharacter.Material = null;
+        _vnCharacter.Scale = Vector2.One;
         if (complete)
         {
             FinishAtlasNode();

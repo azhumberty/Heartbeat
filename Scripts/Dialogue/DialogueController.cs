@@ -7,7 +7,7 @@ public partial class DialogueController : Control
     const int MaxPlayerTurns = 8;
     Label _line=null!,_status=null!; TextEdit _input=null!;Button? _invite; bool _busy; int _turns; readonly CancellationTokenSource _cancel=new();
     CardShopController? _shop;
-    bool _exiting;
+    bool _parkAsk;
     
     public override void _Ready()
     {
@@ -48,7 +48,7 @@ public partial class DialogueController : Control
         }
         else if (Actor.Data.CanBuildRelationship)
         {
-            actions.AddChild(Ui.Button("Parque", () => { _input.Text = "Quer passar um tempo comigo no parque?"; _=Send(); }));
+            actions.AddChild(Ui.Button("Parque", () => { if(!Alive())return; _parkAsk=true; _input.Text = "Quer passar um tempo comigo no parque?"; _=Send(); }));
             actions.AddChild(Ui.Button("Duelo", () => { DuelRequested?.Invoke(Actor); RequestClose(); }));
             _invite=Ui.Button("Convidar para o acampamento",()=>
             {
@@ -131,8 +131,11 @@ public partial class DialogueController : Control
             s.CurrentEmotion=r.Emotion; s.Clamp();
             memory.RecordConfirmedPlayerAction(Actor.Data,s,input,Game.Day,Game.WorldMinutes);
             s.Conversation.Add("Jogador: "+input); s.Conversation.Add(Actor.Data.Name+": "+r.Dialogue); while(s.Conversation.Count>8)s.Conversation.RemoveAt(0);
+            var intent=_parkAsk?"park":""; _parkAsk=false;
+            var beats=SocialBeatService.TryUnlock(Game,Actor.Data,s,intent);
+            DeckManager.SyncUnlocks(Game, new CardRepository().Catalog());
             _line.Text=r.Dialogue;
-            _status.Text=StatusLine(r.ProviderStatus);
+            _status.Text=beats.Count>0 ? StatusLine(r.ProviderStatus)+" · Momento: "+beats[0] : StatusLine(r.ProviderStatus);
             Changed?.Invoke();
         }
         catch(OperationCanceledException) { }

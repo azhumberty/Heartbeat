@@ -154,6 +154,8 @@ public static class CampService
     public static bool Invite(GameSave game,CharacterData character,CharacterState state)
     {
         if(!CanInvite(game,character,state))return false;game.CampResidents.Add(character.Id);if(!state.Flags.Contains("camp_resident"))state.Flags.Add("camp_resident");
+        SocialBeatService.TryUnlock(game, character, state, "camp");
+        DeckManager.SyncUnlocks(game, new CardRepository().Catalog());
         state.RecentMemories.Insert(0,$"Aceitou morar no acampamento de {game.PlayerName}.");while(state.RecentMemories.Count>12)state.RecentMemories.RemoveAt(state.RecentMemories.Count-1);return true;
     }
 }

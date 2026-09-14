@@ -1,28 +1,22 @@
 # HEARTBEAT — PRÓXIMAS TAREFAS
 
 ## P0 — Estabilidade (feito)
-
-1. [x] Mercador fecha depois de comprar.
-2. [x] Textos UTF-8 / botões visíveis.
-3. [x] OpenRouter com modelos :free vivos e teste visível.
-
 ## P1 — Multi-world (feito)
+## P2 — NPC / Dating Sim (feito)
 
-1. [x] Tela Mundos / Create World.
-2. [x] Saves isolados.
-3. [x] Pedido do jogador entra no diálogo e nos eventos.
+## P3 — Camp / relacionamentos (feito neste passe)
 
-## P2 — NPC / Dating Sim (feito neste passe)
+1. [x] CampRoster com Roan, Kael e Silas, retrato a respirar.
+2. [x] NPC recrutável (afeto 40) vira morador.
+3. [x] Companion Card ligada ao NpcId (`comp_roan`, `comp_kael`).
+4. [x] Progressão Conhecido → Amigo → Confiança → Romance / fogueira.
+5. [x] Gallery por NPC (4 momentos: conversa, fogueira, parque, laço).
+6. [x] Special scenes desbloqueiam no diálogo e no convite.
+7. [x] Retrato anima com uma só imagem (respiração).
 
-1. [x] Roan, Kael e Silas com personalidades testáveis (não o mesmo texto).
-2. [x] Memória imediata (turno) + resumo longo no CharacterState do mundo.
-3. [x] Nome do jogador vira facto persistido.
-4. [x] Afeto/confiança/romance/respeito no Perfil.
-5. [x] Anti-farm: no máximo +8 afeto por dia.
-6. [x] Prompt da IA leva mundo + memória + voz do personagem.
+## P4 — Roguelike / card game (seguinte)
 
-## P3 — Camp / relacionamentos (seguinte)
-
-1. CampRoster visível com os três.
-2. Companion Card ligada ao NpcId.
-3. Gallery / special scenes por NPC.
+1. Mana / deck de inimigos.
+2. Combat AI local.
+3. Elites e bosses.
+4. Upgrades do jogador.

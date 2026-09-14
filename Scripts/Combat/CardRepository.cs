@@ -41,7 +41,8 @@ public sealed class CardRepository
         var all=Generic.Concat(Custom()).ToDictionary(c=>c.Id,c=>CardRules.Copy(c));
         foreach(var person in cast??new CharacterRepository().List())
         {
-            if(!person.CanBuildRelationship || person.Age<18 || person.CardData is not {Enabled:true} config)continue;
+            if(!person.CanBuildRelationship || person.Age<18)continue;
+            var config=CompanionProgress.For(person);
             void Add(CardDefinition source,string id,bool companion)
             {
                 var c=CardRules.Validate(source); c.Id=id;c.CharacterId=person.Id;
@@ -69,12 +70,25 @@ public static class DeckManager
         Migrate(game);
         foreach(var c in catalog.Values)
         {
-            bool unlocked=c.CharacterId.Length==0 ? c.Id.StartsWith("custom_") : game.CharacterStates.TryGetValue(c.CharacterId,out var s)&&Meets(s,c.Requirement);
-            if(unlocked)game.Deck.Owned[c.Id]=Math.Max(game.Deck.Owned.GetValueOrDefault(c.Id),c.CharacterId.Length>0?1:3);
+            bool inCamp=c.CharacterId.Length>0 && game.CampResidents.Contains(c.CharacterId);
+            bool unlocked=c.CharacterId.Length==0 ? c.Id.StartsWith("custom_") : game.CharacterStates.TryGetValue(c.CharacterId,out var s)&&Meets(s,c.Requirement,inCamp);
+            if(unlocked)
+            {
+                game.Deck.Owned[c.Id]=Math.Max(game.Deck.Owned.GetValueOrDefault(c.Id),c.CharacterId.Length>0?1:3);
+                if(c.CharacterId.Length>0 && game.CharacterStates.TryGetValue(c.CharacterId,out var st))
+                    game.Deck.Upgrades[c.Id]=CompanionProgress.UpgradeLevel(st,inCamp);
+            }
         }
     }
-    public static bool Meets(CharacterState s,string requirement)=>requirement switch
-    {"Amigo"=>s.Affection>=30&&s.Trust>=25,"Confiança"=>s.Trust>=50,"Romance"=>s.Romance>=35||s.Flags.Contains("park_first_date"),_=>s.Trust>=10};
+    public static bool Meets(CharacterState s,string requirement,bool inCamp=false)
+    {
+        var req=(requirement??"").Trim();
+        if(req.Equals("Amigo",StringComparison.OrdinalIgnoreCase)) return s.Affection>=30&&s.Trust>=25;
+        if(req.Equals("Confiança",StringComparison.OrdinalIgnoreCase)||req.Equals("Confianca",StringComparison.OrdinalIgnoreCase)) return s.Trust>=50;
+        if(req.Equals("Romance",StringComparison.OrdinalIgnoreCase)) return s.Romance>=35||s.Flags.Contains("park_first_date");
+        if(req.Equals("Companheiro",StringComparison.OrdinalIgnoreCase)||req.Equals("Companheiro",StringComparison.OrdinalIgnoreCase)) return inCamp||s.Affection>=40;
+        return s.Trust>=10;
+    }
     public static string Validate(PlayerDeck d,Dictionary<string,CardDefinition> catalog)
     {
         if(d.Cards.Count<12||d.Cards.Count>30)return "Use entre 12 e 30 cartas.";
