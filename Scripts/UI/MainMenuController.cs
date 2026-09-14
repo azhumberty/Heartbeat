@@ -37,7 +37,12 @@ public partial class MainMenuController : Control
 
 	static StyleBoxFlat PanelStyle()=>new(){BgColor=new Color("101a21ee"),BorderColor=new Color("c9af7288"),BorderWidthTop=1,BorderWidthBottom=1,BorderWidthLeft=1,BorderWidthRight=1,CornerRadiusTopLeft=18,CornerRadiusTopRight=18,CornerRadiusBottomLeft=18,CornerRadiusBottomRight=18,ContentMarginLeft=42,ContentMarginRight=42,ContentMarginTop=34,ContentMarginBottom=26,ShadowColor=new Color(0,0,0,.65f),ShadowSize=16};
 	static Button MenuButton(string text,Action action){var button=Ui.Button(text,action);button.CustomMinimumSize=new Vector2(0,54);button.AddThemeFontSizeOverride("font_size",20);return button;}
-	void OpenNewGame(){OpenWorlds();}
+	void OpenNewGame()
+	{
+		if(_screen!=null)return;
+		var ng=new NewGameController{Settings=_saves.LoadSettings(),Completed=StartCampaign,Cancelled=Close};
+		_screen=ng;AddChild(ng);
+	}
 	void LoadGame(){OpenWorlds();}
 	void OpenWorlds()
 	{
@@ -53,15 +58,23 @@ public partial class MainMenuController : Control
 	void OpenGallery()
 	{
 		if(_screen!=null)return;
-		var worlds=new WorldStore();worlds.ImportLegacy(_saves);
-		GameSave save;
-		if(worlds.TryLoadActive(out var active)&&active!=null) save=active;
-		else
+		try
 		{
-			var listed=worlds.List();
-			save=listed.Count>0 ? worlds.Load(listed[0].Id)??new GameSave() : _saves.Load()??new GameSave();
+			var worlds=new WorldStore();worlds.ImportLegacy(_saves);
+			GameSave save;
+			if(worlds.TryLoadActive(out var active)&&active!=null) save=active;
+			else
+			{
+				var listed=worlds.List();
+				save=listed.Count>0 ? worlds.Load(listed[0].Id)??new GameSave() : _saves.Load()??new GameSave();
+			}
+			_screen=AuxiliaryScreens.Gallery(this,save,Close);
 		}
-		_screen=AuxiliaryScreens.Gallery(this,save,Close);
+		catch (Exception e)
+		{
+			GD.PushWarning("[Momentos] " + e.GetType().Name);
+			ShowNotice("Momentos indisponiveis neste save.");
+		}
 	}
 	void ShowNotice(string text){if(_screen!=null)return;var notice=new Control();_screen=notice;AddChild(notice);Ui.Panel(notice,"HEARTBEAT",out var body,Close);body.AddChild(Ui.Text(text,18));}
 	void Close(){if(IsInstanceValid(_screen))_screen.QueueFree();_screen=null;}

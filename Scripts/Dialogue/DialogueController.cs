@@ -58,6 +58,8 @@ public partial class DialogueController : Control
             });RefreshInvite();actions.AddChild(_invite);
         }
         actions.AddChild(Ui.Button("Perfil", ShowProfile));
+        if (Actor.Data.CanBuildRelationship)
+            actions.AddChild(Ui.Button("Forçar Visita (Debug)", ForceVisit));
         
         panel.Modulate = new Color(1,1,1,0); panel.CreateTween().TweenProperty(panel, "modulate:a", 1f, .2);
         _input.GrabFocus();
@@ -127,6 +129,7 @@ public partial class DialogueController : Control
             {
                 new RelationshipSystem().Apply(s,r.AffectionDelta,r.TrustDelta,r.RomanceDelta,r.AttractionDelta,Game.Day);
                 s.Energy+=r.EnergyDelta; s.Stress+=r.StressDelta; s.Mood+=r.AffectionDelta; s.CurrentDesire=r.Desire;
+                CampService.MaybeJoinByAffection(Game, Actor.Data, s);
                 RefreshInvite();
             }
             s.CurrentEmotion=r.Emotion; s.Clamp();
@@ -149,6 +152,19 @@ public partial class DialogueController : Control
         var s=Actor.State;
         var role=Actor.Data.CanBuildRelationship ? s.Relationship : (Actor.Data.Profession.Length>0?Actor.Data.Profession:"conhecido");
         return $"{provider}  ·  {Actor.Data.Name} · {role} · humor {s.CurrentMood} · afeto {s.Affection} conf {s.Trust}";
+    }
+
+    void ForceVisit()
+    {
+        if (!Alive() || !Actor.Data.CanBuildRelationship) return;
+        if (CampService.Invite(Game, Actor.Data, Actor.State))
+        {
+            _line.Text = Actor.Data.Name + " foi forçado para o acampamento (debug).";
+            _status.Text = "Morador de teste · progresso salvo";
+            RefreshInvite();
+            Changed?.Invoke();
+        }
+        else _status.Text = Actor.Data.Name + " já está no acampamento.";
     }
 
     void ShowProfile()

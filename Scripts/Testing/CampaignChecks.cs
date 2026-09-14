@@ -136,7 +136,7 @@ public partial class CampaignChecks : Node
             var offlineBytes=await new OfflineImageProvider().GenerateAsync("test",64,64,1,ImageKind.Background,CancellationToken.None);
             Require(offlineBytes==null,"P6: provider offline nao deve baixar.");
             Require(ImageAi.Lock("a hall",ImageKind.Portrait).Contains("portrait",StringComparison.OrdinalIgnoreCase)||ImageAi.Lock("a hall",ImageKind.Portrait).Contains("chroma",StringComparison.OrdinalIgnoreCase),"P6: style lock ausente.");
-            Require(p5.Items.GetValueOrDefault("potion_hp")>=1,"Inventario inicial sem pocoes.");
+            Require(p5.CampResidents.Count==0,"Acampamento novo nao inicia vazio.");
             Require(p5.Deck.Cards.Count==20,"Baralho inicial nao tem 20 cartas.");
             var vKael=NpcVoice.Ensure(new CharacterData{Id="kael",Name="Kael",PersonalityProfile=new(){Pride=80}});
             var vMer=NpcVoice.Ensure(new CharacterData{Id="silas",Name="Silas",Tags=new(){"merchant"},PersonalityProfile=new(){Extraversion=80}});

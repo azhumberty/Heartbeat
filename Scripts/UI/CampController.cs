@@ -62,7 +62,7 @@ public partial class CampController : Control
             .Where(c => Game.CampResidents.Contains(c.Id))
             .GroupBy(c => c.Id).Select(g => g.First()).ToList();
         if (people.Count == 0)
-            _list.AddChild(Ui.Text("Ninguem mora aqui. Convida pela conversa.", 15));
+            _list.AddChild(Ui.Text("Acampamento vazio. Convida no perfil ou na conversa (afeto 50).", 15));
         foreach (var data in people)
         {
             if (!Game.CharacterStates.TryGetValue(data.Id, out var state)) { state = new CharacterState(); Game.CharacterStates[data.Id] = state; }
@@ -156,7 +156,16 @@ public partial class CampController : Control
 
     void ShowMoments()
     {
-        Control? gal=null;
-        gal=AuxiliaryScreens.Gallery(this, Game, () => { if(GodotObject.IsInstanceValid(gal)) gal.QueueFree(); });
+        try
+        {
+            var host = GetTree()?.Root ?? this;
+            Control? gal=null;
+            gal=AuxiliaryScreens.Gallery(host, Game, () => { if(GodotObject.IsInstanceValid(gal)) gal.QueueFree(); });
+        }
+        catch (Exception e)
+        {
+            GD.PushWarning("[Momentos] " + e.GetType().Name);
+            _status.Text = "Momentos indisponiveis.";
+        }
     }
 }

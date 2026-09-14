@@ -159,11 +159,9 @@ public partial class AtlasController : Control
     void RefreshHud()
     {
         if (_hud == null) return;
-        int done = Game.AtlasNodes.Count(n => !n.Persistent && n.Status == AtlasNodeStatus.Completed);
-        int total = Math.Max(1, Game.AtlasNodes.Count(n => !n.Persistent));
         _hud.ClipText = false;
         _hud.AutowrapMode = TextServer.AutowrapMode.Off;
-        _hud.Text = $"Dia {Game.Day}  ·  {Game.PlayerName}  ·  Nv.{Game.Player.Level}  ·  Expedicao {Game.ExpeditionIndex+1}  ·  {done}/{total}  ·  {Game.Player.Coins} R";
+        _hud.Text = $"Dia {Game.Day} | {(string.IsNullOrWhiteSpace(Game.PlayerName) ? "Viajante" : Game.PlayerName)} | Nv. {Game.Player.Level} | {Game.Player.Coins} Reais";
     }
 
     static StyleBoxFlat NodeStyle(AtlasNodeData node, bool selected)
@@ -219,11 +217,11 @@ public partial class AtlasController : Control
     void BuildDetail()
     {
         var detail = new PanelContainer();
-        detail.SetAnchorsPreset(LayoutPreset.BottomRight);
-        detail.OffsetLeft = -260;
-        detail.OffsetTop = -132;
+        detail.SetAnchorsPreset(LayoutPreset.TopRight);
+        detail.OffsetLeft = -236;
+        detail.OffsetTop = 78;
         detail.OffsetRight = -20;
-        detail.OffsetBottom = -16;
+        detail.OffsetBottom = 178;
         detail.AddThemeStyleboxOverride("panel", new StyleBoxFlat
         {
             BgColor = new Color("101925ee"),

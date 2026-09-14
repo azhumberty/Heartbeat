@@ -196,16 +196,17 @@ public static class WorldGenerationService
             SaveVersion = 13
         };
         save.WorldLore = ToLore(def);
+        save.CampResidents = new();
         save.AtlasBackgroundPath = AtlasGenerator.Backdrop(def.Seed, 0);
-        save.AtlasNodes = AtlasGenerator.Create(def.Seed, 0, def.SelectedLibraryIds);
+        save.AtlasNodes = AtlasGenerator.Create(def.Seed, 0, def.SelectedLibraryIds, save.WorldLore);
         var repo = new CharacterRepository();
-        var characters = repo.List().Where(c => c.CanBuildRelationship && !c.Tags.Contains("creative-disabled") && !c.Tags.Contains("demo")).ToList();
+        var characters = new List<CharacterData>();
         foreach (var id in def.SelectedLibraryIds)
         {
             var extra = repo.Load(id);
-            if (extra != null && characters.All(c => c.Id != extra.Id)) characters.Add(extra);
+            if (extra != null && characters.All(c => c.Id != extra.Id) && !extra.Tags.Contains("creative-disabled"))
+                characters.Add(extra);
         }
-        if (characters.Count == 0) characters.Add(repo.LoadDemo());
         save.CharacterIds = characters.Select(c => c.Id).Distinct().ToList();
         save.CharacterStates = characters.ToDictionary(c => c.Id, _ => new CharacterState { CurrentLocation = "road" });
         DeckManager.Migrate(save);

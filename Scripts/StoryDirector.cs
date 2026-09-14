@@ -17,9 +17,14 @@ public static class WorldCast
 {
     public static IReadOnlyList<CharacterData> For(GameSave game)
     {
-        var list = new CharacterRepository().List()
-            .Where(c => c.Id != "merchant" && !c.Tags.Contains("demo") && !c.Tags.Contains("creative-disabled"))
-            .ToList();
+        var list = new List<CharacterData>();
+        var repo = new CharacterRepository();
+        foreach (var id in game.CharacterIds ?? new())
+        {
+            var loaded = repo.Load(id);
+            if (loaded == null || loaded.Tags.Contains("creative-disabled") || loaded.Tags.Contains("demo")) continue;
+            list.Add(loaded);
+        }
         foreach (var g in game.GeneratedCast ?? new())
         {
             SocialModelMigrator.Migrate(g);
