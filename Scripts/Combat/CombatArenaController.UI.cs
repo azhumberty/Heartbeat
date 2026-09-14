@@ -13,7 +13,7 @@ public partial class CombatArenaController
 
         var spacer=new Control {SizeFlagsHorizontal=SizeFlags.ExpandFill, CustomMinimumSize=new(40,0)}; header.AddChild(spacer);
 
-        var enemyPanel=StatPanel(EnemyDefinition.Get(Manager.State.EnemyId).Name.ToUpperInvariant(), out _enemyName, out _enemyHpText, out _enemyHealth, out _, out _, false);
+        var enemyPanel=StatPanel(EnemyDefinition.Get(Manager.State.EnemyId, Game).Name.ToUpperInvariant(), out _enemyName, out _enemyHpText, out _enemyHealth, out _, out _, false);
         header.AddChild(enemyPanel);
         _intentRow=new HBoxContainer(); _intentRow.AddThemeConstantOverride("separation", 8);
         ((VBoxContainer)enemyPanel.GetChild(0)).AddChild(Ui.Text("INTENÇÃO",12));

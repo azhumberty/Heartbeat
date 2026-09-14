@@ -37,7 +37,7 @@ public partial class EventController : Control
         
         var status=Ui.Text(Story.ProviderStatus,13);status.AddThemeColorOverride("font_color",new Color("8595a8"));_body.AddChild(status);
         var choices=new VBoxContainer();choices.AddThemeConstantOverride("separation",7);_body.AddChild(choices);
-        foreach(var choice in Story.Choices){var selected=choice;var button=Ui.Button(choice.Text,()=>Choose(selected));button.SizeFlagsHorizontal=SizeFlags.ExpandFill;choices.AddChild(button);}
+        foreach(var choice in Story.Choices){var selected=choice;var button=Ui.Button(choice.Gamble?choice.Text+" (risco)":choice.Text,()=>Choose(selected));button.SizeFlagsHorizontal=SizeFlags.ExpandFill;choices.AddChild(button);}
     }
     void Choose(EventChoice choice)
     {

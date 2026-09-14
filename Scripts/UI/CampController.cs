@@ -56,9 +56,7 @@ public partial class CampController : Control
     public void Refresh()
     {
         foreach (var child in _list.GetChildren()) child.QueueFree();
-        var repo = new CharacterRepository();
-        var people = repo.List()
-            .Where(c => c.Id != "merchant" && !c.Tags.Contains("demo") && !c.Tags.Contains("creative-disabled"))
+        var people = WorldCast.For(Game)
             .Where(c => c.CanBuildRelationship || c.Tags.Contains("merchant"))
             .GroupBy(c => c.Id).Select(g => g.First()).ToList();
         foreach (var data in people)

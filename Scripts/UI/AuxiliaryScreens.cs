@@ -110,8 +110,8 @@ public static class AuxiliaryScreens
         list.AddThemeConstantOverride("separation", 10);
         scroll.AddChild(list);
         Ui.FitScrollChild(scroll, list);
-        var people=new CharacterRepository().List()
-            .Where(c=>c.CanBuildRelationship && c.Id!="merchant" && !c.Tags.Contains("demo"))
+        var people=WorldCast.For(game)
+            .Where(c=>c.CanBuildRelationship)
             .GroupBy(c=>c.Id).Select(g=>g.First()).ToList();
         if(people.Count==0) list.AddChild(Ui.Text("Nenhum vinculo neste mundo.",16));
         foreach(var c in people)

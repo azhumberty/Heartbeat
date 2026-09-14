@@ -11,7 +11,7 @@ public sealed partial class CombatManager
         p.AvailableAt = now + (State.Result == "Victory" ? State.Cooldown : 120);
 
         var rng = new Random(State.Seed);
-        var foe = EnemyDefinition.Get(State.EnemyId);
+        var foe = EnemyDefinition.Get(State.EnemyId, _game);
 
         if (State.Result == "Victory")
         {

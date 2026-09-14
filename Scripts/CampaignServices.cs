@@ -110,6 +110,7 @@ public static class AtlasGenerator
     {
         var node=save.AtlasNodes.FirstOrDefault(n=>n.Id==id);if(node==null||node.Persistent)return;
         node.Status=AtlasNodeStatus.Completed;
+        StoryDirector.OnNodeCompleted(save, node);
         int unlocked=0;
         foreach(var next in node.Connections)
             if(save.AtlasNodes.FirstOrDefault(n=>n.Id==next) is { Status:AtlasNodeStatus.Locked } target)
@@ -126,6 +127,7 @@ public static class AtlasGenerator
     public static void BeginNextExpedition(GameSave save)
     {
         save.ExpeditionIndex=Math.Min(save.ExpeditionIndex+1,1000000);save.AtlasBackgroundPath=Backdrop(save.WorldSeed,save.ExpeditionIndex,save.AtlasBackgroundPath);save.AtlasNodes=Create(save.WorldSeed,save.ExpeditionIndex,save.SelectedLibraryIds);
+        StoryDirector.OnNewExpedition(save);
         save.RecentEvents.Add($"expedition:{save.ExpeditionIndex}:iniciada");while(save.RecentEvents.Count>16)save.RecentEvents.RemoveAt(0);
     }
     public static string TemplateFromId(string id)

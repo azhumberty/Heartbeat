@@ -23,8 +23,7 @@ public partial class NpcManager : Node
     public override void _Ready()
     {
         // Load initial state
-        var db = new CharacterRepository();
-        foreach (var cData in db.List().Where(c=>!c.Tags.Contains("creative-disabled") && !c.Tags.Contains("demo")))
+        foreach (var cData in WorldCast.For(_game))
         {
             if (!_game.CharacterStates.TryGetValue(cData.Id, out var state))
             {

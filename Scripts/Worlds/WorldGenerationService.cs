@@ -193,7 +193,7 @@ public static class WorldGenerationService
             FirstPerson = false,
             CreatedAt = DateTime.UtcNow.ToString("o"),
             LastPlayedAt = DateTime.UtcNow.ToString("o"),
-            SaveVersion = 11
+            SaveVersion = 12
         };
         save.WorldLore = ToLore(def);
         save.AtlasBackgroundPath = AtlasGenerator.Backdrop(def.Seed, 0);
@@ -213,6 +213,8 @@ public static class WorldGenerationService
         foreach (var id in def.SelectedLibraryIds)
             if (catalog.TryGetValue(id, out var card) && card.CharacterId.Length == 0)
                 save.Deck.Owned[card.Id] = save.Deck.Owned.GetValueOrDefault(card.Id) + 1;
+        StoryDirector.ComposeWorld(save);
+        DeckManager.SyncUnlocks(save, new CardRepository().Catalog(WorldCast.For(save)));
         return save;
     }
 

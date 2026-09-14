@@ -15,6 +15,7 @@ public sealed class EventChoice
     public int CoinsDelta { get; set; }
     public int HealthDelta { get; set; }
     public int EnergyDelta { get; set; }
+    public bool Gamble { get; set; }
 }
 
 public sealed class EventResult
@@ -38,10 +39,10 @@ public sealed class ProceduralEventService
         var rng=new Random(seed);var node=context.Node;
         var eventResult=node.Kind switch
         {
-            AtlasNodeKind.Rest=>Rest(node,rng),
-            AtlasNodeKind.Scene=>Scene(node,rng),
-            AtlasNodeKind.Mystery=>Mystery(node,rng),
-            _=>Road(node,rng)
+            AtlasNodeKind.Rest=>Rest(context,rng),
+            AtlasNodeKind.Scene=>Scene(context,rng),
+            AtlasNodeKind.Mystery=>Mystery(context,rng),
+            _=>Road(context,rng)
         };
         if(node.Kind==AtlasNodeKind.Rest&&context.Game.CampResidents.Count>0)
         {
@@ -56,43 +57,84 @@ public sealed class ProceduralEventService
     public string Apply(GameSave game,EventResult story,EventChoice choice)
     {
         var coins=Math.Clamp(choice.CoinsDelta,-50,50);
+        var health=Math.Clamp(choice.HealthDelta,-25,25);
+        var resultText=choice.ResultText;
+        if(choice.Gamble)
+        {
+            var win=new Random(StableSeed(game.WorldSeed,story.Id,game.RecentEvents.Count)).Next(2)==0;
+            if(win){resultText="A lanterna segura. "+choice.ResultText;coins=Math.Max(coins,12);health=Math.Max(health,0);}
+            else{resultText="A lanterna apaga. O risco cobra o seu preço.";coins=Math.Min(coins,0);health=Math.Min(health,-8);}
+        }
         if(coins>=0)EconomyService.Grant(game,coins);else EconomyService.TrySpend(game,-coins);
-        game.Player.Health=Math.Clamp(game.Player.Health+Math.Clamp(choice.HealthDelta,-25,25),1,game.Player.MaxHealth);
+        game.Player.Health=Math.Clamp(game.Player.Health+health,1,game.Player.MaxHealth);
         game.Player.Energy=Math.Clamp(game.Player.Energy+Math.Clamp(choice.EnergyDelta,-25,25),0,100);
-        var summary=$"{story.Id}:{choice.Id}:{choice.ResultText}";
+        var summary=$"{story.Id}:{choice.Id}:{resultText}";
         game.RecentEvents.Add(summary[..Math.Min(summary.Length,220)]);
         while(game.RecentEvents.Count>16)game.RecentEvents.RemoveAt(0);
-        return choice.ResultText;
+        return resultText;
     }
 
-    static EventResult Road(AtlasNodeData node,Random rng)=>new()
+    static string Flavor(EventContext context)
     {
-        Id="road_"+node.Id+"_"+rng.Next(3),Title=node.Title,
-        ImagePrompt="dark forest road at night, fog, lantern glow, medieval fantasy, atmospheric",
-        Text=rng.Next(3) switch {0=>"Uma lanterna apagada balança ao lado da estrada. Pegadas recentes somem na lama.",1=>"Um sino toca ao longe, embora nenhuma torre seja visível entre as árvores.",_=>"Você encontra uma bolsa abandonada e um símbolo riscado numa pedra."},
-        Choices=new(){new(){Id="investigate",Text="Investigar com cuidado",ResultText="A atenção revela algumas moedas e uma pista sobre as ruínas.",CoinsDelta=8,EnergyDelta=-4},new(){Id="move_on",Text="Seguir pelo caminho",ResultText="Você preserva suas forças e deixa o mistério para trás.",EnergyDelta=3}}
-    };
-    static EventResult Rest(AtlasNodeData node,Random rng)=>new()
+        var lore=context.Game.WorldLore??new WorldLore();
+        var prompt=context.Game.WorldPrompt??"";
+        if(prompt.Length>90)prompt=prompt[..90].Trim()+"...";
+        return (lore.RegionName+" · "+lore.Threat+(prompt.Length>0?" · "+prompt:"")).Trim();
+    }
+
+    static EventResult Road(EventContext context,Random rng)
     {
-        Id="rest_"+node.Id+"_"+rng.Next(3),Title=node.Title,
-        ImagePrompt="campfire in dark forest clearing, warm embers, night sky, medieval fantasy, peaceful",
-        Text="As brasas ainda aquecem o acampamento. Por alguns minutos, o mundo parece silencioso.",
-        Choices=new(){new(){Id="sleep",Text="Descansar junto ao fogo",ResultText="O descanso devolve força ao corpo.",HealthDelta=18,EnergyDelta=20},new(){Id="search",Text="Examinar o acampamento",ResultText="Entre as cinzas você encontra moedas esquecidas.",CoinsDelta=12,EnergyDelta=-6}}
-    };
-    static EventResult Scene(AtlasNodeData node,Random rng)=>new()
+        var node=context.Node; var flavor=Flavor(context);
+        return new()
+        {
+            Id="road_"+node.Id+"_"+rng.Next(3),Title=node.Title,
+            ImagePrompt="dark medieval path in "+(context.Game.WorldLore.RegionName)+", fog, lantern, atmospheric",
+            Text=flavor+". "+(rng.Next(3) switch {0=>"Uma lanterna apagada balança ao lado da estrada. Pegadas recentes somem na lama.",1=>"Um sino toca ao longe, embora nenhuma torre seja visível.",_=>"Você encontra uma bolsa abandonada e um símbolo riscado numa pedra."}),
+            Choices=new(){
+                new(){Id="investigate",Text="Investigar com cuidado",ResultText="A atenção revela moedas e uma pista sobre "+context.Game.WorldLore.Threat+".",CoinsDelta=8,EnergyDelta=-4},
+                new(){Id="move_on",Text="Seguir pelo caminho",ResultText="Você preserva as forças e deixa o mistério para trás.",EnergyDelta=3},
+                new(){Id="lantern",Text="Arriscar a lanterna",ResultText="A aposta ilumina um atalho escondido.",CoinsDelta=18,HealthDelta=-4,Gamble=true}
+            }
+        };
+    }
+    static EventResult Rest(EventContext context,Random rng)
     {
-        Id="scene_"+node.Id+"_"+rng.Next(3),Title=node.Title,
-        ImagePrompt="medieval tavern interior, warm candlelight, people gathered, dark fantasy, cozy",
-        Text="Conversas baixas, música distante e olhares discretos transformam o lugar em um abrigo temporário.",
-        Choices=new(){new(){Id="listen",Text="Ouvir os rumores",ResultText="Você descobre que alguém o espera perto das ruínas."},new(){Id="meal",Text="Pedir uma refeição",ResultText="Uma refeição quente melhora seu ânimo.",CoinsDelta=-5,HealthDelta=8,EnergyDelta=8}}
-    };
-    static EventResult Mystery(AtlasNodeData node,Random rng)=>new()
+        var node=context.Node;
+        return new()
+        {
+            Id="rest_"+node.Id+"_"+rng.Next(3),Title=node.Title,
+            ImagePrompt="campfire in "+context.Game.WorldLore.RegionName+", night, medieval fantasy",
+            Text="As brasas aquecem o acampamento em "+context.Game.WorldLore.RegionName+". Por um momento, "+context.Game.WorldLore.Threat+" parece distante.",
+            Choices=new(){new(){Id="sleep",Text="Descansar junto ao fogo",ResultText="O descanso devolve força ao corpo.",HealthDelta=18,EnergyDelta=20},new(){Id="search",Text="Examinar o acampamento",ResultText="Entre as cinzas você encontra moedas esquecidas.",CoinsDelta=12,EnergyDelta=-6}}
+        };
+    }
+    static EventResult Scene(EventContext context,Random rng)
     {
-        Id="mystery_"+node.Id+"_"+rng.Next(3),Title=node.Title,
-        ImagePrompt="mysterious ancient ruins at night, glowing runes, dark magic, eerie fog, medieval fantasy",
-        Text="Uma presença invisível parece reconhecer o seu nome.",
-        Choices=new(){new(){Id="answer",Text="Responder ao chamado",ResultText="A voz grava uma lembrança que ainda não faz sentido.",EnergyDelta=-5},new(){Id="resist",Text="Resistir e partir",ResultText="Você fecha a mente e retorna ao caminho.",EnergyDelta=2}}
-    };
+        var node=context.Node;
+        var rumor=context.Game.WorldLore.Rumors.FirstOrDefault()??context.Game.WorldLore.Threat;
+        return new()
+        {
+            Id="scene_"+node.Id+"_"+rng.Next(3),Title=node.Title,
+            ImagePrompt="medieval interior in "+context.Game.WorldLore.RegionName+", candlelight, dark fantasy",
+            Text="Conversas baixas em "+context.Game.WorldLore.RegionName+". Alguém murmura: "+rumor,
+            Choices=new(){new(){Id="listen",Text="Ouvir os rumores",ResultText="Você descobre mais sobre "+context.Game.WorldLore.Threat+"."},new(){Id="meal",Text="Pedir uma refeição",ResultText="Uma refeição quente melhora o ânimo.",CoinsDelta=-5,HealthDelta=8,EnergyDelta=8}}
+        };
+    }
+    static EventResult Mystery(EventContext context,Random rng)
+    {
+        var node=context.Node;
+        return new()
+        {
+            Id="mystery_"+node.Id+"_"+rng.Next(3),Title=node.Title,
+            ImagePrompt="ancient ruins, glowing runes, "+context.Game.WorldLore.Atmosphere+", eerie",
+            Text="Uma presença em "+context.Game.WorldLore.RegionName+" parece reconhecer o teu nome. "+context.Game.WorldLore.Threat,
+            Choices=new(){
+                new(){Id="answer",Text="Responder ao chamado",ResultText="A voz grava uma lembrança ligada a "+context.Game.WorldLore.Threat+".",EnergyDelta=-5},
+                new(){Id="resist",Text="Resistir e partir",ResultText="Você fecha a mente e retorna ao caminho.",EnergyDelta=2},
+                new(){Id="lantern",Text="Arriscar a lanterna",ResultText="A luz compra um segredo.",CoinsDelta=16,HealthDelta=-6,Gamble=true}
+            }
+        };
+    }
     public static EventResult Sanitize(EventResult result)
     {
         result.Id=Limit(result.Id,80);result.Title=Limit(string.IsNullOrWhiteSpace(result.Title)?"Evento":result.Title,80);result.Text=Limit(result.Text,900);

@@ -181,7 +181,7 @@ public partial class WorldController : Node
             var role = node.Kind==AtlasNodeKind.Boss ? EnemyRole.Boss
                 : (node.Risk>=4 || node.Title.StartsWith("Elite", StringComparison.OrdinalIgnoreCase)) ? EnemyRole.Elite
                 : EnemyRole.Normal;
-            _ = EnterCombat(EnemyDefinition.Get(foeId),arena,role);
+            _ = EnterCombat(EnemyDefinition.Get(foeId, _game),arena,role);
             return;
         }
 

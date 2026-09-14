@@ -20,8 +20,11 @@ public sealed record EnemyDefinition(
         new("minotaur", "Minotauro da muralha", 155, 22, 48, "6b4a32", 28, 46, 3)
     };
 
-    public static EnemyDefinition Get(string id)
+    public static EnemyDefinition Get(string id, GameSave? game = null)
     {
+        var generated = game?.GeneratedEnemies?.FirstOrDefault(e => e.Id == id);
+        if (generated != null)
+            return new(generated.Id, generated.Name, Math.Clamp(generated.Health, 1, 999), Math.Clamp(generated.Damage, 1, 99), Math.Clamp(generated.RewardXp, 0, 999), generated.Color, Math.Clamp(generated.CoinMin, 0, 999), Math.Clamp(generated.CoinMax, Math.Max(generated.CoinMin, 0), 999), Math.Clamp(generated.LootTier, 1, 4));
         if(new ContentLibrary().Find(id) is {Category:"Inimigos"} custom)
             return new(custom.Id,custom.DisplayName,Math.Clamp(custom.Health,1,999),Math.Clamp(custom.Damage,1,99),Math.Clamp(custom.RewardXp,0,999),"765478",Math.Clamp(custom.CoinMin,0,999),Math.Clamp(custom.CoinMax,Math.Clamp(custom.CoinMin,0,999),999),Math.Clamp((custom.Health+custom.Damage)/55,1,4));
         return All.FirstOrDefault(e => e.Id == id) ?? All[0];
@@ -45,7 +48,7 @@ public sealed partial class CombatManager
         DeckManager.SyncUnlocks(game, catalog);
         string problem = DeckManager.Validate(game.Deck, catalog);
         if (problem.Length > 0) throw new ArgumentException(problem);
-        var foe = EnemyDefinition.Get(enemy);
+        var foe = EnemyDefinition.Get(enemy, game);
         int hp = Math.Max(1, (int)(foe.Health * EnemyDecks.HealthScale(role)));
         var state = new CombatState
         {
@@ -91,11 +94,11 @@ public sealed partial class CombatManager
         }
     }
 
-    public int EnemyDamage => EnemyDefinition.Get(State.EnemyId).Damage + Math.Min(8, State.Turn / 3);
+    public int EnemyDamage => EnemyDefinition.Get(State.EnemyId, _game).Damage + Math.Min(8, State.Turn / 3);
 
     void PlanIntents()
     {
-        var foe = EnemyDefinition.Get(State.EnemyId);
+        var foe = EnemyDefinition.Get(State.EnemyId, _game);
         _planned = EnemyAi.Plan(State, foe, EnemyDecks.Build(foe, Enum.TryParse<EnemyRole>(State.EnemyRole, out var role) ? role : EnemyRole.Normal));
     }
 
