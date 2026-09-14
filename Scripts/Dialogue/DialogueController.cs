@@ -56,7 +56,7 @@ public partial class DialogueController : Control
                 if(CampService.Invite(Game,Actor.Data,Actor.State)){_line.Text=$"{Actor.Data.Name} aceita dividir o acampamento com você.";_status.Text="Novo morador · progresso salvo";RefreshInvite();Changed?.Invoke();}
             });RefreshInvite();actions.AddChild(_invite);
         }
-        actions.AddChild(Ui.Button("Perfil", () => { if(Alive()) _line.Text = Actor.Data.CanBuildRelationship ? $"{Actor.Data.Description}\nAfeto {Actor.State.Affection} · Confiança {Actor.State.Trust}" : Actor.Data.Description; }));
+        actions.AddChild(Ui.Button("Perfil", ShowProfile));
         
         panel.Modulate = new Color(1,1,1,0); panel.CreateTween().TweenProperty(panel, "modulate:a", 1f, .2);
         _input.GrabFocus();
@@ -124,19 +124,38 @@ public partial class DialogueController : Control
             s.RecentInputs.Add(normalized); if(s.RecentInputs.Count>12)s.RecentInputs.RemoveAt(0);
             if (Actor.Data.CanBuildRelationship)
             {
-                new RelationshipSystem().Apply(s,r.AffectionDelta,r.TrustDelta,r.RomanceDelta,r.AttractionDelta);
+                new RelationshipSystem().Apply(s,r.AffectionDelta,r.TrustDelta,r.RomanceDelta,r.AttractionDelta,Game.Day);
                 s.Energy+=r.EnergyDelta; s.Stress+=r.StressDelta; s.Mood+=r.AffectionDelta; s.CurrentDesire=r.Desire;
                 RefreshInvite();
             }
             s.CurrentEmotion=r.Emotion; s.Clamp();
             memory.RecordConfirmedPlayerAction(Actor.Data,s,input,Game.Day,Game.WorldMinutes);
             s.Conversation.Add("Jogador: "+input); s.Conversation.Add(Actor.Data.Name+": "+r.Dialogue); while(s.Conversation.Count>8)s.Conversation.RemoveAt(0);
-            _line.Text=r.Dialogue; _status.Text=Actor.Data.CanBuildRelationship ? r.ProviderStatus+$" · Rel: {s.Relationship} · Humor: {s.CurrentMood}" : r.ProviderStatus+$" · NPC do mundo · Turno {_turns}/{MaxPlayerTurns}"; Changed?.Invoke();
+            _line.Text=r.Dialogue;
+            _status.Text=StatusLine(r.ProviderStatus);
+            Changed?.Invoke();
         }
         catch(OperationCanceledException) { }
         catch(Exception e) { if(Alive()) { var alternative = new ProceduralDialogueProvider().Reply(Actor.Data, Actor.State, input); _line.Text = alternative.Dialogue; Actor.State.CurrentEmotion = alternative.Emotion; _status.Text=$"Falha técnica ({e.GetType().Name})"; } }
         finally { if(Alive()) _busy=false; }
     }
+    string StatusLine(string provider)
+    {
+        var s=Actor.State;
+        var role=Actor.Data.CanBuildRelationship ? s.Relationship : (Actor.Data.Profession.Length>0?Actor.Data.Profession:"conhecido");
+        return $"{provider}  ·  {Actor.Data.Name} · {role} · humor {s.CurrentMood} · afeto {s.Affection} conf {s.Trust}";
+    }
+
+    void ShowProfile()
+    {
+        if(!Alive())return;
+        var d=Actor.Data; var s=Actor.State;
+        SocialModelMigrator.Migrate(d); SocialModelMigrator.Migrate(s);
+        var mem=s.Memories.Where(m=>m.Confirmed).TakeLast(2).Select(m=>m.Content);
+        var summary=string.IsNullOrWhiteSpace(s.MemorySummary)?"":"\nLembra: "+s.MemorySummary[..Math.Min(160,s.MemorySummary.Length)];
+        _line.Text=$"{d.Name}, {d.Age} anos · {d.Profession}\n{d.Description}\n{d.Personality}\nAfeto {s.Affection}  Confianca {s.Trust}  Romance {s.Romance}  Atracao {s.Attraction}  Respeito {s.Emotions.Respect}\nRelacao: {s.Relationship}  Humor: {s.CurrentMood}{summary}\n"+(mem.Any()?string.Join("\n",mem):"Ainda sem memorias confirmadas.");
+    }
+
     void RefreshInvite()
     {
         if(_invite==null||!Alive())return;var resident=Game.CampResidents.Contains(Actor.Data.Id);_invite.Text=resident?"Mora no acampamento":"Convidar para o acampamento";_invite.Disabled=resident||!CampService.CanInvite(Game,Actor.Data,Actor.State);_invite.TooltipText=resident?"Morador permanente do acampamento.":_invite.Disabled?"Requer 40 de afeição.":"Convidar para morar no acampamento.";

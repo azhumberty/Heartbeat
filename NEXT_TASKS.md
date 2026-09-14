@@ -1,20 +1,28 @@
 # HEARTBEAT — PRÓXIMAS TAREFAS
 
-## P0 — Conteúdo Criativo restante
+## P0 — Estabilidade (feito)
 
-1. [x] Adicionar, ao cadastro de Personagem, atalho para carta de companheiro e até quatro golpes especiais.
-2. Adicionar campos específicos restantes por categoria sem sobrecarregar a tela.
+1. [x] Mercador fecha depois de comprar.
+2. [x] Textos UTF-8 / botões visíveis.
+3. [x] OpenRouter com modelos :free vivos e teste visível.
 
-## P1 — Atlas infinito e acampamento (concluído em código)
+## P1 — Multi-world (feito)
 
-1. [x] Gerar uma nova expedição depois da vitória no chefe, preservando o progresso permanente.
-2. [x] Permitir convidar personagens com afeição 40 ou mais para morar no acampamento.
-3. [x] Mostrar os moradores nos eventos de descanso e persistir tudo no save.
+1. [x] Tela Mundos / Create World.
+2. [x] Saves isolados.
+3. [x] Pedido do jogador entra no diálogo e nos eventos.
 
-## P2 — Interface
+## P2 — NPC / Dating Sim (feito neste passe)
 
-1. Testar visualmente o Atlas ilustrado, o acampamento e os layouts em 1280×720, 1600×900 e 1920×1080.
-2. Ajustar os detalhes visuais encontrados no teste manual.
-3. [x] Corrigir o fechamento do mercador após compra e a mensagem de saldo comprimida.
-4. [x] Alternar o cenário de fundo ao iniciar cada nova expedição.
-5. [x] Reparar a transparência de Roan, Silas e Minotauro.
+1. [x] Roan, Kael e Silas com personalidades testáveis (não o mesmo texto).
+2. [x] Memória imediata (turno) + resumo longo no CharacterState do mundo.
+3. [x] Nome do jogador vira facto persistido.
+4. [x] Afeto/confiança/romance/respeito no Perfil.
+5. [x] Anti-farm: no máximo +8 afeto por dia.
+6. [x] Prompt da IA leva mundo + memória + voz do personagem.
+
+## P3 — Camp / relacionamentos (seguinte)
+
+1. CampRoster visível com os três.
+2. Companion Card ligada ao NpcId.
+3. Gallery / special scenes por NPC.

@@ -24,7 +24,7 @@ public partial class NpcManager : Node
     {
         // Load initial state
         var db = new CharacterRepository();
-        foreach (var cData in db.List().Where(c=>!c.Tags.Contains("creative-disabled")))
+        foreach (var cData in db.List().Where(c=>!c.Tags.Contains("creative-disabled") && !c.Tags.Contains("demo")))
         {
             if (!_game.CharacterStates.TryGetValue(cData.Id, out var state))
             {

@@ -1,0 +1,37 @@
+{
+  "CharacterFormatVersion": 4,
+  "Id": "kael",
+  "Name": "Kael",
+  "Age": 27,
+  "CanBuildRelationship": true,
+  "Description": "Arquivista itinerante. Fala baixo, repara em tudo e demora a confiar. O romance, se existir, começa em silêncio.",
+  "Personality": "reservado, observador, gentil e facilmente encabulado",
+  "Traits": ["tímido", "erudito", "atento"],
+  "Likes": ["livros velhos", "chuva na lona", "conversas curtas"],
+  "Dislikes": ["multidões", "jactância", "promessas vazias"],
+  "Interests": ["mapas", "histórias antigas", "línguas mortas"],
+  "SpeechStyle": "pausado, hesitante, escolhe cada palavra",
+  "Profession": "arquivista",
+  "MainImagePath": "res://Assets/ArtKit/Characters/NPCs/npc_knight_chroma.png",
+  "Tags": ["knight", "relationship", "adulto-ficticio"],
+  "Images": [
+    {
+      "OriginalPath": "res://Assets/ArtKit/Characters/NPCs/npc_knight_chroma.png",
+      "ProcessedPath": "res://Assets/ArtKit/Characters/NPCs/npc_knight_chroma.png",
+      "Tags": ["neutral", "chroma"]
+    }
+  ],
+  "HeightMeters": 1.81,
+  "HomeLocation": "Camp",
+  "PersonalityProfile": {
+    "Extraversion": 22,
+    "Courage": 38,
+    "Patience": 78,
+    "Humor": 40,
+    "Empathy": 82,
+    "Romanticism": 68,
+    "Competitiveness": 20,
+    "Pride": 28,
+    "InitializedFromLegacy": true
+  }
+}

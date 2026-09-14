@@ -199,7 +199,7 @@ public static class WorldGenerationService
         save.AtlasBackgroundPath = AtlasGenerator.Backdrop(def.Seed, 0);
         save.AtlasNodes = AtlasGenerator.Create(def.Seed, 0, def.SelectedLibraryIds);
         var repo = new CharacterRepository();
-        var characters = repo.List().Where(c => c.CanBuildRelationship && !c.Tags.Contains("creative-disabled")).ToList();
+        var characters = repo.List().Where(c => c.CanBuildRelationship && !c.Tags.Contains("creative-disabled") && !c.Tags.Contains("demo")).ToList();
         foreach (var id in def.SelectedLibraryIds)
         {
             var extra = repo.Load(id);

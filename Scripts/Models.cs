@@ -136,6 +136,9 @@ public sealed class CharacterState
     public string CurrentMood { get; set; } = "content";
     public float LastEmotionUpdateMinutes { get; set; } = -1;
     public string WorldContext { get; set; } = "";
+    public int SocialGainDay { get; set; } = -1;
+    public int DailyAffectionGained { get; set; }
+    public int DailyTrustGained { get; set; }
 
     public void Clamp()
     {

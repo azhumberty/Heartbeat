@@ -83,8 +83,22 @@ public sealed class SocialMemoryService
             memory=New("episode","O jogador ofereceu um presente durante a conversa.",3,day,minutes,"grateful",new(){"gift","relationship"});
             s.Emotions.Gratitude+=16; s.Emotions.Happiness+=8;
         }
+        var named=Regex.Match(clean,@"(?:meu nome (?:é|e)|me chamo)\s+([\p{L}][\p{L}\s]{1,24})",RegexOptions.IgnoreCase);
+        if(named.Success)
+            memory=New("fact","O jogador disse chamar-se "+named.Groups[1].Value.Trim()+".",5,day,minutes,"curious",new(){"player_fact","player_name"});
         if(memory!=null && !s.Memories.Any(m=>m.Kind==memory.Kind && m.Content==memory.Content)) s.Memories.Add(memory);
+        RecordTurn(s,clean,day,minutes);
         Compact(s); s.CurrentMood=DeriveMood(c,s); s.CurrentEmotion=EmotionTag(s.CurrentMood); s.Clamp(); return memory;
+    }
+
+    public void RecordTurn(CharacterState s, string playerLine, int day, float minutes)
+    {
+        SocialModelMigrator.Migrate(s);
+        var content="Jogador: "+playerLine;
+        if(content.Length>180)content=content[..180];
+        if(!s.Memories.Any(m=>m.Content==content))
+            s.Memories.Add(New("short_term",content,1,day,minutes,"neutral",new(){"conversation"}));
+        Compact(s);
     }
 
     public IReadOnlyList<CharacterMemory> Retrieve(CharacterState s,string query,int max=5)
@@ -119,8 +133,8 @@ public sealed class SocialMemoryService
     }
     void Compact(CharacterState s)
     {
-        if(s.Memories.Count<=18)return;
-        var compact=s.Memories.Where(m=>m.Importance<=2).Take(Math.Min(6,s.Memories.Count-14)).ToList(); if(compact.Count==0)return;
+        if(s.Memories.Count<=12)return;
+        var compact=s.Memories.Where(m=>m.Importance<=2).Take(Math.Min(8,s.Memories.Count-10)).ToList(); if(compact.Count==0)return;
         string addition=string.Join(" ",compact.Select(m=>m.Content));
         string combined=(s.MemorySummary+" "+addition).Trim(); s.MemorySummary=combined[..Math.Min(520,combined.Length)];
         foreach(var item in compact)s.Memories.Remove(item);
@@ -142,6 +156,8 @@ public static class CharacterPromptBuilder
         b.AppendLine($"Relação: {s.Relationship}; afeição {s.Affection}; confiança {s.Trust}; romance {s.Romance}; respeito {s.Emotions.Respect}. Humor simulado: {s.CurrentMood}; energia {s.Energy}; estresse {s.Stress}.");
         b.AppendLine("Contexto atual: "+s.WorldContext);
         b.AppendLine("Viva neste mundo. Use o pedido do jogador, a ameaça e o tom. Não invente outro cenário.");
+        b.AppendLine("Fala APENAS como "+c.Name+" ("+c.SpeechStyle+"). Nao imite outro personagem.");
+        if(s.Conversation.Count>0)b.AppendLine("Agora ha pouco: "+string.Join(" / ",s.Conversation.TakeLast(4)));
         if(!string.IsNullOrWhiteSpace(s.MemorySummary))b.AppendLine("Resumo persistente: "+s.MemorySummary);
         b.AppendLine("CANON confirmado (somente estes fatos podem ser lembrados como acontecimentos): "+(relevant.Count==0?"nenhum relevante":string.Join(" | ",relevant.Select(m=>m.Content))));
         b.AppendLine("Responda em português como o mesmo personagem, em 1-3 frases. Não invente encontros, promessas ou fatos passados. Fala criativa não vira canon. Mantenha personalidade, humor, relação, local e horário.");
@@ -163,28 +179,44 @@ public sealed class ConsistentOfflineDialogueProvider : IDialogueProvider
         bool asksBoundary=new[]{"não quero","nao quero","pare","devagar","sem pressa"}.Any(lower.Contains);
         bool flirts=new[]{"flert","beij","bonito","atraente","gosto de você","gosto de voce","namor","intimidade"}.Any(lower.Contains);
         if(asksBoundary)
-            return new DialogueResult { Dialogue="Tudo bem. Vou respeitar seu ritmo; podemos apenas conversar.",Emotion="neutral",Desire="talk",TrustDelta=1,Memory="",ProviderStatus="Offline · personalidade e memória locais" };
+            return Result(c,s,"Tudo bem. Vou no teu ritmo.","neutral","talk",0,1);
         if(flirts)
         {
             bool comfortable=c.Age>=18&&s.Trust>=30&&s.Affection>=35&&s.Stress<65&&s.Energy>=25;
-            line=comfortable?(c.PersonalityProfile.Extraversion<35?"Você me deixa sem jeito, mas não quero esconder que também sinto essa aproximação.":"Você chamou minha atenção também. Quero ver aonde isso pode nos levar."):"Ainda não existe confiança suficiente entre nós. Prefiro que nos conheçamos melhor.";
-            return new DialogueResult { Dialogue=line,Emotion=comfortable?"flirty":"shy",Desire=comfortable?"flirt":"talk",AffectionDelta=comfortable?1:0,TrustDelta=0,RomanceDelta=comfortable?1:0,AttractionDelta=comfortable?1:0,Memory="",ProviderStatus="Offline · personalidade e memória locais" };
+            line=comfortable
+                ? Voice(c,"Ainda me custa admitir, mas tambem sinto isso.","Voce chamou minha atencao. Quero ver aonde isso vai.")
+                : Voice(c,"Ainda nao... precisamos de mais tempo.","Ainda nao ha confianca suficiente. Prefiro que nos conheçamos melhor.");
+            return Result(c,s,line,comfortable?(c.PersonalityProfile.Extraversion<35?"shy":"flirty"):"shy",comfortable?"flirt":"talk",comfortable?1:0,0,comfortable?1:0);
         }
         if((lower.Contains("lembra")||lower.Contains("recorda"))&&lower.Contains("animal"))
-            line=animal!=null?$"Lembro, sim. Você me contou que seu animal favorito é {animal.Tags.Last()}.":"Ainda não me lembro de você ter contado qual é seu animal favorito.";
-        else if(lower.Contains("desculp")) line=s.Emotions.Anger>20?"Ouvi seu pedido de desculpas. Ainda estou incomodado, mas podemos reconstruir a confiança com tempo.":"Está tudo bem. Prefiro que sigamos com respeito daqui em diante.";
-        else if(avoided!=null) line=$"Prefiro não falar sobre {avoided}. Se respeitar isso, podemos continuar a conversa.";
-        else if(new[]{"idiota","imbecil","inútil","inutil","covarde","burro"}.Any(lower.Contains)) line=c.PersonalityProfile.Pride>60?"Cuidado com suas palavras. Não vou esquecer essa falta de respeito.":"Isso foi cruel. Preciso de algum espaço agora.";
-        else if(lower.Contains("ajud")) line=s.Emotions.Gratitude>20?"Eu me lembro da sua ajuda. Minha confiança em você não veio do nada.":"Se pretende ajudar, suas ações vão dizer mais que promessas.";
-        else if(relevant.Count>0&&(lower.Contains("lembra")||lower.Contains("antes"))) line="Lembro do que aconteceu: "+relevant[0].Content;
-        else if(s.CurrentMood=="irritated") line="Ainda estou irritado com o que aconteceu. Podemos conversar, mas não espere que eu finja que está tudo bem.";
-        else if(s.CurrentMood=="nervous") line="Este lugar me deixa alerta. Fique por perto e fale baixo; estou ouvindo você.";
-        else if(c.PersonalityProfile.Extraversion<35) line=$"Não sou de falar depressa, mas estou ouvindo. {Topic(c)} parece um assunto melhor para começarmos.";
-        else if(c.PersonalityProfile.Pride>65) line=$"Fale com franqueza. Respeito uma conversa direta, especialmente sobre {Topic(c)}.";
-        else if(s.Relationship is "CloseFriend" or "Dating" or "Partner") line=$"Fico mais tranquilo quando é você que se aproxima. Podemos conversar sobre {Topic(c)}.";
-        else line=$"É bom encontrar você aqui. Podemos conversar sobre {Topic(c)} enquanto seguimos pela floresta.";
-        return new DialogueResult { Dialogue=line,Emotion=EmotionFor(s.CurrentMood),Desire=s.CurrentMood=="irritated"?"be_alone":"talk",AffectionDelta=s.CurrentMood=="irritated"?0:1,TrustDelta=s.CurrentMood=="irritated"?0:1,EnergyDelta=-1,Memory="",ImportantMemory=false,ProviderStatus="Offline · personalidade e memória locais" };
+            line=animal!=null?$"Lembro. Voce me contou que seu animal favorito e {animal.Tags.Last()}.":"Ainda nao me lembro de voce ter dito qual e o seu animal favorito.";
+        else if(lower.Contains("lembra")||lower.Contains("recorda"))
+            line=relevant.Count>0?"Lembro: "+relevant[0].Content:(string.IsNullOrWhiteSpace(s.MemorySummary)?"Ainda estamos no comeco. Conta de novo, se quiser.":"Guardo isto: "+s.MemorySummary[..Math.Min(120,s.MemorySummary.Length)]);
+        else if(lower.Contains("desculp")) line=s.Emotions.Anger>20?"Ouvi. Ainda estou magoado, mas podemos reconstruir.":"Esta bem. Prefiro respeito daqui em diante.";
+        else if(avoided!=null) line=$"Prefiro nao falar sobre {avoided}.";
+        else if(new[]{"idiota","imbecil","inútil","inutil","covarde","burro"}.Any(lower.Contains))
+            line=Voice(c,"Isso doeu. Preciso de espaco.","Cuidado com as palavras. Nao vou esquecer.");
+        else if(lower.Contains("ajud")) line=s.Emotions.Gratitude>20?"Eu me lembro da sua ajuda. Confianca nao veio do nada.":"Ajuda se mostra. Nao basta dizer.";
+        else if(s.CurrentMood=="irritated") line=Voice(c,"Ainda estou aborrecido. Podemos falar baixo.","Nao vou fingir que esta tudo bem.");
+        else if(s.CurrentMood=="nervous") line=Voice(c,"Este lugar me deixa tenso. Fica por perto.","Fale baixo. Estou alerta.");
+        else line=Opening(c,s);
+        return Result(c,s,line,EmotionFor(s.CurrentMood),s.CurrentMood=="irritated"?"be_alone":"talk",s.CurrentMood=="irritated"?0:1,s.CurrentMood=="irritated"?0:1);
     }
+    static DialogueResult Result(CharacterData c,CharacterState s,string line,string emotion,string desire,int aff,int trust,int romance=0) =>
+        new() { Dialogue=line, Emotion=emotion, Desire=desire, AffectionDelta=c.CanBuildRelationship?aff:0, TrustDelta=c.CanBuildRelationship?trust:0, RomanceDelta=c.CanBuildRelationship?romance:0, AttractionDelta=c.CanBuildRelationship?romance:0, EnergyDelta=-1, Memory="", ProviderStatus="Offline · "+c.Name };
+    static string Opening(CharacterData c, CharacterState s)
+    {
+        if(!c.CanBuildRelationship || c.Tags.Contains("merchant"))
+            return "Cartas, rumores, amuletos. O que o caminho te cobrou hoje?";
+        if(c.PersonalityProfile.Extraversion<35)
+            return "Eu... nao esperava companhia. "+Topic(c)+" tem ocupado a minha cabeca.";
+        if(c.PersonalityProfile.Pride>65)
+            return "Se veio falar, fale. "+Topic(c)+" eu entendo. O resto, veremos.";
+        if(s.Relationship is "CloseFriend" or "Dating" or "Partner")
+            return "Fico mais tranquilo quando e voce. Podemos falar de "+Topic(c)+".";
+        return "Bom encontrar voce. "+Topic(c)+" serve de conversa.";
+    }
+    static string Voice(CharacterData c, string shy, string bold) => c.PersonalityProfile.Extraversion<35 ? shy : bold;
     static string Topic(CharacterData c)=>c.Preferences.FavoriteTopics.FirstOrDefault()??c.Interests.FirstOrDefault()??"o caminho adiante";
     static string EmotionFor(string mood)=>mood switch{"irritated"=>"angry","nervous"=>"shy","sad"=>"sad","shy"=>"shy","in_love"=>"romantic",_=>"neutral"};
     public Task<DialogueResult> ReplyAsync(CharacterData c,CharacterState s,string input,GameSettings settings,CancellationToken token=default)=>Task.FromResult(Reply(c,s,input));

@@ -22,5 +22,16 @@
     }
   ],
   "HeightMeters": 1.92,
-  "HomeLocation": "Camp"
+  "HomeLocation": "Camp",
+  "PersonalityProfile": {
+    "Extraversion": 48,
+    "Courage": 82,
+    "Patience": 40,
+    "Humor": 35,
+    "Empathy": 52,
+    "Romanticism": 38,
+    "Competitiveness": 60,
+    "Pride": 72,
+    "InitializedFromLegacy": true
+  }
 }

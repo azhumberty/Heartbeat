@@ -2,7 +2,36 @@ namespace Heartbeat;
 
 // Small focused facades keep MVP systems replaceable as content grows.
 public sealed class CharacterManager { public CharacterData Active { get; private set; } = new(); public void Select(CharacterData character) => Active = character; }
-public sealed class RelationshipSystem { public void Apply(CharacterState state, int affection, int trust, int romance = 0, int attraction = 0) { state.Affection += affection; state.Trust += trust; state.Romance += romance; state.Attraction += attraction; state.Relationship = state.Romance >= 65 ? "Partner" : state.Romance >= 40 ? "Dating" : state.Romance >= 20 && state.Trust >= 25 ? "RomanticInterest" : state.Affection >= 45 ? "CloseFriend" : state.Affection >= 25 ? "Friend" : state.Affection >= 10 ? "Acquaintance" : "Stranger"; state.Clamp(); } }
+public sealed class RelationshipSystem
+{
+    public const int DailyCap = 8;
+    public void Apply(CharacterState state, int affection, int trust, int romance = 0, int attraction = 0, int day = 0)
+    {
+        if (state.SocialGainDay != day)
+        {
+            state.SocialGainDay = day;
+            state.DailyAffectionGained = 0;
+            state.DailyTrustGained = 0;
+        }
+        int aff = affection > 0 ? Math.Min(affection, Math.Max(0, DailyCap - state.DailyAffectionGained)) : affection;
+        int tru = trust > 0 ? Math.Min(trust, Math.Max(0, DailyCap - state.DailyTrustGained)) : trust;
+        if (aff > 0) state.DailyAffectionGained += aff;
+        if (tru > 0) state.DailyTrustGained += tru;
+        state.Affection += aff;
+        state.Trust += tru;
+        state.Romance += romance;
+        state.Attraction += attraction;
+        int respect = state.Emotions?.Respect ?? 0;
+        state.Relationship = state.Romance >= 65 ? "Partner"
+            : state.Romance >= 40 ? "Dating"
+            : state.Romance >= 20 && state.Trust >= 25 ? "RomanticInterest"
+            : state.Affection >= 45 ? "CloseFriend"
+            : state.Affection >= 25 || (state.Affection >= 15 && respect >= 40) ? "Friend"
+            : state.Affection >= 10 || respect >= 30 ? "Acquaintance"
+            : "Stranger";
+        state.Clamp();
+    }
+}
 public sealed class MemoryManager
 {
     public void Remember(CharacterState state,string memory,bool important=false)

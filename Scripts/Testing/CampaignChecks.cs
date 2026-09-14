@@ -47,7 +47,24 @@ public partial class CampaignChecks : Node
             for(int seed=1;seed<=24;seed++){var generated=AtlasGenerator.Create(seed,seed%4);Require(generated.Count(n=>n.Persistent)==1&&generated.Any(n=>n.Kind==AtlasNodeKind.Merchant)&&generated.Any(n=>n.Kind==AtlasNodeKind.Character)&&generated.Any(n=>n.Kind==AtlasNodeKind.Combat)&&generated.All(n=>n.Connections.All(id=>generated.Any(other=>other.Id==id))),"Variação procedural inválida.");}
             foreach(var combat in atlas.Where(n=>n.Kind is AtlasNodeKind.Combat or AtlasNodeKind.Boss))
                 _=EnemyDefinition.Get(string.IsNullOrWhiteSpace(combat.ContentId)?"forest":combat.ContentId);
-            var characterRepository=new CharacterRepository();Require(characterRepository.Load("roan") is {CanBuildRelationship:true}&&characterRepository.Load("silas") is {CanBuildRelationship:false},"Personagens do Grok não foram integrados.");
+            var characterRepository=new CharacterRepository();Require(characterRepository.Load("roan") is {CanBuildRelationship:true}&&characterRepository.Load("silas") is {CanBuildRelationship:false},"Personagens do Grok nao foram integrados.");
+            var kael=characterRepository.Load("kael");
+            Require(kael is {CanBuildRelationship:true} && kael.PersonalityProfile.Extraversion<35 && characterRepository.Load("roan")!.PersonalityProfile.Pride>65,"P2: Roan e Kael precisam de personalidades distintas.");
+            var helloRoan=new ConsistentOfflineDialogueProvider().Reply(characterRepository.Load("roan")!,new CharacterState(),"Ola");
+            var helloKael=new ConsistentOfflineDialogueProvider().Reply(kael!,new CharacterState(),"Ola");
+            Require(helloRoan.Dialogue!=helloKael.Dialogue,"P2: Roan e Kael responderam igual.");
+            var farm=new CharacterState();
+            for(int i=0;i<12;i++) new RelationshipSystem().Apply(farm,3,3,0,0,1);
+            Require(farm.DailyAffectionGained<=RelationshipSystem.DailyCap && farm.Affection<=RelationshipSystem.DailyCap+18,"P2: anti-farm social nao limitou afeicao do dia.");
+            var memState=new CharacterState();
+            var social=new SocialMemoryService();
+            for(int i=0;i<16;i++) social.RecordTurn(memState,"frase "+i,1,i);
+            Require(memState.MemorySummary.Length>0 && memState.Memories.Count<=14,"P2: memoria longa nao foi resumida.");
+            var named=new CharacterState();
+            social.RecordConfirmedPlayerAction(kael!,named,"Me chamo humb",1,10);
+            Require(named.Memories.Any(m=>m.Tags.Contains("player_name")),"P2: o nome do jogador nao virou memoria.");
+            var prompt=CharacterPromptBuilder.Build(kael!,named,"lembra o meu nome?",new GameSettings());
+            Require(prompt.Contains("Kael",StringComparison.OrdinalIgnoreCase)&&prompt.Contains("humb",StringComparison.OrdinalIgnoreCase),"P2: o prompt nao leva memoria/personalidade.");
             Require(atlas.Where(n=>n.Kind is AtlasNodeKind.Character or AtlasNodeKind.Merchant).All(n=>characterRepository.Load(n.ContentId)!=null),"Nó social aponta para personagem inexistente.");
             Require(ChromaArt.LoadArt("Backgrounds/atlas_map.png").GetWidth()>0&&ChromaArt.LoadArt(ChromaArt.MinotaurSprite).GetWidth()>0,"Arte do Atlas ou do Minotauro indisponível.");
             var repairedMinotaur=ChromaArt.LoadArt(ChromaArt.MinotaurSprite).GetImage();Require(repairedMinotaur.GetPixel(0,0).A<.05f&&repairedMinotaur.GetPixel(repairedMinotaur.GetWidth()/2,repairedMinotaur.GetHeight()/2).A>.9f,"Recorte transparente do Minotauro não foi importado.");
