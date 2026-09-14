@@ -40,12 +40,13 @@ public sealed partial class CombatManager
     List<IntentAction> _planned = new();
     public CombatManager(GameSave game, CombatState state) { _game = game; State = state; }
 
-    public static CombatManager Start(GameSave game, Dictionary<string, CardDefinition> catalog, string encounter, string enemy, string arena, float hour)
+    public static CombatManager Start(GameSave game, Dictionary<string, CardDefinition> catalog, string encounter, string enemy, string arena, float hour, EnemyRole role = EnemyRole.Normal)
     {
         DeckManager.SyncUnlocks(game, catalog);
         string problem = DeckManager.Validate(game.Deck, catalog);
         if (problem.Length > 0) throw new ArgumentException(problem);
         var foe = EnemyDefinition.Get(enemy);
+        int hp = Math.Max(1, (int)(foe.Health * EnemyDecks.HealthScale(role)));
         var state = new CombatState
         {
             EncounterId = encounter,
@@ -53,16 +54,19 @@ public sealed partial class CombatManager
             Arena = arena,
             Hour = hour,
             Seed = Random.Shared.Next(),
-            RewardXp = foe.RewardXp,
+            RewardXp = foe.RewardXp + (role==EnemyRole.Elite?12:role==EnemyRole.Boss?24:0),
             Player = new() { Health = Math.Max(1, game.Player.Health), MaxHealth = game.Player.MaxHealth },
-            Enemy = new() { Health = foe.Health, MaxHealth = foe.Health },
+            Enemy = new() { Health = hp, MaxHealth = hp },
             Mana = game.Player.Mana,
             MaxMana = game.Player.MaxMana,
+            EnemyRole = role.ToString(),
+            EnemyMaxMana = EnemyDecks.MaxMana(foe, role),
             ReturnX = game.PlayerX,
             ReturnZ = game.PlayerZ,
             ReturnYaw = game.PlayerRotationY,
             ClockWasPaused = game.Settings.WorldTimePaused
         };
+        state.EnemyMana = state.EnemyMaxMana / 2;
         foreach (var id in game.Deck.Cards.Append(game.Deck.CompanionId).Where(x => x.Length > 0).Distinct())
             state.Cards[id] = DeckManager.Upgraded(catalog[id], game.Deck.Upgrades.GetValueOrDefault(id));
         state.DrawPile = game.Deck.Cards.ToList();
@@ -91,54 +95,8 @@ public sealed partial class CombatManager
 
     void PlanIntents()
     {
-        _planned = new List<IntentAction>();
-        if (State.Enemy.Status.GetValueOrDefault(EffectKind.Stunned) > 0)
-        {
-            _planned.Add(new IntentAction(IntentKind.Sleep, 0, "💤", "Atordoado · não agirá"));
-            return;
-        }
-
         var foe = EnemyDefinition.Get(State.EnemyId);
-        var rng = new Random(unchecked(State.Seed + State.Turn * 9973));
-        double hpRatio = State.Enemy.MaxHealth <= 0 ? 1 : (double)State.Enemy.Health / State.Enemy.MaxHealth;
-        int dmg = EnemyDamage;
-
-        // Occasional self-heal / potion when hurt
-        if (hpRatio < 0.45 && rng.NextDouble() < 0.35)
-        {
-            int heal = 10 + foe.LootTier * 3;
-            _planned.Add(new IntentAction(IntentKind.Heal, heal, "🧪", $"Poção · +{heal} Vida"));
-            if (rng.NextDouble() < 0.55)
-                _planned.Add(new IntentAction(IntentKind.Attack, Math.Max(6, dmg - 4), "⚔️", $"Atacar · {Math.Max(6, dmg - 4)}"));
-            return;
-        }
-
-        // Combo patterns by turn / tier
-        int pattern = (State.Turn + foe.LootTier) % 5;
-        switch (pattern)
-        {
-            case 0: // shield + attack
-                _planned.Add(new IntentAction(IntentKind.Shield, 10 + foe.LootTier * 2, "🛡️", $"Guarda · {10 + foe.LootTier * 2}"));
-                _planned.Add(new IntentAction(IntentKind.Attack, dmg, "⚔️", $"Atacar · {dmg}"));
-                break;
-            case 1: // double attack
-                int a1 = Math.Max(5, dmg * 2 / 3);
-                int a2 = Math.Max(5, dmg - a1 + 2);
-                _planned.Add(new IntentAction(IntentKind.Attack, a1, "⚔️", $"Combo · {a1}"));
-                _planned.Add(new IntentAction(IntentKind.Attack, a2, "⚔️", $"Combo · {a2}"));
-                break;
-            case 2: // heavy guard
-                _planned.Add(new IntentAction(IntentKind.Shield, 14 + foe.LootTier, "🛡️", $"Preparar guarda · {14 + foe.LootTier}"));
-                break;
-            case 3 when foe.LootTier >= 3: // triple pressure
-                _planned.Add(new IntentAction(IntentKind.Attack, Math.Max(4, dmg / 2), "⚔️", $"Rajada · {Math.Max(4, dmg / 2)}"));
-                _planned.Add(new IntentAction(IntentKind.Attack, Math.Max(4, dmg / 2), "⚔️", $"Rajada · {Math.Max(4, dmg / 2)}"));
-                _planned.Add(new IntentAction(IntentKind.Shield, 6, "🛡️", "Guarda leve · 6"));
-                break;
-            default:
-                _planned.Add(new IntentAction(IntentKind.Attack, dmg, "⚔️", $"Atacar · {dmg}"));
-                break;
-        }
+        _planned = EnemyAi.Plan(State, foe, EnemyDecks.Build(foe, Enum.TryParse<EnemyRole>(State.EnemyRole, out var role) ? role : EnemyRole.Normal));
     }
 
 }

@@ -250,7 +250,7 @@ public sealed class GameSave
     public Dictionary<string, EncounterProgress> Encounters { get; set; } = new();
     public CombatState? ActiveCombat { get; set; }
     public List<string> CombatHistory { get; set; } = new();
-    public int SaveVersion { get; set; } = 10;
+    public int SaveVersion { get; set; } = 11;
     // Legacy fields are retained only to migrate existing slot files safely.
     public CharacterData? Character { get; set; } = null; public CharacterState? State { get; set; } = null;
     public List<string> CharacterIds { get; set; } = new(); public Dictionary<string, CharacterState> CharacterStates { get; set; } = new(); public PlayerStats Player { get; set; } = new();
@@ -290,6 +290,8 @@ public sealed class GameSave
     public string CreatedAt { get; set; } = "";
     public string LastPlayedAt { get; set; } = "";
     public int PlayedSeconds { get; set; }
+    public List<string> UnlockedUpgrades { get; set; } = new();
+    public int ManaRegenBonus { get; set; }
 }
 
 public sealed class WorldLore

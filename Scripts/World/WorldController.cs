@@ -178,7 +178,10 @@ public partial class WorldController : Node
         {
             var foeId = string.IsNullOrWhiteSpace(node.ContentId) ? (node.Kind==AtlasNodeKind.Boss?"ruin":"forest") : node.ContentId;
             var arena=node.BackgroundId.Contains("cave",StringComparison.OrdinalIgnoreCase)?"cave_chamber":node.Kind==AtlasNodeKind.Boss?"ruin":"forest";
-            _ = EnterCombat(EnemyDefinition.Get(foeId),arena);
+            var role = node.Kind==AtlasNodeKind.Boss ? EnemyRole.Boss
+                : (node.Risk>=4 || node.Title.StartsWith("Elite", StringComparison.OrdinalIgnoreCase)) ? EnemyRole.Elite
+                : EnemyRole.Normal;
+            _ = EnterCombat(EnemyDefinition.Get(foeId),arena,role);
             return;
         }
 
@@ -378,11 +381,11 @@ public partial class WorldController : Node
         _ = ShowCombat(new CombatManager(_game,_game.ActiveCombat));
     }
     
-    public async Task EnterCombat(EnemyDefinition enemy,string? arenaHint=null)
+    public async Task EnterCombat(EnemyDefinition enemy,string? arenaHint=null, EnemyRole role=EnemyRole.Normal)
     {
         if(_screen!=null)return;
         var arena = arenaHint??(enemy.Id is "forest" or "night" or "minotaur" ? "forest" : "camp");
-        var encounterId="atlas_"+(string.IsNullOrWhiteSpace(_activeAtlasNodeId)?enemy.Id:_activeAtlasNodeId);var manager=CombatManager.Start(_game,new CardRepository().Catalog(), encounterId, enemy.Id, arena, _time.Hour);
+        var encounterId="atlas_"+(string.IsNullOrWhiteSpace(_activeAtlasNodeId)?enemy.Id:_activeAtlasNodeId);var manager=CombatManager.Start(_game,new CardRepository().Catalog(), encounterId, enemy.Id, arena, _time.Hour, role);
         var scale=Math.Min(25,_game.ExpeditionIndex);manager.State.Enemy.MaxHealth+=scale*10;manager.State.Enemy.Health=manager.State.Enemy.MaxHealth;manager.State.RewardXp=enemy.RewardXp+scale*3;
         manager.State.Cooldown=0;
         manager.State.Repeat=true;

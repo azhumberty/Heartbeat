@@ -27,6 +27,11 @@ public sealed partial class CombatManager
 
             State.RewardText = $"+{xp} XP · +{coins} Reais";
             _game.Player.Health = State.Player.Health;
+            var rngUp = new Random(State.Seed ^ 9176);
+            State.PendingUpgradePicks = PlayerUpgrades.PicksFor(State.EnemyRole, State.IsDuel, rngUp);
+            State.PendingUpgrades = State.PendingUpgradePicks > 0
+                ? PlayerUpgrades.Offer(_game, State.Seed, 3).Select(u => u.Id).ToList()
+                : new();
         }
         else if (State.IsDuel)
         {

@@ -99,6 +99,11 @@ public sealed class CombatState
     public float ReturnZ { get; set; }
     public float ReturnYaw { get; set; }
     public bool ClockWasPaused { get; set; }
+    public int EnemyMana { get; set; }
+    public int EnemyMaxMana { get; set; } = 60;
+    public string EnemyRole { get; set; } = "Normal";
+    public List<string> PendingUpgrades { get; set; } = new();
+    public int PendingUpgradePicks { get; set; }
 }
 public static class CardRules
 {

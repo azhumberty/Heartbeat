@@ -39,7 +39,7 @@ public sealed class WorldStore
             var path = Path.Combine(DirFor(id), "save.json");
             if (!File.Exists(path)) return null;
             var save = JsonSerializer.Deserialize<GameSave>(File.ReadAllText(path), _json);
-            if (save == null) return null;
+            if (save == null || save.SaveVersion < 11) return null;
             new SaveManager().Migrate(save);
             return save;
         }
@@ -106,11 +106,30 @@ public sealed class WorldStore
         return true;
     }
 
+    public int DiscardIncompatible(int minVersion = 11)
+    {
+        int n = 0;
+        foreach (var man in List().ToList())
+        {
+            int ver = 0;
+            try
+            {
+                var path = Path.Combine(DirFor(man.Id), "save.json");
+                if (!File.Exists(path)) { Delete(man.Id); n++; continue; }
+                using var doc = JsonDocument.Parse(File.ReadAllText(path));
+                if (doc.RootElement.TryGetProperty("SaveVersion", out var v)) ver = v.GetInt32();
+            }
+            catch { ver = 0; }
+            if (ver < minVersion) { Delete(man.Id); n++; }
+        }
+        return n;
+    }
+
     public void ImportLegacy(SaveManager saves)
     {
         if (List().Count > 0) return;
         var legacy = saves.LoadSlot(1);
-        if (legacy == null) return;
+        if (legacy == null || legacy.SaveVersion < 11) return;
         if (string.IsNullOrWhiteSpace(legacy.WorldId))
             legacy.WorldId = "legacy_" + Math.Abs(legacy.WorldSeed).ToString("x8").PadLeft(8, '0');
         if (string.IsNullOrWhiteSpace(legacy.WorldPrompt))

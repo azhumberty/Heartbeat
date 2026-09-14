@@ -79,7 +79,7 @@ public sealed class SaveManager
     }
     public void Save(GameSave game, int slot = 1)
     {
-        Migrate(game); game.SaveVersion = 10;
+        Migrate(game); game.SaveVersion = 11;
         if (!string.IsNullOrWhiteSpace(game.WorldId))
         {
             new WorldStore().Save(game);
@@ -95,7 +95,12 @@ public sealed class SaveManager
     public GameSave? LoadSlot(int slot = 1)
     {
         if (!Godot.FileAccess.FileExists(PathFor(slot))) return null;
-        try { var save = JsonSerializer.Deserialize<GameSave>(Godot.FileAccess.GetFileAsString(PathFor(slot)), _json); if (save != null) Migrate(save); return save; }
+        try
+        {
+            var save = JsonSerializer.Deserialize<GameSave>(Godot.FileAccess.GetFileAsString(PathFor(slot)), _json);
+            if (save == null || save.SaveVersion < 11) return null;
+            Migrate(save); return save;
+        }
         catch (Exception e) { var detail=e.Message.Replace('\n',' ').Replace('\r',' ');GD.PushWarning("[Save] Arquivo inválido preservado: "+e.GetType().Name+" · "+detail[..Math.Min(detail.Length,180)]); return null; }
     }
     public GameSave? Load(int slot = 1)
@@ -175,6 +180,7 @@ public sealed class SaveManager
         if(save.SaveVersion<9||string.IsNullOrWhiteSpace(save.AtlasBackgroundPath))
             save.AtlasBackgroundPath=AtlasGenerator.Backdrop(save.WorldSeed==0?1:save.WorldSeed,save.ExpeditionIndex);
         save.FirstPerson = false;
-        save.SaveVersion = 9;
+        save.UnlockedUpgrades ??= new();
+        save.SaveVersion = 11;
     }
 }

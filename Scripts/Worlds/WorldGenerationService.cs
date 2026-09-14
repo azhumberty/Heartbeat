@@ -193,7 +193,7 @@ public static class WorldGenerationService
             FirstPerson = false,
             CreatedAt = DateTime.UtcNow.ToString("o"),
             LastPlayedAt = DateTime.UtcNow.ToString("o"),
-            SaveVersion = 10
+            SaveVersion = 11
         };
         save.WorldLore = ToLore(def);
         save.AtlasBackgroundPath = AtlasGenerator.Backdrop(def.Seed, 0);

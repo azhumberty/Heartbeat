@@ -8,7 +8,7 @@ public partial class CombatArenaController
         var s=Manager.State;
         _playerHpText.Text=$"Vida {s.Player.Health}/{s.Player.MaxHealth} · Escudo {s.Player.Shield}";
         _playerManaText.Text=$"Mana {s.Mana}/{s.MaxMana}";
-        _enemyHpText.Text=$"Vida {s.Enemy.Health}/{s.Enemy.MaxHealth} · Escudo {s.Enemy.Shield}"+((Status(s.Enemy).Length>0)?" · "+Status(s.Enemy):"");
+        _enemyHpText.Text=$"Vida {s.Enemy.Health}/{s.Enemy.MaxHealth} · Escudo {s.Enemy.Shield} · Mana {s.EnemyMana}/{s.EnemyMaxMana}"+((Status(s.Enemy).Length>0)?" · "+Status(s.Enemy):"");
         _playerHealth.MaxValue=s.Player.MaxHealth;_enemyHealth.MaxValue=s.Enemy.MaxHealth;_playerMana.MaxValue=s.MaxMana;
         var hpTween=CreateTween(); hpTween.SetParallel(true);
         hpTween.TweenProperty(_playerHealth,"value",(double)s.Player.Health,.28).SetTrans(Tween.TransitionType.Quad).SetEase(Tween.EaseType.Out);
@@ -32,7 +32,12 @@ public partial class CombatArenaController
         _end.Disabled=Busy||s.Result.Length>0;_flee.Disabled=Busy||s.Result.Length>0;
         if(s.Result.Length>0)
         {
-            Manager.Settle();Changed?.Invoke();_message.Text=(s.Result=="Victory"?"VITÓRIA":s.Result=="Defeat"?"DERROTA":"RETIRADA")+"\n"+s.RewardText;_return.Visible=true;_end.Visible=false;_flee.Visible=false;
+            Manager.Settle();Changed?.Invoke();
+            var role=string.IsNullOrWhiteSpace(s.EnemyRole)?"":" · "+s.EnemyRole;
+            _message.Text=(s.Result=="Victory"?"VITORIA":s.Result=="Defeat"?"DERROTA":"RETIRADA")+role+"\n"+s.RewardText;
+            if(s.Result=="Victory" && s.PendingUpgradePicks>0 && s.PendingUpgrades.Count>0) ShowUpgrades();
+            else _return.Visible=true;
+            _end.Visible=false;_flee.Visible=false;
         }
     }
     public void Select(int index)
@@ -45,4 +50,44 @@ public partial class CombatArenaController
         string reason=Manager.CanPlay(index);_play.Disabled=reason.Length>0;_message.Text=reason.Length>0?reason:c.Phrase;
     }
     async Task Delay(double seconds)=>await ToSignal(GetTree().CreateTimer(seconds),SceneTreeTimer.SignalName.Timeout);
+
+    void ShowUpgrades()
+    {
+        if(_upgrade!=null) return;
+        _return.Visible=false;
+        var s=Manager.State;
+        _upgrade=new ColorRect { Color=new Color("03070add") };
+        _upgrade.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        AddChild(_upgrade);
+        var center=new CenterContainer();
+        center.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        _upgrade.AddChild(center);
+        var box=new VBoxContainer { CustomMinimumSize=new Vector2(520,0) };
+        box.AddThemeConstantOverride("separation", 10);
+        center.AddChild(box);
+        box.AddChild(Ui.Text("PROGRESSAO", 26));
+        box.AddChild(Ui.Text(s.PendingUpgradePicks>1?"Escolhe dois reforcos.":"Escolhe um reforco.", 15));
+        foreach(var id in s.PendingUpgrades.ToList())
+        {
+            var def=PlayerUpgrades.All.FirstOrDefault(u=>u.Id==id);
+            if(def==null)continue;
+            var captured=id;
+            Button? btn=null;
+            btn=Ui.Button(def.Name+" — "+def.Description, ()=>
+            {
+                if(s.PendingUpgradePicks<=0)return;
+                PlayerUpgrades.Apply(Game, captured);
+                s.PendingUpgrades.Remove(captured);
+                s.PendingUpgradePicks--;
+                if(GodotObject.IsInstanceValid(btn)) btn.Disabled=true;
+                Changed?.Invoke();
+                if(s.PendingUpgradePicks<=0)
+                {
+                    _upgrade.QueueFree(); _upgrade=null; _return.Visible=true;
+                    _message.Text="Reforco aplicado. Podes voltar ao atlas.";
+                }
+            });
+            box.AddChild(btn);
+        }
+    }
 }

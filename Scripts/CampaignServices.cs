@@ -98,6 +98,12 @@ public static class AtlasGenerator
         {
             if(nodes.Any(n=>n.Kind==kind))continue;var target=nodes.First(n=>!n.Persistent&&n.Kind!=AtlasNodeKind.Boss&&n.TemplateId!="road"&&n.Kind is not (AtlasNodeKind.Merchant or AtlasNodeKind.Character or AtlasNodeKind.Combat));var spec=Spec(kind,rng);target.Kind=kind;target.TemplateId=kind==AtlasNodeKind.Merchant?"merchant":kind==AtlasNodeKind.Character?"knight":"forest";target.Title=spec.Title;target.Description=spec.Text;target.BackgroundId=Art(spec.Hint,spec.Fallback);target.ContentId=Content(kind,spec.Hint);
         }
+        foreach(var n in nodes.Where(n=>n.Kind==AtlasNodeKind.Combat && !n.Persistent && n.Risk>=3))
+        {
+            if(rng.NextDouble()>0.45)continue;
+            if(!n.Title.StartsWith("Elite",StringComparison.OrdinalIgnoreCase)) n.Title="Elite · "+n.Title;
+            n.Risk=Math.Max(n.Risk,4);
+        }
         return nodes;
     }
     public static void Complete(GameSave save,string id)

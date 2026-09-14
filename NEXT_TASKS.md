@@ -1,22 +1,16 @@
 # HEARTBEAT — PRÓXIMAS TAREFAS
 
-## P0 — Estabilidade (feito)
-## P1 — Multi-world (feito)
-## P2 — NPC / Dating Sim (feito)
+## P0–P3 feitos.
 
-## P3 — Camp / relacionamentos (feito neste passe)
+## P4 — Roguelike / card game (feito neste passe)
 
-1. [x] CampRoster com Roan, Kael e Silas, retrato a respirar.
-2. [x] NPC recrutável (afeto 40) vira morador.
-3. [x] Companion Card ligada ao NpcId (`comp_roan`, `comp_kael`).
-4. [x] Progressão Conhecido → Amigo → Confiança → Romance / fogueira.
-5. [x] Gallery por NPC (4 momentos: conversa, fogueira, parque, laço).
-6. [x] Special scenes desbloqueiam no diálogo e no convite.
-7. [x] Retrato anima com uma só imagem (respiração).
+1. [x] Inimigos têm mana e deck (golpe, guarda, poção; elite/boss com cartas extra).
+2. [x] IA local escolhe cartas pelo HP e gasta mana.
+3. [x] Elites no Atlas (título Elite · ) e bosses na última coluna.
+4. [x] PlayerUpgradeDefinition + oferta após vitória.
+5. [x] Tela de progressão na arena.
+6. [x] Save v11: mundos antigos são apagados de propósito.
 
-## P4 — Roguelike / card game (seguinte)
+## P5 — Generative world (seguinte)
 
-1. Mana / deck de inimigos.
-2. Combat AI local.
-3. Elites e bosses.
-4. Upgrades do jogador.
+StoryDirector, Atlas vivo, NPCs/mercadores/inimigos gerados a partir do pedido do mundo.

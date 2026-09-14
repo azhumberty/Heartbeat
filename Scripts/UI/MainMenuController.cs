@@ -26,9 +26,11 @@ public partial class MainMenuController : Control
 		body.AddChild(MenuButton("OPCOES",OpenOptions));
 		body.AddChild(MenuButton("MOMENTOS",OpenGallery));
 		body.AddChild(new Control {SizeFlagsVertical=SizeFlags.ExpandFill});
-		var worlds=new WorldStore();worlds.ImportLegacy(_saves);
+		var worlds=new WorldStore();
+		var dropped=worlds.DiscardIncompatible();
+		worlds.ImportLegacy(_saves);
 		var count=worlds.Count;
-		var note=Ui.Text(count==0?"Nenhum mundo ainda.":count==1?"1 mundo a espera.":$"{count} mundos salvos.",14);note.HorizontalAlignment=HorizontalAlignment.Center;note.AddThemeColorOverride("font_color",new Color("9da8ae"));body.AddChild(note);
+		var note=Ui.Text(dropped>0?"Saves antigos foram apagados. Cria um mundo novo.":count==0?"Nenhum mundo ainda.":count==1?"1 mundo a espera.":$"{count} mundos salvos.",14);note.HorizontalAlignment=HorizontalAlignment.Center;note.AddThemeColorOverride("font_color",new Color("9da8ae"));body.AddChild(note);
 		GD.Print("[HEARTBEAT] P1 mundos ligado");
 		Modulate=new Color(1,1,1,0);CreateTween().TweenProperty(this,"modulate:a",1f,.3);
 	}

@@ -19,6 +19,7 @@ public partial class CombatArenaController : Control
     TextureRect _enemy=null!;
     int _selected=-1;
     Control _effects=null!;
+    Control? _upgrade;
 
     public override void _Ready()
     {

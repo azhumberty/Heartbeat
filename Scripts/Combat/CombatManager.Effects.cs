@@ -19,8 +19,10 @@ public sealed partial class CombatManager
         }
     }
 
-    static void Hurt(CombatantState target, int amount, CombatantState source)
+    void Hurt(CombatantState target, int amount, CombatantState source)
     {
+        if (ReferenceEquals(source, State.Player)) amount += Math.Max(0, _game.Player.Damage / 3);
+        if (ReferenceEquals(target, State.Player)) amount = Math.Max(1, amount - _game.Player.Defense);
         if (source.Status.GetValueOrDefault(EffectKind.Strengthened) > 0)
             amount += source.Potency.GetValueOrDefault(EffectKind.Strengthened, 3);
         if (target.Status.GetValueOrDefault(EffectKind.Vulnerable) > 0)

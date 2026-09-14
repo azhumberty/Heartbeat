@@ -72,7 +72,7 @@ public sealed partial class CombatManager
         Tick(State.Player);
         Resolve();
         if (State.Result.Length > 0) return;
-        State.Mana = Math.Clamp(State.Mana + 30, 0, State.MaxMana);
+        State.Mana = Math.Clamp(State.Mana + 30 + _game.ManaRegenBonus, 0, State.MaxMana);
         foreach (var e in State.Passives) Apply(e);
         Draw(5);
         Decay(State.Player);
